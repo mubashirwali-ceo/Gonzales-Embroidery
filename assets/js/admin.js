@@ -8,8 +8,7 @@ const msg = $("#msg");
 const say = (t, ok) => { msg.textContent = t; msg.className = "msg show " + (ok ? "ok" : "err"); };
 const clearMsg = () => { msg.className = "msg"; msg.textContent = ""; };
 
-let users = [], orders = [], quotes = [], payments = [], designers = [];
-const DSTAT = ["Assigned", "In progress", "Submitted", "Approved"];
+let users = [], orders = [], quotes = [], payments = [];
 let view = "dash";
 const F = { oq: "", ostatus: "all", cq: "" };
 const DAY = 864e5;
@@ -50,7 +49,6 @@ function start() {
   onSnapshot(collection(db, "users"), s => { users = s.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, err);
   onSnapshot(collection(db, "orders"), s => { orders = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
   onSnapshot(collection(db, "payments"), s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
-  onSnapshot(collection(db, "designers"), s => { designers = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, err);
   onSnapshot(collection(db, "quotes"), s => { quotes = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
 }
 
@@ -85,8 +83,8 @@ function render() {
   $("#pQuotes").textContent = newQuotes || ""; $("#pQuotes").hidden = !newQuotes;
 
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view));
-  ["dash", "orders", "clients", "designers", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
-  ({ dash: rDash, orders: rOrders, clients: rClients, designers: rDesigners, quotes: rQuotes, import: rImport })[view]();
+  ["dash", "orders", "clients", "payments", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
+  ({ dash: rDash, orders: rOrders, clients: rClients, payments: rPayments, quotes: rQuotes, import: rImport })[view]();
 
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (_) {} } }
 }
@@ -96,9 +94,8 @@ const orderRow = (o) => `<tr class="click" data-order="${esc(o.id)}">
   <td>${esc(o.clientName)}<small>${esc(o.clientId)}</small></td><td>${esc(o.service)}</td><td>${esc(o.title)}</td>
   <td><span class="badge ${statusClass(o.status)}">${esc(o.status)}</span></td>
   <td class="num">${Number(o.price) ? money(o.price) : "—"}</td><td class="num">${money(o.paid)}</td>
-  <td class="num ${bal(o) > 0 && Number(o.price) ? "due" : ""}">${Number(o.price) ? money(bal(o)) : "—"}</td>
-  <td>${o.designerName ? esc(o.designerName) + "<small>" + esc(o.designerStatus || "") + "</small>" : "—"}</td></tr>`;
-const ORDER_HEAD = "<thead><tr><th>Order</th><th>Date</th><th>Client</th><th>Service</th><th>Job</th><th>Status</th><th class='num'>Price</th><th class='num'>Paid</th><th class='num'>Balance</th><th>Designer</th></tr></thead>";
+  <td class="num ${bal(o) > 0 && Number(o.price) ? "due" : ""}">${Number(o.price) ? money(bal(o)) : "—"}</td></tr>`;
+const ORDER_HEAD = "<thead><tr><th>Order</th><th>Date</th><th>Client</th><th>Service</th><th>Job</th><th>Status</th><th class='num'>Price</th><th class='num'>Paid</th><th class='num'>Balance</th></tr></thead>";
 
 function rDash() {
   const rows = users.map(u => ({ u, s: clientStats(u) }));
@@ -109,15 +106,13 @@ function rDash() {
       <div class="stat"><span>Clients</span><b>${users.length}</b></div>
       <div class="stat"><span>New Orders</span><b>${orders.filter(o => o.status === "New").length}</b></div>
       <div class="stat"><span>In Progress</span><b>${orders.filter(o => o.status === "In Progress").length}</b></div>
-      <div class="stat"><span>Designer Jobs Open</span><b>${orders.filter(o => o.designerId && o.designerStatus !== "Approved" && o.status !== "Cancelled").length}</b></div>
-      <div class="stat"><span>Designs To Review</span><b>${orders.filter(o => o.designerStatus === "Submitted").length}</b></div>
       <div class="stat"><span>New Quote Requests</span><b>${quotes.filter(q => q.status !== "done").length}</b></div>
       <div class="stat"><span>Total Billed</span><b>${money(billed)}</b></div>
       <div class="stat"><span>Collected</span><b>${money(paid)}</b></div>
       <div class="stat ${pending > 0 ? "warn" : ""}"><span>Payment Pending</span><b>${money(pending)}</b></div>
     </div>
     <h3 class="sec">Latest Orders</h3>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${orders.slice(0, 8).map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders yet.</td></tr>'}</tbody></table></div>
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${orders.slice(0, 8).map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders yet.</td></tr>'}</tbody></table></div>
     <h3 class="sec">Clients With Pending Payment</h3>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Client</th><th>Phone</th><th class="num">Pending</th><th>Pending For</th></tr></thead><tbody>
     ${owing.map(r => `<tr class="click" data-client="${esc(r.u.uid)}"><td>${esc(r.u.name)}<small>${esc(r.u.clientId)}</small></td><td>${esc(r.u.phone)}</td><td class="num due">${money(r.s.pending)}</td><td>${monthsLabel(r.s.since)}</td></tr>`).join("") || '<tr><td colspan="4" class="empty">Nobody owes anything.</td></tr>'}
@@ -135,7 +130,7 @@ function rOrders() {
       <span class="muted">${list.length} order(s)</span>
       <button class="btn btn-solid sm" id="addOrder" type="button">+ Add Order</button>
     </div>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${list.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders found.</td></tr>'}</tbody></table></div>`;
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${list.map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders found.</td></tr>'}</tbody></table></div>`;
   $("#addOrder").onclick = () => openOrderForm();
   $("#oq").oninput = (e) => { F.oq = e.target.value; render(); };
   $("#ost").onchange = (e) => { F.ostatus = e.target.value; render(); };
@@ -202,13 +197,6 @@ function openOrder(id) {
         <label>Paid so far (USD)<input type="number" name="paid" min="0" step="0.01" value="${Number(o.paid) || 0}"></label>
         <label>Balance<input type="text" id="balOut" disabled value="${money(bal(o))}"></label>
       </div>
-      <h3 class="sec" style="margin:4px 0 0">Designer</h3>
-      <div class="grid2">
-        <label>Assigned to<select name="designerId"><option value="">— not assigned —</option>${designers.map(d => `<option value="${esc(d.id)}" ${o.designerId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
-        <label>Designer status<select name="designerStatus">${DSTAT.map(x => `<option ${(o.designerStatus || "Assigned") === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
-        <label>Designer fee (USD)<input type="number" name="designerFee" min="0" step="0.01" value="${Number(o.designerFee) || 0}"></label>
-        <label>Fee paid to designer?<select name="designerPaid"><option value="no">No</option><option value="yes" ${o.designerPaid ? "selected" : ""}>Yes</option></select></label>
-      </div>
       <label>Message to client (shown in their panel)<textarea name="adminNote" rows="2" maxlength="1000">${esc(o.adminNote || "")}</textarea></label>
       <div class="row"><button class="btn btn-solid" type="submit">Save</button>
         <button class="btn btn-outline dark" type="button" id="markPaid">Mark fully paid</button>
@@ -230,11 +218,6 @@ function openOrder(id) {
     try {
       await updateDoc(doc(db, "orders", f.dataset.id), {
         status: f.status.value, price, paid, adminNote: f.adminNote.value.trim(), updatedAt: serverTimestamp(),
-        designerId: f.designerId.value,
-        designerName: f.designerId.value ? ((designers.find(d => d.id === f.designerId.value) || {}).name || "") : "",
-        designerStatus: f.designerId.value ? f.designerStatus.value : "",
-        designerFee: Math.max(0, Number(f.designerFee.value) || 0),
-        designerPaid: f.designerPaid.value === "yes"
       });
       closeModal(); say("Order updated.", true);
     } catch (err) { m.textContent = friendlyError(err); m.className = "msg show err"; }
@@ -263,7 +246,7 @@ function openClient(uid) {
       <button class="btn btn-outline sm dark" id="cEdit" type="button">Edit details</button></div>
     ${paymentHistory(u.uid)}
     <h3 class="sec">Orders</h3>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.os.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders.</td></tr>'}</tbody></table></div>`);
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.os.map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders.</td></tr>'}</tbody></table></div>`);
   $("#cPay").onclick = () => openPayment(u.uid);
   if ($("#cPayAll")) $("#cPayAll").onclick = () => payAll(u.uid);
   $("#cAddOrder").onclick = () => openOrderForm(u.uid);
@@ -288,9 +271,8 @@ function planPayment(uid, amount, newestFirst) {
   return { alloc, left };
 }
 
-async function applyPayment(u, amount, newestFirst, dateStr, note) {
-  const { alloc } = planPayment(u.uid, amount, newestFirst);
-  if (!alloc.length) throw new Error("There is nothing pending for this client.");
+async function commitAlloc(u, alloc, dateStr, note) {
+  if (!alloc.length) throw new Error("Nothing to change for this client.");
   const when = dateStr ? new Date(dateStr + "T12:00:00") : new Date();
   for (let i = 0; i < alloc.length; i += 450) {
     const batch = writeBatch(db);
@@ -305,6 +287,28 @@ async function applyPayment(u, amount, newestFirst, dateStr, note) {
     await batch.commit();
   }
   return alloc;
+}
+async function applyPayment(u, amount, newestFirst, dateStr, note) {
+  const { alloc } = planPayment(u.uid, amount, newestFirst);
+  if (!alloc.length) throw new Error("There is nothing pending for this client.");
+  return commitAlloc(u, alloc, dateStr, note);
+}
+// Move the client's total "paid" up or down by delta (down = take back from the newest orders first)
+async function adjustPaid(u, delta, note) {
+  let alloc = [];
+  if (delta > 0) alloc = planPayment(u.uid, delta, false).alloc.map(a => ({ orderId: a.orderId, amount: a.amount }));
+  else {
+    let left = r2(-delta);
+    const live = orders.filter(o => o.uid === u.uid && o.status !== "Cancelled" && Number(o.price) > 0).sort((a, b) => ms(b.createdAt) - ms(a.createdAt));
+    for (const o of live) {
+      if (left <= 0.004) break;
+      const have = Math.min(Number(o.paid) || 0, Number(o.price) || 0);
+      if (have <= 0.004) continue;
+      const take = r2(Math.min(left, have));
+      alloc.push({ orderId: o.id, amount: -take }); left = r2(left - take);
+    }
+  }
+  return commitAlloc(u, alloc, "", note);
 }
 
 function openPayment(uid) {
@@ -383,67 +387,71 @@ async function undoPayment(id) {
   } catch (err) { say(friendlyError(err), false); }
 }
 
-/* ---------- designers ---------- */
-const designerStats = (d) => {
-  const jobs = orders.filter(o => o.designerId === d.id && o.status !== "Cancelled");
-  const fee = jobs.reduce((a, o) => a + (Number(o.designerFee) || 0), 0);
-  const paid = jobs.filter(o => o.designerPaid).reduce((a, o) => a + (Number(o.designerFee) || 0), 0);
-  return { jobs, open: jobs.filter(o => o.designerStatus !== "Approved").length, fee, paid, owed: fee - paid };
-};
 
-function rDesigners() {
-  $("#v-designers").innerHTML = `
-    <div class="toolbar"><span class="muted">${designers.length} designer(s). Assign a designer inside any order.</span><button class="btn btn-solid sm" id="addDesigner" type="button">+ Add Designer</button></div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Designer</th><th>Phone</th><th class="num">Jobs</th><th class="num">Open</th><th class="num">Fees</th><th class="num">Paid</th><th class="num">You owe</th></tr></thead><tbody>
-    ${designers.map(d => { const s = designerStats(d); return `<tr class="click" data-designer="${esc(d.id)}"><td>${esc(d.name)}</td><td>${esc(d.phone || "")}</td><td class="num">${s.jobs.length}</td><td class="num">${s.open}</td><td class="num">${money(s.fee)}</td><td class="num">${money(s.paid)}</td><td class="num ${s.owed > 0 ? "due" : ""}">${money(s.owed)}</td></tr>`; }).join("") || '<tr><td colspan="7" class="empty">No designers yet. Click + Add Designer.</td></tr>'}
+/* ---------- Payments tab: one row per client, type the amount paid, press Enter ---------- */
+const DRAFT = {};
+function rPayments() {
+  const q = (F.pq || "").toLowerCase();
+  const all = users.map(u => ({ u, s: clientStats(u) }));
+  const rows = all.filter(r => (!q || [r.u.name, r.u.clientId, r.u.phone].join(" ").toLowerCase().includes(q)) && (!F.ponly || r.s.pending > 0.004 || r.s.billed === 0))
+    .sort((a, b) => String(a.u.name).localeCompare(String(b.u.name)));
+  const billed = all.reduce((a, r) => a + r.s.billed, 0), paid = all.reduce((a, r) => a + r.s.paid, 0);
+  $("#v-payments").innerHTML = `
+    <div class="stats">
+      <div class="stat"><span>Total Work</span><b>${money(billed)}</b></div>
+      <div class="stat"><span>Collected</span><b>${money(paid)}</b></div>
+      <div class="stat warn"><span>Pending</span><b>${money(billed - paid)}</b></div>
+    </div>
+    <p class="muted">For each client, type how much they have <b>paid in total</b> and press <b>Enter</b> (or Save). Pending updates by itself. Use <b>Paid in full</b> for clients who have paid everything.</p>
+    <div class="toolbar"><input id="pq" type="search" placeholder="Search client name, ID or phone..." value="${esc(F.pq || "")}">
+      <select id="pf"><option value="all">All clients</option><option value="pending" ${F.ponly ? "selected" : ""}>Only clients with pending</option></select>
+      <span class="muted">${rows.length} client(s)</span></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Orders</th><th class="num">Total work</th><th class="num">Paid so far</th><th class="num">Pending</th><th>Pending for</th><th></th></tr></thead><tbody>
+    ${rows.map(({ u, s }) => {
+      const val = DRAFT[u.uid] !== undefined ? DRAFT[u.uid] : r2(s.paid);
+      const pend = r2(s.billed - (Number(val) || 0));
+      return `<tr><td><a href="#" data-client="${esc(u.uid)}">${esc(u.name)}</a><small>${esc(u.clientId)}</small></td><td class="num">${s.count}</td><td class="num">${money(s.billed)}</td>
+        <td class="num"><input class="paidIn" id="pd-${esc(u.uid)}" data-uid="${esc(u.uid)}" type="number" min="0" max="${s.billed}" step="0.01" value="${val}" ${s.billed ? "" : "disabled"}></td>
+        <td class="num ${pend > 0.004 ? "due" : ""}" id="pp-${esc(u.uid)}">${money(pend)}</td><td>${s.pending > 0.004 ? monthsLabel(s.since) : "—"}</td>
+        <td class="nowrap"><button class="btn btn-solid sm" data-psave="${esc(u.uid)}" type="button">Save</button> <button class="btn btn-outline sm dark" data-pfull="${esc(u.uid)}" type="button">Paid in full</button></td></tr>`;
+    }).join("") || '<tr><td colspan="7" class="empty">No clients found.</td></tr>'}
     </tbody></table></div>`;
-  $("#addDesigner").onclick = () => openDesignerForm();
+  $("#pq").oninput = (e) => { F.pq = e.target.value; render(); };
+  $("#pf").onchange = (e) => { F.ponly = e.target.value === "pending"; render(); };
 }
 
-function openDesignerForm(d) {
-  const v = d || {};
-  openModal(`<h2 class="mt">${d ? "Edit designer" : "Add designer"}</h2>
-    <form class="pform" id="dForm">
-      <div class="grid2"><label>Name<input name="name" required maxlength="120" value="${esc(v.name || "")}"></label>
-      <label>Phone / WhatsApp<input name="phone" maxlength="40" value="${esc(v.phone || "")}"></label></div>
-      <label>Notes<input name="notes" maxlength="300" value="${esc(v.notes || "")}" placeholder="e.g. vector artist, rate per job"></label>
-      <button class="btn btn-solid" type="submit">${d ? "Save changes" : "Add designer"}</button><p class="msg" id="mmsg"></p></form>`);
-  $("#dForm").onsubmit = async (e) => {
-    e.preventDefault();
-    const f = e.target, data = { name: f.name.value.trim(), phone: f.phone.value.trim(), notes: f.notes.value.trim() };
-    try {
-      if (d) await updateDoc(doc(db, "designers", d.id), data); else await addDoc(collection(db, "designers"), { ...data, createdAt: serverTimestamp() });
-      closeModal(); say("Designer saved.", true);
-    } catch (err) { const m = $("#mmsg"); m.textContent = friendlyError(err); m.className = "msg show err"; }
-  };
+async function savePaidTotal(uid, full) {
+  const u = users.find(x => x.uid === uid); if (!u) return;
+  const s = clientStats(u);
+  const target = full ? s.billed : Number(DRAFT[uid] !== undefined ? DRAFT[uid] : s.paid);
+  if (!(target >= 0) || target > s.billed + 0.004) { say(`${u.name}: paid must be between $0 and their total work (${money(s.billed)}).`, false); return; }
+  const delta = r2(target - s.paid);
+  if (Math.abs(delta) < 0.005) { delete DRAFT[uid]; render(); return; }
+  try {
+    await adjustPaid(u, delta, full ? "Marked fully paid" : "Set total paid");
+    delete DRAFT[uid];
+    say(`${u.name}: paid ${money(target)}, pending ${money(s.billed - target)}.`, true);
+  } catch (err) { say(friendlyError(err), false); }
 }
 
-function openDesigner(id) {
-  const d = designers.find(x => x.id === id); if (!d) return;
-  const s = designerStats(d);
-  openModal(`<h2 class="mt">${esc(d.name)}</h2>
-    <div class="kv"><div><span>Phone</span><b>${esc(d.phone || "—")}</b></div><div><span>Jobs</span><b>${s.jobs.length} (${s.open} open)</b></div>
-    <div><span>Fees total</span><b>${money(s.fee)}</b></div><div><span>You owe</span><b class="${s.owed > 0 ? "due" : ""}">${money(s.owed)}</b></div></div>
-    ${d.notes ? `<p class="desc">${esc(d.notes)}</p>` : ""}
-    <div class="row"><button class="btn btn-outline sm dark" id="dEdit" type="button">Edit</button>
-      ${s.owed > 0 ? '<button class="btn btn-solid sm" id="dPayAll" type="button">Mark all fees paid</button>' : ""}
-      <button class="btn btn-outline sm dark danger" id="dDel" type="button">Delete designer</button></div>
-    <h3 class="sec">Jobs</h3>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.jobs.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No jobs yet.</td></tr>'}</tbody></table></div>`);
-  $("#dEdit").onclick = () => openDesignerForm(d);
-  if ($("#dPayAll")) $("#dPayAll").onclick = async () => {
-    if (!confirm(`Mark all ${money(s.owed)} as paid to ${d.name}?`)) return;
-    try {
-      const todo = s.jobs.filter(o => !o.designerPaid && Number(o.designerFee) > 0);
-      for (let i = 0; i < todo.length; i += 450) { const b = writeBatch(db); todo.slice(i, i + 450).forEach(o => b.update(doc(db, "orders", o.id), { designerPaid: true })); await b.commit(); }
-      closeModal(); say("Designer fees marked paid.", true);
-    } catch (err) { say(friendlyError(err), false); }
-  };
-  $("#dDel").onclick = async () => {
-    if (s.jobs.length) { alert("This designer still has jobs. Re-assign or clear them first."); return; }
-    if (confirm("Delete this designer?")) { try { await deleteDoc(doc(db, "designers", d.id)); closeModal(); say("Designer deleted.", true); } catch (err) { say(friendlyError(err), false); } }
-  };
-}
+document.addEventListener("input", (e) => {
+  const el = e.target.closest && e.target.closest(".paidIn");
+  if (!el) return;
+  const uid = el.dataset.uid, u = users.find(x => x.uid === uid); if (!u) return;
+  DRAFT[uid] = el.value;
+  const pend = r2(clientStats(u).billed - (Number(el.value) || 0));
+  const cell = document.getElementById("pp-" + uid);
+  if (cell) { cell.textContent = money(pend); cell.classList.toggle("due", pend > 0.004); }
+});
+document.addEventListener("keydown", (e) => {
+  const el = e.target.closest && e.target.closest(".paidIn");
+  if (!el || e.key !== "Enter") return;
+  e.preventDefault();
+  const all = Array.from(document.querySelectorAll(".paidIn:not([disabled])"));
+  const next = all[all.indexOf(el) + 1];
+  savePaidTotal(el.dataset.uid, false);
+  if (next) { next.focus(); next.select(); }
+});
 
 /* ---------- add / edit client and order (manual entry) ---------- */
 function openClientForm(u) {
@@ -772,11 +780,14 @@ function rImport() {
 
 /* ---------- click delegation ---------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-order],[data-client],[data-designer],[data-pundo],[data-qtoggle],[data-qdel]");
-  if (!t || e.target.closest("a")) return;
+  const t = e.target.closest("[data-order],[data-client],[data-psave],[data-pfull],[data-pundo],[data-qtoggle],[data-qdel]");
+  if (!t) return;
+  if (e.target.closest("a[href^='mailto']")) return;
+  if (e.target.closest("a")) e.preventDefault();
   if (t.dataset.order) openOrder(t.dataset.order);
   else if (t.dataset.client) openClient(t.dataset.client);
-  else if (t.dataset.designer) openDesigner(t.dataset.designer);
+  else if (t.dataset.psave) savePaidTotal(t.dataset.psave, false);
+  else if (t.dataset.pfull) savePaidTotal(t.dataset.pfull, true);
   else if (t.dataset.pundo) undoPayment(t.dataset.pundo);
   else if (t.dataset.qtoggle) {
     const q = quotes.find(x => x.id === t.dataset.qtoggle);
