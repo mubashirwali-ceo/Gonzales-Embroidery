@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Login — Gonzales Embroidery</title>
+<link rel="icon" type="image/png" href="assets/img/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/portal.css">
+</head>
+<body class="portal-body">
+<header class="site-header scrolled">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand"><img src="assets/img/logo-transparent.png" alt="Gonzales Embroidery" class="brand-logo"></a>
+    <a class="btn btn-tag header-cta" href="index.html">&larr; Back to Website</a>
+  </div>
+</header>
+
+<main class="auth-wrap">
+  <div class="auth-card">
+    <p class="eyebrow">Client Portal</p>
+    <h1 class="auth-title">Welcome</h1>
+
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-tab="signin" type="button">Sign In</button>
+      <button class="tab" data-tab="signup" type="button">Create Account</button>
+    </div>
+
+    <p class="msg" id="msg" role="alert"></p>
+
+    <form id="signinForm" class="pform">
+      <label>Email<input type="email" name="email" required autocomplete="email"></label>
+      <label>Password<input type="password" name="password" required autocomplete="current-password"></label>
+      <button class="btn btn-solid" type="submit">Sign In</button>
+      <button class="link-btn" type="button" id="forgotBtn">Forgot password?</button>
+    </form>
+
+    <form id="signupForm" class="pform" hidden>
+      <label>Full Name<input type="text" name="name" required autocomplete="name"></label>
+      <label>Email<input type="email" name="email" required autocomplete="email"></label>
+      <label>Phone / WhatsApp<input type="tel" name="phone" required autocomplete="tel"></label>
+      <label>Address<textarea name="address" rows="2" required autocomplete="street-address"></textarea></label>
+      <label>What work do you do? (business / team / hobby)<input type="text" name="work" required placeholder="e.g. Sports team, clothing brand, school"></label>
+      <label>Password (min 6 characters)<input type="password" name="password" required minlength="6" autocomplete="new-password"></label>
+      <label>Confirm Password<input type="password" name="password2" required minlength="6" autocomplete="new-password"></label>
+      <button class="btn btn-solid" type="submit">Create Account</button>
+      <p class="hint">We will email you a confirmation link. Please open it to activate ordering.</p>
+    </form>
+  </div>
+</main>
+<script type="module" src="assets/js/login.js"></script>
+</body>
+</html>

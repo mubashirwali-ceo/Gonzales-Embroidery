@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — Gonzales Embroidery</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/png" href="assets/img/favicon-256.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/portal.css">
+</head>
+<body class="portal-body">
+<header class="site-header scrolled">
+  <div class="wrap header-inner">
+    <a href="index.html" class="brand"><img src="assets/img/logo-transparent.png" alt="Gonzales Embroidery" class="brand-logo"></a>
+    <div class="who"><span id="whoName"></span><small id="whoId"></small></div>
+    <button class="btn btn-tag header-cta" id="logoutBtn" type="button">Log Out</button>
+  </div>
+</header>
+
+<main class="wrap panel" id="app" hidden>
+  <div class="notice" id="verifyBox" hidden>
+    <p><b>Please confirm your email.</b> We sent a link to <span id="verifyEmail"></span>. You can place orders after confirming.</p>
+    <div class="row">
+      <button class="btn btn-solid sm" id="checkVerified" type="button">I have confirmed</button>
+      <button class="btn btn-outline sm dark" id="resendVerify" type="button">Resend email</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="tabs bar">
+    <button class="tab active" data-view="orders" type="button">My Orders</button>
+    <button class="tab" data-view="new" type="button">Place New Order</button>
+    <button class="tab" data-view="profile" type="button">My Profile</button>
+  </div>
+  <p class="msg" id="msg" role="alert"></p>
+
+  <section id="v-orders"></section>
+
+  <section id="v-new" hidden>
+    <form class="pform card" id="orderForm">
+      <div class="grid2">
+        <label>Service
+          <select name="service" required id="serviceSel"></select>
+        </label>
+        <label>Design / Job name
+          <input type="text" name="title" required maxlength="120" placeholder="e.g. Team logo on caps">
+        </label>
+        <label>Quantity
+          <input type="number" name="quantity" min="1" value="1" required>
+        </label>
+        <label>Deadline (if any)
+          <input type="date" name="deadline">
+        </label>
+        <label>Size / placement
+          <input type="text" name="size" maxlength="120" placeholder='e.g. 3" x 3" left chest'>
+        </label>
+        <label>Garment / item
+          <input type="text" name="garment" maxlength="120" placeholder="e.g. Black hoodie, cap, jacket">
+        </label>
+      </div>
+      <label>Details
+        <textarea name="description" rows="4" required maxlength="3000" placeholder="Colors, text, anything we should know..."></textarea>
+      </label>
+      <label>Files (logo, artwork, photos) <small id="fileHint"></small>
+        <input type="file" name="files" id="files" multiple>
+      </label>
+      <label>Or paste a file link (Google Drive, WeTransfer, Dropbox)
+        <input type="url" name="link" maxlength="500" placeholder="https://...">
+      </label>
+      <button class="btn btn-solid" type="submit" id="orderBtn">Submit Order</button>
+    </form>
+  </section>
+
+  <section id="v-profile" hidden>
+    <form class="pform card" id="profileForm">
+      <div class="grid2">
+        <label>Client ID<input type="text" id="pId" disabled></label>
+        <label>Email<input type="email" id="pEmail" disabled></label>
+        <label>Full Name<input type="text" name="name" required maxlength="120"></label>
+        <label>Phone / WhatsApp<input type="tel" name="phone" required maxlength="40"></label>
+      </div>
+      <label>Address<textarea name="address" rows="2" required maxlength="300"></textarea></label>
+      <label>What work do you do?<input type="text" name="work" required maxlength="160"></label>
+      <button class="btn btn-solid" type="submit">Save Changes</button>
+    </form>
+  </section>
+</main>
+<script type="module" src="assets/js/portal.js"></script>
+</body>
+</html>
