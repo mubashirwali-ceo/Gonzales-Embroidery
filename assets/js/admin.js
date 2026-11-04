@@ -1,14 +1,15 @@
 import { auth, db, configured, setupBanner, esc, safeUrl, money, fmtDate, ms, statusClass, friendlyError } from "./fb.js";
 import { ADMIN_EMAIL, STATUSES, SERVICES } from "./config.js";
 import { onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { doc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, serverTimestamp, runTransaction, Timestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { doc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, serverTimestamp, runTransaction, Timestamp, getDoc, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const $ = (s) => document.querySelector(s);
 const msg = $("#msg");
 const say = (t, ok) => { msg.textContent = t; msg.className = "msg show " + (ok ? "ok" : "err"); };
 const clearMsg = () => { msg.className = "msg"; msg.textContent = ""; };
 
-let users = [], orders = [], quotes = [];
+let users = [], orders = [], quotes = [], payments = [], designers = [];
+const DSTAT = ["Assigned", "In progress", "Submitted", "Approved"];
 let view = "dash";
 const F = { oq: "", ostatus: "all", cq: "" };
 const DAY = 864e5;
@@ -48,6 +49,8 @@ function start() {
   const err = (e) => say(friendlyError(e), false);
   onSnapshot(collection(db, "users"), s => { users = s.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, err);
   onSnapshot(collection(db, "orders"), s => { orders = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
+  onSnapshot(collection(db, "payments"), s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
+  onSnapshot(collection(db, "designers"), s => { designers = s.docs.map(d => ({ id: d.id, ...d.data() })); render(); }, err);
   onSnapshot(collection(db, "quotes"), s => { quotes = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
 }
 
@@ -82,8 +85,8 @@ function render() {
   $("#pQuotes").textContent = newQuotes || ""; $("#pQuotes").hidden = !newQuotes;
 
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view));
-  ["dash", "orders", "clients", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
-  ({ dash: rDash, orders: rOrders, clients: rClients, quotes: rQuotes, import: rImport })[view]();
+  ["dash", "orders", "clients", "designers", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
+  ({ dash: rDash, orders: rOrders, clients: rClients, designers: rDesigners, quotes: rQuotes, import: rImport })[view]();
 
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (_) {} } }
 }
@@ -93,8 +96,9 @@ const orderRow = (o) => `<tr class="click" data-order="${esc(o.id)}">
   <td>${esc(o.clientName)}<small>${esc(o.clientId)}</small></td><td>${esc(o.service)}</td><td>${esc(o.title)}</td>
   <td><span class="badge ${statusClass(o.status)}">${esc(o.status)}</span></td>
   <td class="num">${Number(o.price) ? money(o.price) : "—"}</td><td class="num">${money(o.paid)}</td>
-  <td class="num ${bal(o) > 0 && Number(o.price) ? "due" : ""}">${Number(o.price) ? money(bal(o)) : "—"}</td></tr>`;
-const ORDER_HEAD = "<thead><tr><th>Order</th><th>Date</th><th>Client</th><th>Service</th><th>Job</th><th>Status</th><th class='num'>Price</th><th class='num'>Paid</th><th class='num'>Balance</th></tr></thead>";
+  <td class="num ${bal(o) > 0 && Number(o.price) ? "due" : ""}">${Number(o.price) ? money(bal(o)) : "—"}</td>
+  <td>${o.designerName ? esc(o.designerName) + "<small>" + esc(o.designerStatus || "") + "</small>" : "—"}</td></tr>`;
+const ORDER_HEAD = "<thead><tr><th>Order</th><th>Date</th><th>Client</th><th>Service</th><th>Job</th><th>Status</th><th class='num'>Price</th><th class='num'>Paid</th><th class='num'>Balance</th><th>Designer</th></tr></thead>";
 
 function rDash() {
   const rows = users.map(u => ({ u, s: clientStats(u) }));
@@ -105,13 +109,15 @@ function rDash() {
       <div class="stat"><span>Clients</span><b>${users.length}</b></div>
       <div class="stat"><span>New Orders</span><b>${orders.filter(o => o.status === "New").length}</b></div>
       <div class="stat"><span>In Progress</span><b>${orders.filter(o => o.status === "In Progress").length}</b></div>
+      <div class="stat"><span>Designer Jobs Open</span><b>${orders.filter(o => o.designerId && o.designerStatus !== "Approved" && o.status !== "Cancelled").length}</b></div>
+      <div class="stat"><span>Designs To Review</span><b>${orders.filter(o => o.designerStatus === "Submitted").length}</b></div>
       <div class="stat"><span>New Quote Requests</span><b>${quotes.filter(q => q.status !== "done").length}</b></div>
       <div class="stat"><span>Total Billed</span><b>${money(billed)}</b></div>
       <div class="stat"><span>Collected</span><b>${money(paid)}</b></div>
       <div class="stat ${pending > 0 ? "warn" : ""}"><span>Payment Pending</span><b>${money(pending)}</b></div>
     </div>
     <h3 class="sec">Latest Orders</h3>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${orders.slice(0, 8).map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders yet.</td></tr>'}</tbody></table></div>
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${orders.slice(0, 8).map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders yet.</td></tr>'}</tbody></table></div>
     <h3 class="sec">Clients With Pending Payment</h3>
     <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Client</th><th>Phone</th><th class="num">Pending</th><th>Pending For</th></tr></thead><tbody>
     ${owing.map(r => `<tr class="click" data-client="${esc(r.u.uid)}"><td>${esc(r.u.name)}<small>${esc(r.u.clientId)}</small></td><td>${esc(r.u.phone)}</td><td class="num due">${money(r.s.pending)}</td><td>${monthsLabel(r.s.since)}</td></tr>`).join("") || '<tr><td colspan="4" class="empty">Nobody owes anything.</td></tr>'}
@@ -129,7 +135,7 @@ function rOrders() {
       <span class="muted">${list.length} order(s)</span>
       <button class="btn btn-solid sm" id="addOrder" type="button">+ Add Order</button>
     </div>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${list.map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders found.</td></tr>'}</tbody></table></div>`;
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${list.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders found.</td></tr>'}</tbody></table></div>`;
   $("#addOrder").onclick = () => openOrderForm();
   $("#oq").oninput = (e) => { F.oq = e.target.value; render(); };
   $("#ost").onchange = (e) => { F.ostatus = e.target.value; render(); };
@@ -196,6 +202,13 @@ function openOrder(id) {
         <label>Paid so far (USD)<input type="number" name="paid" min="0" step="0.01" value="${Number(o.paid) || 0}"></label>
         <label>Balance<input type="text" id="balOut" disabled value="${money(bal(o))}"></label>
       </div>
+      <h3 class="sec" style="margin:4px 0 0">Designer</h3>
+      <div class="grid2">
+        <label>Assigned to<select name="designerId"><option value="">— not assigned —</option>${designers.map(d => `<option value="${esc(d.id)}" ${o.designerId === d.id ? "selected" : ""}>${esc(d.name)}</option>`).join("")}</select></label>
+        <label>Designer status<select name="designerStatus">${DSTAT.map(x => `<option ${(o.designerStatus || "Assigned") === x ? "selected" : ""}>${x}</option>`).join("")}</select></label>
+        <label>Designer fee (USD)<input type="number" name="designerFee" min="0" step="0.01" value="${Number(o.designerFee) || 0}"></label>
+        <label>Fee paid to designer?<select name="designerPaid"><option value="no">No</option><option value="yes" ${o.designerPaid ? "selected" : ""}>Yes</option></select></label>
+      </div>
       <label>Message to client (shown in their panel)<textarea name="adminNote" rows="2" maxlength="1000">${esc(o.adminNote || "")}</textarea></label>
       <div class="row"><button class="btn btn-solid" type="submit">Save</button>
         <button class="btn btn-outline dark" type="button" id="markPaid">Mark fully paid</button>
@@ -215,7 +228,14 @@ function openOrder(id) {
     const m = $("#mmsg"), price = Number(f.price.value), paid = Number(f.paid.value);
     if (!(price >= 0) || !(paid >= 0)) { m.textContent = "Price and paid must be 0 or more."; m.className = "msg show err"; return; }
     try {
-      await updateDoc(doc(db, "orders", f.dataset.id), { status: f.status.value, price, paid, adminNote: f.adminNote.value.trim(), updatedAt: serverTimestamp() });
+      await updateDoc(doc(db, "orders", f.dataset.id), {
+        status: f.status.value, price, paid, adminNote: f.adminNote.value.trim(), updatedAt: serverTimestamp(),
+        designerId: f.designerId.value,
+        designerName: f.designerId.value ? ((designers.find(d => d.id === f.designerId.value) || {}).name || "") : "",
+        designerStatus: f.designerId.value ? f.designerStatus.value : "",
+        designerFee: Math.max(0, Number(f.designerFee.value) || 0),
+        designerPaid: f.designerPaid.value === "yes"
+      });
       closeModal(); say("Order updated.", true);
     } catch (err) { m.textContent = friendlyError(err); m.className = "msg show err"; }
   };
@@ -237,12 +257,192 @@ function openClient(uid) {
       <div><span>Paid</span><b>${money(s.paid)}</b></div>
       <div><span>Pending</span><b class="${s.pending > 0 ? "due" : ""}">${money(s.pending)} ${s.pending > 0 ? `(${monthsLabel(s.since)})` : ""}</b></div>
     </div>
-    <div class="row"><button class="btn btn-solid sm" id="cAddOrder" type="button">+ Add order for this client</button>
+    <div class="row"><button class="btn btn-solid sm" id="cPay" type="button">Record payment</button>
+      ${s.pending > 0.004 ? '<button class="btn btn-outline sm dark" id="cPayAll" type="button">Mark everything paid</button>' : ""}
+      <button class="btn btn-outline sm dark" id="cAddOrder" type="button">+ Add order</button>
       <button class="btn btn-outline sm dark" id="cEdit" type="button">Edit details</button></div>
+    ${paymentHistory(u.uid)}
     <h3 class="sec">Orders</h3>
-    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.os.map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders.</td></tr>'}</tbody></table></div>`);
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.os.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No orders.</td></tr>'}</tbody></table></div>`);
+  $("#cPay").onclick = () => openPayment(u.uid);
+  if ($("#cPayAll")) $("#cPayAll").onclick = () => payAll(u.uid);
   $("#cAddOrder").onclick = () => openOrderForm(u.uid);
   $("#cEdit").onclick = () => openClientForm(u);
+}
+
+
+/* ---------- client payments (one payment is spread over the client's orders) ---------- */
+const r2 = (n) => Math.round(n * 100) / 100;
+const clientPending = (uid) => r2(orders.filter(o => o.uid === uid && o.status !== "Cancelled" && Number(o.price) > 0).reduce((a, o) => a + bal(o), 0));
+
+function planPayment(uid, amount, newestFirst) {
+  const list = orders.filter(o => o.uid === uid && o.status !== "Cancelled" && Number(o.price) > 0 && bal(o) > 0.004)
+    .sort((a, b) => (newestFirst ? -1 : 1) * (ms(a.createdAt) - ms(b.createdAt)));
+  let left = r2(amount); const alloc = [];
+  for (const o of list) {
+    if (left <= 0.004) break;
+    const take = r2(Math.min(left, bal(o)));
+    alloc.push({ orderId: o.id, title: o.title, amount: take, full: take >= r2(bal(o)) - 0.004 });
+    left = r2(left - take);
+  }
+  return { alloc, left };
+}
+
+async function applyPayment(u, amount, newestFirst, dateStr, note) {
+  const { alloc } = planPayment(u.uid, amount, newestFirst);
+  if (!alloc.length) throw new Error("There is nothing pending for this client.");
+  const when = dateStr ? new Date(dateStr + "T12:00:00") : new Date();
+  for (let i = 0; i < alloc.length; i += 450) {
+    const batch = writeBatch(db);
+    alloc.slice(i, i + 450).forEach(a => batch.update(doc(db, "orders", a.orderId), { paid: increment(a.amount), updatedAt: serverTimestamp() }));
+    if (i + 450 >= alloc.length) {
+      batch.set(doc(collection(db, "payments")), {
+        uid: u.uid, clientId: u.clientId || "", clientName: u.name || "", amount: r2(alloc.reduce((a, x) => a + x.amount, 0)),
+        note: String(note || "").slice(0, 300), allocations: alloc.map(a => ({ orderId: a.orderId, amount: a.amount })),
+        paidOn: Timestamp.fromDate(when), createdAt: serverTimestamp()
+      });
+    }
+    await batch.commit();
+  }
+  return alloc;
+}
+
+function openPayment(uid) {
+  const u = users.find(x => x.uid === uid); if (!u) return;
+  const pending = clientPending(uid);
+  if (pending <= 0.004) { say("This client has nothing pending. Check that their orders have prices.", false); return; }
+  const today = new Date().toISOString().slice(0, 10);
+  openModal(`
+    <p class="ono">${esc(u.clientId)}</p><h2 class="mt">Record payment — ${esc(u.name)}</h2>
+    <p class="desc">Currently pending: <b class="due">${money(pending)}</b>. One payment is spread automatically over this client's unpaid orders.</p>
+    <form class="pform" id="payForm">
+      <div class="grid2">
+        <label>I am entering<select name="mode"><option value="paid">How much the client paid me</option><option value="owes">How much the client still owes (rest = paid)</option></select></label>
+        <label>Amount (USD)<input type="number" name="amount" min="0" step="0.01" required></label>
+        <label>Apply to<select name="order"><option value="old">Oldest orders first</option><option value="new">Newest orders first</option></select></label>
+        <label>Payment date<input type="date" name="date" value="${today}" max="${today}"></label>
+      </div>
+      <label>Note (optional)<input name="note" maxlength="300" placeholder="e.g. cash, bank transfer, Zelle"></label>
+      <p class="muted" id="payPrev"></p>
+      <div class="row"><button class="btn btn-solid" type="submit">Save payment</button></div>
+      <p class="msg" id="mmsg"></p>
+    </form>`);
+  const f = $("#payForm");
+  const calc = () => {
+    const a = Number(f.amount.value);
+    if (!(a >= 0) || f.amount.value === "") return { err: "" };
+    const pay = f.mode.value === "paid" ? a : r2(pending - a);
+    if (pay <= 0.004) return { err: f.mode.value === "owes" ? "That is the same or more than what is pending now." : "Enter an amount above 0." };
+    if (pay > pending + 0.004) return { err: `That is more than the pending ${money(pending)}.` };
+    return { pay };
+  };
+  const prev = () => {
+    const c = calc(), el = $("#payPrev");
+    if (c.pay === undefined) { el.textContent = c.err; return; }
+    const { alloc } = planPayment(uid, c.pay, f.order.value === "new");
+    const full = alloc.filter(x => x.full).length, part = alloc.length - full;
+    el.textContent = `This will record ${money(c.pay)}: ${full} order(s) fully paid${part ? `, 1 partly paid` : ""}. Pending after: ${money(pending - c.pay)}.`;
+  };
+  ["amount", "mode", "order"].forEach(n => f[n].addEventListener("input", prev));
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    const m = $("#mmsg"), c = calc();
+    if (c.pay === undefined) { m.textContent = c.err || "Enter an amount."; m.className = "msg show err"; return; }
+    try { await applyPayment(u, c.pay, f.order.value === "new", f.date.value, f.note.value); closeModal(); say(`Payment of ${money(c.pay)} saved for ${u.name}.`, true); }
+    catch (err) { m.textContent = friendlyError(err); m.className = "msg show err"; }
+  };
+}
+
+async function payAll(uid) {
+  const u = users.find(x => x.uid === uid); const pending = clientPending(uid);
+  if (!u || pending <= 0.004) return;
+  if (!confirm(`Mark everything paid for ${u.name} (${money(pending)})?`)) return;
+  try { await applyPayment(u, pending, false, "", "Marked fully paid"); closeModal(); say(`${u.name} is fully paid.`, true); }
+  catch (err) { say(friendlyError(err), false); }
+}
+
+function paymentHistory(uid) {
+  const list = payments.filter(p => p.uid === uid);
+  if (!list.length) return "";
+  return `<h3 class="sec">Payment history</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th class="num">Amount</th><th>Note</th><th></th></tr></thead><tbody>
+    ${list.map(p => `<tr><td>${fmtDate(p.paidOn || p.createdAt)}</td><td class="num">${money(p.amount)}</td><td>${esc(p.note || "")}</td><td><button class="btn btn-outline sm dark danger" data-pundo="${esc(p.id)}" type="button">Undo</button></td></tr>`).join("")}</tbody></table></div>`;
+}
+
+async function undoPayment(id) {
+  const p = payments.find(x => x.id === id); if (!p) return;
+  if (!confirm(`Undo this payment of ${money(p.amount)}? The orders go back to unpaid.`)) return;
+  try {
+    const al = (p.allocations || []).filter(a => orders.some(o => o.id === a.orderId));
+    for (let i = 0; i < Math.max(al.length, 1); i += 450) {
+      const batch = writeBatch(db);
+      al.slice(i, i + 450).forEach(a => batch.update(doc(db, "orders", a.orderId), { paid: increment(-a.amount), updatedAt: serverTimestamp() }));
+      if (i + 450 >= al.length) batch.delete(doc(db, "payments", id));
+      await batch.commit();
+    }
+    closeModal(); say("Payment undone.", true);
+  } catch (err) { say(friendlyError(err), false); }
+}
+
+/* ---------- designers ---------- */
+const designerStats = (d) => {
+  const jobs = orders.filter(o => o.designerId === d.id && o.status !== "Cancelled");
+  const fee = jobs.reduce((a, o) => a + (Number(o.designerFee) || 0), 0);
+  const paid = jobs.filter(o => o.designerPaid).reduce((a, o) => a + (Number(o.designerFee) || 0), 0);
+  return { jobs, open: jobs.filter(o => o.designerStatus !== "Approved").length, fee, paid, owed: fee - paid };
+};
+
+function rDesigners() {
+  $("#v-designers").innerHTML = `
+    <div class="toolbar"><span class="muted">${designers.length} designer(s). Assign a designer inside any order.</span><button class="btn btn-solid sm" id="addDesigner" type="button">+ Add Designer</button></div>
+    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Designer</th><th>Phone</th><th class="num">Jobs</th><th class="num">Open</th><th class="num">Fees</th><th class="num">Paid</th><th class="num">You owe</th></tr></thead><tbody>
+    ${designers.map(d => { const s = designerStats(d); return `<tr class="click" data-designer="${esc(d.id)}"><td>${esc(d.name)}</td><td>${esc(d.phone || "")}</td><td class="num">${s.jobs.length}</td><td class="num">${s.open}</td><td class="num">${money(s.fee)}</td><td class="num">${money(s.paid)}</td><td class="num ${s.owed > 0 ? "due" : ""}">${money(s.owed)}</td></tr>`; }).join("") || '<tr><td colspan="7" class="empty">No designers yet. Click + Add Designer.</td></tr>'}
+    </tbody></table></div>`;
+  $("#addDesigner").onclick = () => openDesignerForm();
+}
+
+function openDesignerForm(d) {
+  const v = d || {};
+  openModal(`<h2 class="mt">${d ? "Edit designer" : "Add designer"}</h2>
+    <form class="pform" id="dForm">
+      <div class="grid2"><label>Name<input name="name" required maxlength="120" value="${esc(v.name || "")}"></label>
+      <label>Phone / WhatsApp<input name="phone" maxlength="40" value="${esc(v.phone || "")}"></label></div>
+      <label>Notes<input name="notes" maxlength="300" value="${esc(v.notes || "")}" placeholder="e.g. vector artist, rate per job"></label>
+      <button class="btn btn-solid" type="submit">${d ? "Save changes" : "Add designer"}</button><p class="msg" id="mmsg"></p></form>`);
+  $("#dForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const f = e.target, data = { name: f.name.value.trim(), phone: f.phone.value.trim(), notes: f.notes.value.trim() };
+    try {
+      if (d) await updateDoc(doc(db, "designers", d.id), data); else await addDoc(collection(db, "designers"), { ...data, createdAt: serverTimestamp() });
+      closeModal(); say("Designer saved.", true);
+    } catch (err) { const m = $("#mmsg"); m.textContent = friendlyError(err); m.className = "msg show err"; }
+  };
+}
+
+function openDesigner(id) {
+  const d = designers.find(x => x.id === id); if (!d) return;
+  const s = designerStats(d);
+  openModal(`<h2 class="mt">${esc(d.name)}</h2>
+    <div class="kv"><div><span>Phone</span><b>${esc(d.phone || "—")}</b></div><div><span>Jobs</span><b>${s.jobs.length} (${s.open} open)</b></div>
+    <div><span>Fees total</span><b>${money(s.fee)}</b></div><div><span>You owe</span><b class="${s.owed > 0 ? "due" : ""}">${money(s.owed)}</b></div></div>
+    ${d.notes ? `<p class="desc">${esc(d.notes)}</p>` : ""}
+    <div class="row"><button class="btn btn-outline sm dark" id="dEdit" type="button">Edit</button>
+      ${s.owed > 0 ? '<button class="btn btn-solid sm" id="dPayAll" type="button">Mark all fees paid</button>' : ""}
+      <button class="btn btn-outline sm dark danger" id="dDel" type="button">Delete designer</button></div>
+    <h3 class="sec">Jobs</h3>
+    <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.jobs.map(orderRow).join("") || '<tr><td colspan="10" class="empty">No jobs yet.</td></tr>'}</tbody></table></div>`);
+  $("#dEdit").onclick = () => openDesignerForm(d);
+  if ($("#dPayAll")) $("#dPayAll").onclick = async () => {
+    if (!confirm(`Mark all ${money(s.owed)} as paid to ${d.name}?`)) return;
+    try {
+      const todo = s.jobs.filter(o => !o.designerPaid && Number(o.designerFee) > 0);
+      for (let i = 0; i < todo.length; i += 450) { const b = writeBatch(db); todo.slice(i, i + 450).forEach(o => b.update(doc(db, "orders", o.id), { designerPaid: true })); await b.commit(); }
+      closeModal(); say("Designer fees marked paid.", true);
+    } catch (err) { say(friendlyError(err), false); }
+  };
+  $("#dDel").onclick = async () => {
+    if (s.jobs.length) { alert("This designer still has jobs. Re-assign or clear them first."); return; }
+    if (confirm("Delete this designer?")) { try { await deleteDoc(doc(db, "designers", d.id)); closeModal(); say("Designer deleted.", true); } catch (err) { say(friendlyError(err), false); } }
+  };
 }
 
 /* ---------- add / edit client and order (manual entry) ---------- */
@@ -572,10 +772,12 @@ function rImport() {
 
 /* ---------- click delegation ---------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-order],[data-client],[data-qtoggle],[data-qdel]");
+  const t = e.target.closest("[data-order],[data-client],[data-designer],[data-pundo],[data-qtoggle],[data-qdel]");
   if (!t || e.target.closest("a")) return;
   if (t.dataset.order) openOrder(t.dataset.order);
   else if (t.dataset.client) openClient(t.dataset.client);
+  else if (t.dataset.designer) openDesigner(t.dataset.designer);
+  else if (t.dataset.pundo) undoPayment(t.dataset.pundo);
   else if (t.dataset.qtoggle) {
     const q = quotes.find(x => x.id === t.dataset.qtoggle);
     try { await updateDoc(doc(db, "quotes", q.id), { status: q.status === "done" ? "new" : "done" }); } catch (err) { say(friendlyError(err), false); }
