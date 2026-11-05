@@ -1,14 +1,14 @@
 import { auth, db, configured, setupBanner, esc, safeUrl, money, fmtDate, ms, statusClass, friendlyError } from "./fb.js";
 import { ADMIN_EMAIL, STATUSES, SERVICES } from "./config.js";
 import { onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-import { doc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, serverTimestamp, runTransaction, Timestamp, getDoc, writeBatch, increment } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { doc, updateDoc, deleteDoc, addDoc, collection, onSnapshot, serverTimestamp, runTransaction, Timestamp, getDoc, writeBatch } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const $ = (s) => document.querySelector(s);
 const msg = $("#msg");
 const say = (t, ok) => { msg.textContent = t; msg.className = "msg show " + (ok ? "ok" : "err"); };
 const clearMsg = () => { msg.className = "msg"; msg.textContent = ""; };
 
-let users = [], orders = [], quotes = [], payments = [];
+let users = [], orders = [], quotes = [];
 let view = "dash";
 const F = { oq: "", ostatus: "all", cq: "" };
 const DAY = 864e5;
@@ -48,7 +48,6 @@ function start() {
   const err = (e) => say(friendlyError(e), false);
   onSnapshot(collection(db, "users"), s => { users = s.docs.map(d => ({ uid: d.id, ...d.data() })); render(); }, err);
   onSnapshot(collection(db, "orders"), s => { orders = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
-  onSnapshot(collection(db, "payments"), s => { payments = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
   onSnapshot(collection(db, "quotes"), s => { quotes = s.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => ms(b.createdAt) - ms(a.createdAt)); render(); }, err);
 }
 
@@ -83,8 +82,8 @@ function render() {
   $("#pQuotes").textContent = newQuotes || ""; $("#pQuotes").hidden = !newQuotes;
 
   document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.view === view));
-  ["dash", "orders", "clients", "payments", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
-  ({ dash: rDash, orders: rOrders, clients: rClients, payments: rPayments, quotes: rQuotes, import: rImport })[view]();
+  ["dash", "orders", "clients", "quotes", "import"].forEach(v => { $("#v-" + v).hidden = v !== view; });
+  ({ dash: rDash, orders: rOrders, clients: rClients, quotes: rQuotes, import: rImport })[view]();
 
   if (keep) { const el = document.getElementById(keep.id); if (el) { el.focus(); try { el.setSelectionRange(keep.s, keep.e); } catch (_) {} } }
 }
@@ -216,9 +215,7 @@ function openOrder(id) {
     const m = $("#mmsg"), price = Number(f.price.value), paid = Number(f.paid.value);
     if (!(price >= 0) || !(paid >= 0)) { m.textContent = "Price and paid must be 0 or more."; m.className = "msg show err"; return; }
     try {
-      await updateDoc(doc(db, "orders", f.dataset.id), {
-        status: f.status.value, price, paid, adminNote: f.adminNote.value.trim(), updatedAt: serverTimestamp(),
-      });
+      await updateDoc(doc(db, "orders", f.dataset.id), { status: f.status.value, price, paid, adminNote: f.adminNote.value.trim(), updatedAt: serverTimestamp() });
       closeModal(); say("Order updated.", true);
     } catch (err) { m.textContent = friendlyError(err); m.className = "msg show err"; }
   };
@@ -240,218 +237,13 @@ function openClient(uid) {
       <div><span>Paid</span><b>${money(s.paid)}</b></div>
       <div><span>Pending</span><b class="${s.pending > 0 ? "due" : ""}">${money(s.pending)} ${s.pending > 0 ? `(${monthsLabel(s.since)})` : ""}</b></div>
     </div>
-    <div class="row"><button class="btn btn-solid sm" id="cPay" type="button">Record payment</button>
-      ${s.pending > 0.004 ? '<button class="btn btn-outline sm dark" id="cPayAll" type="button">Mark everything paid</button>' : ""}
-      <button class="btn btn-outline sm dark" id="cAddOrder" type="button">+ Add order</button>
+    <div class="row"><button class="btn btn-solid sm" id="cAddOrder" type="button">+ Add order for this client</button>
       <button class="btn btn-outline sm dark" id="cEdit" type="button">Edit details</button></div>
-    ${paymentHistory(u.uid)}
     <h3 class="sec">Orders</h3>
     <div class="tbl-wrap"><table class="tbl">${ORDER_HEAD}<tbody>${s.os.map(orderRow).join("") || '<tr><td colspan="9" class="empty">No orders.</td></tr>'}</tbody></table></div>`);
-  $("#cPay").onclick = () => openPayment(u.uid);
-  if ($("#cPayAll")) $("#cPayAll").onclick = () => payAll(u.uid);
   $("#cAddOrder").onclick = () => openOrderForm(u.uid);
   $("#cEdit").onclick = () => openClientForm(u);
 }
-
-
-/* ---------- client payments (one payment is spread over the client's orders) ---------- */
-const r2 = (n) => Math.round(n * 100) / 100;
-const clientPending = (uid) => r2(orders.filter(o => o.uid === uid && o.status !== "Cancelled" && Number(o.price) > 0).reduce((a, o) => a + bal(o), 0));
-
-function planPayment(uid, amount, newestFirst) {
-  const list = orders.filter(o => o.uid === uid && o.status !== "Cancelled" && Number(o.price) > 0 && bal(o) > 0.004)
-    .sort((a, b) => (newestFirst ? -1 : 1) * (ms(a.createdAt) - ms(b.createdAt)));
-  let left = r2(amount); const alloc = [];
-  for (const o of list) {
-    if (left <= 0.004) break;
-    const take = r2(Math.min(left, bal(o)));
-    alloc.push({ orderId: o.id, title: o.title, amount: take, full: take >= r2(bal(o)) - 0.004 });
-    left = r2(left - take);
-  }
-  return { alloc, left };
-}
-
-async function commitAlloc(u, alloc, dateStr, note) {
-  if (!alloc.length) throw new Error("Nothing to change for this client.");
-  const when = dateStr ? new Date(dateStr + "T12:00:00") : new Date();
-  for (let i = 0; i < alloc.length; i += 450) {
-    const batch = writeBatch(db);
-    alloc.slice(i, i + 450).forEach(a => batch.update(doc(db, "orders", a.orderId), { paid: increment(a.amount), updatedAt: serverTimestamp() }));
-    if (i + 450 >= alloc.length) {
-      batch.set(doc(collection(db, "payments")), {
-        uid: u.uid, clientId: u.clientId || "", clientName: u.name || "", amount: r2(alloc.reduce((a, x) => a + x.amount, 0)),
-        note: String(note || "").slice(0, 300), allocations: alloc.map(a => ({ orderId: a.orderId, amount: a.amount })),
-        paidOn: Timestamp.fromDate(when), createdAt: serverTimestamp()
-      });
-    }
-    await batch.commit();
-  }
-  return alloc;
-}
-async function applyPayment(u, amount, newestFirst, dateStr, note) {
-  const { alloc } = planPayment(u.uid, amount, newestFirst);
-  if (!alloc.length) throw new Error("There is nothing pending for this client.");
-  return commitAlloc(u, alloc, dateStr, note);
-}
-// Move the client's total "paid" up or down by delta (down = take back from the newest orders first)
-async function adjustPaid(u, delta, note) {
-  let alloc = [];
-  if (delta > 0) alloc = planPayment(u.uid, delta, false).alloc.map(a => ({ orderId: a.orderId, amount: a.amount }));
-  else {
-    let left = r2(-delta);
-    const live = orders.filter(o => o.uid === u.uid && o.status !== "Cancelled" && Number(o.price) > 0).sort((a, b) => ms(b.createdAt) - ms(a.createdAt));
-    for (const o of live) {
-      if (left <= 0.004) break;
-      const have = Math.min(Number(o.paid) || 0, Number(o.price) || 0);
-      if (have <= 0.004) continue;
-      const take = r2(Math.min(left, have));
-      alloc.push({ orderId: o.id, amount: -take }); left = r2(left - take);
-    }
-  }
-  return commitAlloc(u, alloc, "", note);
-}
-
-function openPayment(uid) {
-  const u = users.find(x => x.uid === uid); if (!u) return;
-  const pending = clientPending(uid);
-  if (pending <= 0.004) { say("This client has nothing pending. Check that their orders have prices.", false); return; }
-  const today = new Date().toISOString().slice(0, 10);
-  openModal(`
-    <p class="ono">${esc(u.clientId)}</p><h2 class="mt">Record payment — ${esc(u.name)}</h2>
-    <p class="desc">Currently pending: <b class="due">${money(pending)}</b>. One payment is spread automatically over this client's unpaid orders.</p>
-    <form class="pform" id="payForm">
-      <div class="grid2">
-        <label>I am entering<select name="mode"><option value="paid">How much the client paid me</option><option value="owes">How much the client still owes (rest = paid)</option></select></label>
-        <label>Amount (USD)<input type="number" name="amount" min="0" step="0.01" required></label>
-        <label>Apply to<select name="order"><option value="old">Oldest orders first</option><option value="new">Newest orders first</option></select></label>
-        <label>Payment date<input type="date" name="date" value="${today}" max="${today}"></label>
-      </div>
-      <label>Note (optional)<input name="note" maxlength="300" placeholder="e.g. cash, bank transfer, Zelle"></label>
-      <p class="muted" id="payPrev"></p>
-      <div class="row"><button class="btn btn-solid" type="submit">Save payment</button></div>
-      <p class="msg" id="mmsg"></p>
-    </form>`);
-  const f = $("#payForm");
-  const calc = () => {
-    const a = Number(f.amount.value);
-    if (!(a >= 0) || f.amount.value === "") return { err: "" };
-    const pay = f.mode.value === "paid" ? a : r2(pending - a);
-    if (pay <= 0.004) return { err: f.mode.value === "owes" ? "That is the same or more than what is pending now." : "Enter an amount above 0." };
-    if (pay > pending + 0.004) return { err: `That is more than the pending ${money(pending)}.` };
-    return { pay };
-  };
-  const prev = () => {
-    const c = calc(), el = $("#payPrev");
-    if (c.pay === undefined) { el.textContent = c.err; return; }
-    const { alloc } = planPayment(uid, c.pay, f.order.value === "new");
-    const full = alloc.filter(x => x.full).length, part = alloc.length - full;
-    el.textContent = `This will record ${money(c.pay)}: ${full} order(s) fully paid${part ? `, 1 partly paid` : ""}. Pending after: ${money(pending - c.pay)}.`;
-  };
-  ["amount", "mode", "order"].forEach(n => f[n].addEventListener("input", prev));
-  f.onsubmit = async (e) => {
-    e.preventDefault();
-    const m = $("#mmsg"), c = calc();
-    if (c.pay === undefined) { m.textContent = c.err || "Enter an amount."; m.className = "msg show err"; return; }
-    try { await applyPayment(u, c.pay, f.order.value === "new", f.date.value, f.note.value); closeModal(); say(`Payment of ${money(c.pay)} saved for ${u.name}.`, true); }
-    catch (err) { m.textContent = friendlyError(err); m.className = "msg show err"; }
-  };
-}
-
-async function payAll(uid) {
-  const u = users.find(x => x.uid === uid); const pending = clientPending(uid);
-  if (!u || pending <= 0.004) return;
-  if (!confirm(`Mark everything paid for ${u.name} (${money(pending)})?`)) return;
-  try { await applyPayment(u, pending, false, "", "Marked fully paid"); closeModal(); say(`${u.name} is fully paid.`, true); }
-  catch (err) { say(friendlyError(err), false); }
-}
-
-function paymentHistory(uid) {
-  const list = payments.filter(p => p.uid === uid);
-  if (!list.length) return "";
-  return `<h3 class="sec">Payment history</h3><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Date</th><th class="num">Amount</th><th>Note</th><th></th></tr></thead><tbody>
-    ${list.map(p => `<tr><td>${fmtDate(p.paidOn || p.createdAt)}</td><td class="num">${money(p.amount)}</td><td>${esc(p.note || "")}</td><td><button class="btn btn-outline sm dark danger" data-pundo="${esc(p.id)}" type="button">Undo</button></td></tr>`).join("")}</tbody></table></div>`;
-}
-
-async function undoPayment(id) {
-  const p = payments.find(x => x.id === id); if (!p) return;
-  if (!confirm(`Undo this payment of ${money(p.amount)}? The orders go back to unpaid.`)) return;
-  try {
-    const al = (p.allocations || []).filter(a => orders.some(o => o.id === a.orderId));
-    for (let i = 0; i < Math.max(al.length, 1); i += 450) {
-      const batch = writeBatch(db);
-      al.slice(i, i + 450).forEach(a => batch.update(doc(db, "orders", a.orderId), { paid: increment(-a.amount), updatedAt: serverTimestamp() }));
-      if (i + 450 >= al.length) batch.delete(doc(db, "payments", id));
-      await batch.commit();
-    }
-    closeModal(); say("Payment undone.", true);
-  } catch (err) { say(friendlyError(err), false); }
-}
-
-
-/* ---------- Payments tab: one row per client, type the amount paid, press Enter ---------- */
-const DRAFT = {};
-function rPayments() {
-  const q = (F.pq || "").toLowerCase();
-  const all = users.map(u => ({ u, s: clientStats(u) }));
-  const rows = all.filter(r => (!q || [r.u.name, r.u.clientId, r.u.phone].join(" ").toLowerCase().includes(q)) && (!F.ponly || r.s.pending > 0.004 || r.s.billed === 0))
-    .sort((a, b) => String(a.u.name).localeCompare(String(b.u.name)));
-  const billed = all.reduce((a, r) => a + r.s.billed, 0), paid = all.reduce((a, r) => a + r.s.paid, 0);
-  $("#v-payments").innerHTML = `
-    <div class="stats">
-      <div class="stat"><span>Total Work</span><b>${money(billed)}</b></div>
-      <div class="stat"><span>Collected</span><b>${money(paid)}</b></div>
-      <div class="stat warn"><span>Pending</span><b>${money(billed - paid)}</b></div>
-    </div>
-    <p class="muted">For each client, type how much they have <b>paid in total</b> and press <b>Enter</b> (or Save). Pending updates by itself. Use <b>Paid in full</b> for clients who have paid everything.</p>
-    <div class="toolbar"><input id="pq" type="search" placeholder="Search client name, ID or phone..." value="${esc(F.pq || "")}">
-      <select id="pf"><option value="all">All clients</option><option value="pending" ${F.ponly ? "selected" : ""}>Only clients with pending</option></select>
-      <span class="muted">${rows.length} client(s)</span></div>
-    <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Client</th><th class="num">Orders</th><th class="num">Total work</th><th class="num">Paid so far</th><th class="num">Pending</th><th>Pending for</th><th></th></tr></thead><tbody>
-    ${rows.map(({ u, s }) => {
-      const val = DRAFT[u.uid] !== undefined ? DRAFT[u.uid] : r2(s.paid);
-      const pend = r2(s.billed - (Number(val) || 0));
-      return `<tr><td><a href="#" data-client="${esc(u.uid)}">${esc(u.name)}</a><small>${esc(u.clientId)}</small></td><td class="num">${s.count}</td><td class="num">${money(s.billed)}</td>
-        <td class="num"><input class="paidIn" id="pd-${esc(u.uid)}" data-uid="${esc(u.uid)}" type="number" min="0" max="${s.billed}" step="0.01" value="${val}" ${s.billed ? "" : "disabled"}></td>
-        <td class="num ${pend > 0.004 ? "due" : ""}" id="pp-${esc(u.uid)}">${money(pend)}</td><td>${s.pending > 0.004 ? monthsLabel(s.since) : "—"}</td>
-        <td class="nowrap"><button class="btn btn-solid sm" data-psave="${esc(u.uid)}" type="button">Save</button> <button class="btn btn-outline sm dark" data-pfull="${esc(u.uid)}" type="button">Paid in full</button></td></tr>`;
-    }).join("") || '<tr><td colspan="7" class="empty">No clients found.</td></tr>'}
-    </tbody></table></div>`;
-  $("#pq").oninput = (e) => { F.pq = e.target.value; render(); };
-  $("#pf").onchange = (e) => { F.ponly = e.target.value === "pending"; render(); };
-}
-
-async function savePaidTotal(uid, full) {
-  const u = users.find(x => x.uid === uid); if (!u) return;
-  const s = clientStats(u);
-  const target = full ? s.billed : Number(DRAFT[uid] !== undefined ? DRAFT[uid] : s.paid);
-  if (!(target >= 0) || target > s.billed + 0.004) { say(`${u.name}: paid must be between $0 and their total work (${money(s.billed)}).`, false); return; }
-  const delta = r2(target - s.paid);
-  if (Math.abs(delta) < 0.005) { delete DRAFT[uid]; render(); return; }
-  try {
-    await adjustPaid(u, delta, full ? "Marked fully paid" : "Set total paid");
-    delete DRAFT[uid];
-    say(`${u.name}: paid ${money(target)}, pending ${money(s.billed - target)}.`, true);
-  } catch (err) { say(friendlyError(err), false); }
-}
-
-document.addEventListener("input", (e) => {
-  const el = e.target.closest && e.target.closest(".paidIn");
-  if (!el) return;
-  const uid = el.dataset.uid, u = users.find(x => x.uid === uid); if (!u) return;
-  DRAFT[uid] = el.value;
-  const pend = r2(clientStats(u).billed - (Number(el.value) || 0));
-  const cell = document.getElementById("pp-" + uid);
-  if (cell) { cell.textContent = money(pend); cell.classList.toggle("due", pend > 0.004); }
-});
-document.addEventListener("keydown", (e) => {
-  const el = e.target.closest && e.target.closest(".paidIn");
-  if (!el || e.key !== "Enter") return;
-  e.preventDefault();
-  const all = Array.from(document.querySelectorAll(".paidIn:not([disabled])"));
-  const next = all[all.indexOf(el) + 1];
-  savePaidTotal(el.dataset.uid, false);
-  if (next) { next.focus(); next.select(); }
-});
 
 /* ---------- add / edit client and order (manual entry) ---------- */
 function openClientForm(u) {
@@ -780,15 +572,10 @@ function rImport() {
 
 /* ---------- click delegation ---------- */
 document.addEventListener("click", async (e) => {
-  const t = e.target.closest("[data-order],[data-client],[data-psave],[data-pfull],[data-pundo],[data-qtoggle],[data-qdel]");
-  if (!t) return;
-  if (e.target.closest("a[href^='mailto']")) return;
-  if (e.target.closest("a")) e.preventDefault();
+  const t = e.target.closest("[data-order],[data-client],[data-qtoggle],[data-qdel]");
+  if (!t || e.target.closest("a")) return;
   if (t.dataset.order) openOrder(t.dataset.order);
   else if (t.dataset.client) openClient(t.dataset.client);
-  else if (t.dataset.psave) savePaidTotal(t.dataset.psave, false);
-  else if (t.dataset.pfull) savePaidTotal(t.dataset.pfull, true);
-  else if (t.dataset.pundo) undoPayment(t.dataset.pundo);
   else if (t.dataset.qtoggle) {
     const q = quotes.find(x => x.id === t.dataset.qtoggle);
     try { await updateDoc(doc(db, "quotes", q.id), { status: q.status === "done" ? "new" : "done" }); } catch (err) { say(friendlyError(err), false); }

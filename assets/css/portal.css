@@ -110,8 +110,3 @@ button:disabled{ opacity:.6; cursor:wait; }
 .log{ background:var(--ink); color:#d8d5cc; font-family:var(--mono); font-size:12px; padding:14px; max-height:260px; overflow:auto; white-space:pre-wrap; margin-top:12px; }
 .imp-step{ margin-bottom:22px; } .imp-step h3{ font-size:22px; color:var(--navy); margin-bottom:8px; }
 .imp-step p{ font-size:14px; margin-bottom:10px; line-height:1.5; } .imp-step code{ background:#efebe1; padding:1px 5px; font-size:12.5px; }
-
-.paidIn{ width:110px; padding:7px 8px; border:1px solid var(--hairline); font:inherit; text-align:right; }
-.paidIn:focus{ outline:2px solid var(--orange); }
-.nowrap{ white-space:nowrap; }
-.tbl a{ color:var(--navy); font-weight:600; }
