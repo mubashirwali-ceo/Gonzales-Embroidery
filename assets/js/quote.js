@@ -1,6 +1,5 @@
 // Home-page "Get a Quote" form -> saved in Firestore, appears in the Admin Panel (no email needed).
 import { db, configured, friendlyError } from "./fb.js";
-import { notifyAdmin } from "./alerts.js";
 import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const form = document.getElementById("quoteForm");
@@ -31,7 +30,6 @@ if (form) {
         status: "new",
         createdAt: serverTimestamp()
       });
-      notifyAdmin("New quote request from " + name, `Name: ${name}\nEmail: ${email}\n\n${details}`);
       form.reset();
       show("Thanks! Your request has been received — we'll reply shortly.", true);
     } catch (err) {

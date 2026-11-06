@@ -1,7 +1,6 @@
 import { auth, configured, setupBanner, friendlyError } from "./fb.js";
 import { ADMIN_EMAIL } from "./config.js";
 import { createProfile } from "./profile.js";
-import { notifyAdmin } from "./alerts.js";
 import {
   onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword,
   sendEmailVerification, sendPasswordResetEmail, updateProfile
@@ -64,7 +63,6 @@ if (!configured) {
         address: String(f.get("address")).trim(),
         work: String(f.get("work")).trim()
       });
-      notifyAdmin("New client signed up: " + name, `Name: ${name}\nEmail: ${c.user.email}\nPhone: ${String(f.get("phone")).trim()}\nWork: ${String(f.get("work")).trim()}\nAddress: ${String(f.get("address")).trim()}`);
       try { await sendEmailVerification(c.user); } catch (_) { /* can be resent from the portal */ }
       location.replace(dest(c.user));
     } catch (err) { busy = false; say(friendlyError(err), false); btn.disabled = false; }

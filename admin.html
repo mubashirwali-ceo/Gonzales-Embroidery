@@ -16,18 +16,16 @@
 <header class="site-header scrolled">
   <div class="wrap header-inner">
     <a href="index.html" class="brand"><img src="assets/img/logo-transparent.png" alt="Gonzales Embroidery" class="brand-logo"></a>
-    <div class="who"><span>Admin Panel <small>v3</small></span><small id="whoEmail"></small></div>
+    <div class="who"><span>Admin Panel</span><small id="whoEmail"></small></div>
     <button class="btn btn-tag header-cta" id="logoutBtn" type="button">Log Out</button>
   </div>
 </header>
 
 <main class="wrap panel" id="app" hidden>
-  <div class="notifbar" id="notifBar" hidden></div>
   <div class="tabs bar" id="tabs">
     <button class="tab active" data-view="dash" type="button">Dashboard</button>
     <button class="tab" data-view="orders" type="button">Orders <i class="pill" id="pOrders"></i></button>
     <button class="tab" data-view="clients" type="button">Clients</button>
-    <button class="tab" data-view="payments" type="button">Payments</button>
     <button class="tab" data-view="quotes" type="button">Quote Requests <i class="pill" id="pQuotes"></i></button>
     <button class="tab" data-view="import" type="button">Import</button>
   </div>
@@ -35,7 +33,6 @@
   <section id="v-dash"></section>
   <section id="v-orders" hidden></section>
   <section id="v-clients" hidden></section>
-  <section id="v-payments" hidden></section>
   <section id="v-quotes" hidden></section>
   <section id="v-import" hidden></section>
 </main>
