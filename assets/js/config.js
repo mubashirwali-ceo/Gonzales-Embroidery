@@ -24,6 +24,10 @@ export const CLOUDINARY = {
   uploadPreset: "i55as4em"      // an UNSIGNED upload preset, e.g. "gonzales_orders"
 };
 
+// 4) Email alerts to your Gmail for every new client / order / quote (free, works when the site is closed).
+//    Get a key at https://web3forms.com (enter your admin email, the key is emailed to you) and paste it here.
+export const ALERT_KEY = "";
+
 export const SERVICES = [
   "Digitizing (embroidery file)",
   "Custom Embroidery",

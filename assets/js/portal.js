@@ -1,6 +1,7 @@
 import { auth, db, configured, setupBanner, esc, safeUrl, money, fmtDate, ms, statusClass, friendlyError } from "./fb.js";
 import { ADMIN_EMAIL, SERVICES } from "./config.js";
 import { createProfile } from "./profile.js";
+import { notifyAdmin } from "./alerts.js";
 import { uploadFile, uploadsEnabled, MAX_FILE_MB } from "./upload.js";
 import { onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 import {
@@ -146,6 +147,7 @@ $("#orderForm").addEventListener("submit", async (e) => {
       status: "New", price: 0, paid: 0, adminNote: "",
       createdAt: serverTimestamp(), updatedAt: serverTimestamp()
     });
+    notifyAdmin(`New order from ${profile.name}`, `Client: ${profile.name} (${profile.clientId})\nService: ${f.elements.service.value}\nJob: ${f.elements.title.value.trim()}\nQuantity: ${f.elements.quantity.value}\nFiles: ${files.length}\nOpen the admin panel to see it.`);
     f.reset();
     document.querySelector('.tab[data-view="orders"]').click();
     say("Order received! We will review it and send you the price.", true);

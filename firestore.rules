@@ -10,31 +10,34 @@ service cloud.firestore {
     // Client profiles: each client reads/edits only their own; admin reads all.
     match /users/{uid} {
       allow read: if (signedIn() && request.auth.uid == uid) || isAdmin();
-      allow create: if signedIn() && request.auth.uid == uid
+      allow create: if isAdmin() || (signedIn() && request.auth.uid == uid
         && request.resource.data.keys().hasOnly(['clientId','name','email','phone','address','work','createdAt'])
-        && request.resource.data.email == request.auth.token.email;
-      allow update: if signedIn() && request.auth.uid == uid
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','address','work']);
+        && request.resource.data.email == request.auth.token.email);
+      allow update: if isAdmin() || (signedIn() && request.auth.uid == uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['name','phone','address','work']));
       allow delete: if false;
     }
 
     // Counter used to give sequential client IDs (GE-1001, GE-1002 ...)
     match /meta/clientCounter {
       allow read: if signedIn();
-      allow create: if signedIn() && request.resource.data.n == 1;
-      allow update: if signedIn() && request.resource.data.n == resource.data.n + 1;
+      allow create: if isAdmin() || (signedIn() && request.resource.data.n == 1);
+      allow update: if isAdmin() || (signedIn() && request.resource.data.n == resource.data.n + 1);
     }
 
     // Orders: client creates and reads only their own; only admin changes price/status/payment.
     match /orders/{id} {
       allow read: if (signedIn() && resource.data.uid == request.auth.uid) || isAdmin();
-      allow create: if verified()
+      allow create: if isAdmin() || (verified()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == 'New'
         && request.resource.data.price == 0
-        && request.resource.data.paid == 0;
+        && request.resource.data.paid == 0);
       allow update, delete: if isAdmin();
     }
+
+    // Payments log: admin only.
+    match /payments/{id} { allow read, write: if isAdmin(); }
 
     // Quote requests from the public website form: anyone can send, only admin can read.
     match /quotes/{id} {
