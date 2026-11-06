@@ -26,7 +26,7 @@ export const CLOUDINARY = {
 
 // 4) Email alerts to your Gmail for every new client / order / quote (free, works when the site is closed).
 //    Get a key at https://web3forms.com (enter your admin email, the key is emailed to you) and paste it here.
-export const ALERT_KEY = "";
+export const ALERT_KEY = "0b996159-afac-44bc-8c8c-932ac4f5cba3";
 
 export const SERVICES = [
   "Digitizing (embroidery file)",
