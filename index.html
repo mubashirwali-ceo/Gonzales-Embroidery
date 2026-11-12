@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gonzales Embroidery — Custom Embroidery, Patches & Apparel</title>
+<meta name="description" content="Gonzales Embroidery is a custom embroidery and apparel studio — jackets, caps, patches, team merch, and corporate branding, stitched and printed with care.">
+<meta name="theme-color" content="#0b0b0b">
+<meta property="og:title" content="Gonzales Embroidery — Every stitch is intentional.">
+<meta property="og:description" content="Custom embroidery, caps, patches, screen print & DTF, and team branding. From one-off keepsakes to bulk orders.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mubashirwali-ceo.github.io/Gonzales-Embroidery/assets/sewouts/digi-cap-warrior.jpg">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232b2a6a'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='42' fill='%23f39221'%3EG%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"LocalBusiness","name":"Gonzales Embroidery","description":"Custom embroidery, caps, patches, screen print & DTF, and team and corporate branding.","email":"order@gonzalesembroidery.com","telephone":"+14097977539","url":"https://mubashirwali-ceo.github.io/Gonzales-Embroidery/","openingHoursSpecification":[{"@type":"OpeningHoursSpecification","dayOfWeek":["Monday","Tuesday","Wednesday","Thursday","Friday"],"opens":"10:30","closes":"21:00"},{"@type":"OpeningHoursSpecification","dayOfWeek":["Saturday","Sunday"],"opens":"14:00","closes":"21:00"}]}
+</script>
+<style>
+:root{--ink:#0b0b0b;--ink2:#151413;--navy:#2b2a6a;--navy2:#1f1e52;--orange:#f39221;--red:#ef4136;--cream:#f6f1e9;--cream2:#efe7d8;--paper:#fff;--line:#e4dccd;--muted:#7b7467;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:78px}
+body{font-family:'Work Sans',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body.noscroll{overflow:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer}
+h1,h2{font-family:Anton,Impact,sans-serif;font-weight:400;line-height:1.05;letter-spacing:.01em}
+.mono{font-family:'Space Mono',monospace}
+.wrap{width:min(1180px,92vw);margin-inline:auto}
+section{padding:104px 0;position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:12px;font-family:'Space Mono',monospace;font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange)}
+.eyebrow::before{content:"";width:32px;border-top:1.5px solid currentColor}
+h2{font-size:clamp(2.2rem,5vw,3.6rem);margin:14px 0 14px;color:var(--navy)}
+.lead{max-width:62ch;color:#4a443a;font-size:1.05rem}
+.dark{background:var(--ink);color:#f3ede2}
+.dark h2{color:#fff}.dark .lead{color:#c9c2b4}
+:focus-visible{outline:2px solid var(--orange);outline-offset:3px;border-radius:4px}
+
+/* loader (CSS failsafe: hides itself even if JS fails) */
+#loader{position:fixed;inset:0;background:var(--ink);z-index:100;display:grid;place-items:center;animation:ld .5s 2.4s forwards;transition:opacity .5s,visibility .5s}
+#loader.done{opacity:0;visibility:hidden}
+@keyframes ld{to{opacity:0;visibility:hidden}}
+#loader svg{width:190px}
+#loader path{stroke:var(--orange);stroke-width:3;fill:none;stroke-linecap:round;stroke-dasharray:10 9;stroke-dashoffset:420;animation:draw 1.2s var(--ease) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+#bar{position:fixed;top:0;left:0;height:3px;width:0;background:linear-gradient(90deg,var(--navy),var(--orange),var(--red));z-index:70}
+
+/* header — blur lives on a pseudo-element so the mobile menu (fixed) is never trapped inside it */
+header{position:fixed;inset:0 0 auto 0;z-index:60;padding:14px 0;transition:padding .3s}
+header::before{content:"";position:absolute;inset:0;background:rgba(246,241,233,.92);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--line);opacity:1}
+header.scrolled{padding:8px 0}
+header.scrolled::before,header.solid::before{opacity:1}
+.nav{position:relative;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.logo img{height:46px;width:auto;transition:height .3s}
+header.scrolled .logo img{height:38px}
+.links{display:flex;align-items:center;gap:26px;font-size:.88rem;font-weight:600}
+.links a:not(.btn){position:relative;padding:4px 0}
+.links a:not(.btn)::after{content:"";position:absolute;left:0;right:0;bottom:-2px;border-top:2px dashed var(--orange);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--ease)}
+.links a:not(.btn):hover::after,.links a.active::after{transform:scaleX(1)}
+.links a.login{color:#c46a00}
+.burger{display:none;position:relative;z-index:80;width:44px;height:44px;background:none;border:0;color:var(--ink)}
+.burger span{display:block;width:24px;height:2px;background:currentColor;margin:5px auto;transition:.3s}
+.burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 26px;border-radius:4px;border:1.5px solid transparent;font-family:'Space Mono',monospace;font-size:.8rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;transition:transform .25s var(--ease),box-shadow .25s,background .25s,color .25s;position:relative;overflow:hidden}
+.btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.4) 50%,transparent 70%);transform:translateX(-120%)}
+.btn:hover::after{transform:translateX(120%);transition:transform .7s}
+.btn-primary{background:var(--orange);color:var(--ink);box-shadow:0 12px 28px -12px var(--orange)}
+.btn-primary:hover{transform:translateY(-3px);box-shadow:0 18px 34px -12px var(--orange)}
+.btn-dash{border:1.5px dashed var(--orange);color:#c46a00;background:transparent;padding:10px 18px}
+.btn-dash:hover{background:var(--orange);color:var(--ink);transform:translateY(-2px)}
+.btn-ghost{border-color:rgba(255,255,255,.25);color:#fff;background:rgba(255,255,255,.04)}
+.btn-ghost:hover{border-color:var(--orange);color:var(--orange);transform:translateY(-3px)}
+.btn-line{border-color:var(--ink);color:var(--ink)}
+.btn-line:hover{background:var(--ink);color:#fff;transform:translateY(-3px)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px var(--navy)}
+.btn-wa{background:#1faa59;color:#fff}.btn-wa:hover{transform:translateY(-3px);box-shadow:0 14px 28px -12px #1faa59}
+
+/* hero */
+.hero{min-height:100svh;display:flex;align-items:center;padding:130px 0 90px;overflow:hidden;background:radial-gradient(800px 520px at 88% 8%,rgba(239,65,54,.2),transparent 60%),radial-gradient(700px 520px at 0 100%,rgba(43,42,106,.7),transparent 60%),var(--ink);color:#fff}
+.hero::before{content:"";position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.1) 1px,transparent 1.2px);background-size:26px 26px;mask-image:radial-gradient(circle at 50% 40%,#000 15%,transparent 72%);-webkit-mask-image:radial-gradient(circle at 50% 40%,#000 15%,transparent 72%)}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:50px;align-items:center}
+.hero h1{font-size:clamp(3rem,8vw,6.4rem);margin:20px 0 24px;text-transform:none}
+.hero h1 em{position:relative;display:inline-block;font-style:normal;color:var(--orange)}
+.hero h1 em svg{position:absolute;left:0;bottom:-8px;width:100%;height:16px;overflow:visible}
+.hero h1 em path{stroke:var(--red);stroke-width:4;fill:none;stroke-linecap:round;stroke-dasharray:14 10;stroke-dashoffset:620;animation:draw 2.2s 1s var(--ease) forwards}
+.hero p.sub{font-size:1.12rem;color:#d6cfc1;max-width:52ch}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+.chips span{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(255,255,255,.18);padding:7px 14px;border-radius:99px;color:#d6cfc1}
+.stack{position:relative;height:min(580px,72vw)}
+.stack .card{position:absolute;width:62%;border:6px solid var(--cream);background:var(--cream);border-radius:6px;overflow:hidden;box-shadow:0 30px 60px -20px #000}
+.stack .card img{width:100%;aspect-ratio:4/5;object-fit:cover}
+.stack .c1{left:0;top:2%;transform:rotate(-7deg);animation:float 7s ease-in-out infinite}
+.stack .c2{right:0;top:18%;transform:rotate(6deg);animation:float 8s -2s ease-in-out infinite;z-index:2}
+.stack .c3{left:14%;bottom:0;width:50%;transform:rotate(-2deg);animation:float 9s -4s ease-in-out infinite;z-index:3}
+.stack .c3 img{aspect-ratio:1}
+@keyframes float{50%{translate:0 -16px}}
+.badge{position:absolute;right:0;bottom:4%;z-index:5;width:116px;height:116px;border-radius:50%;background:var(--orange);color:var(--ink);display:grid;place-items:center;text-align:center;font-family:Anton,sans-serif;font-size:1.05rem;line-height:1.05;letter-spacing:.03em;animation:spin 20s linear infinite;box-shadow:0 12px 30px -10px #000;border:3px dashed var(--ink)}
+.badge b{font-weight:400;animation:spin 20s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.scroll-hint{position:absolute;left:50%;bottom:22px;translate:-50% 0;width:26px;height:42px;border:2px solid rgba(255,255,255,.25);border-radius:14px}
+.scroll-hint::after{content:"";position:absolute;left:50%;top:8px;width:4px;height:8px;margin-left:-2px;background:var(--orange);border-radius:2px;animation:wheel 1.6s infinite}
+@keyframes wheel{70%{transform:translateY(14px);opacity:0}}
+
+/* marquee */
+.mq{overflow:hidden;margin-top:-48px;padding:26px 0;position:relative;z-index:3;pointer-events:none}
+.marquee{background:var(--orange);color:var(--ink);overflow:hidden;padding:15px 0;transform:rotate(-1.2deg);margin:0 -2vw;pointer-events:auto;box-shadow:0 10px 40px -10px rgba(0,0,0,.6)}
+.track{display:flex;gap:44px;width:max-content;animation:slide 30s linear infinite;font-family:Anton,sans-serif;font-size:1.5rem;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+.marquee:hover .track{animation-play-state:paused}
+.track i{font-style:normal;color:var(--navy)}
+@keyframes slide{to{transform:translateX(-50%)}}
+
+/* services */
+.grid4{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px;margin-top:48px}
+.svc{position:relative;text-align:left;padding:30px 26px;border-radius:6px;background:#fff;border:1px solid var(--line);overflow:hidden;color:inherit;transition:transform .35s var(--ease),border-color .3s,box-shadow .35s;width:100%}
+.svc::before{content:"";position:absolute;inset:0;background:radial-gradient(360px circle at var(--mx,50%) var(--my,0%),rgba(243,146,33,.18),transparent 60%);opacity:0;transition:opacity .3s}
+.svc:hover{border-color:var(--orange);box-shadow:0 24px 40px -24px rgba(43,42,106,.45)}
+.svc:hover::before{opacity:1}
+.svc .n{position:relative;font-family:Anton,sans-serif;font-size:3.2rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px var(--navy)}
+.svc h3{position:relative;font-size:1.25rem;margin:12px 0 8px;color:var(--navy);font-weight:700}
+.svc p{position:relative;font-size:.94rem;color:#5a5347}
+.svc .go{position:relative;display:inline-flex;gap:8px;margin-top:16px;font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;color:#c46a00;transition:gap .3s}
+.svc:hover .go{gap:14px}
+
+/* gallery */
+.filters{display:flex;flex-wrap:wrap;gap:10px;margin:32px 0 30px}
+.filters button{background:none;border:1px solid rgba(255,255,255,.22);color:#fff;padding:10px 20px;border-radius:99px;font-family:'Space Mono',monospace;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;transition:.25s}
+.filters button small{opacity:.6;margin-left:6px;font-size:.7rem}
+.filters button:hover{border-color:var(--orange)}
+.filters button.on{background:var(--orange);color:var(--ink);border-color:var(--orange);font-weight:700}
+.gallery{columns:4 240px;column-gap:16px}
+.shot{display:block;width:100%;padding:0;break-inside:avoid;margin-bottom:16px;border-radius:6px;overflow:hidden;position:relative;background:var(--ink2);border:1px solid rgba(255,255,255,.1);cursor:zoom-in;color:#fff;text-align:left}
+.shot.hide{display:none}
+.shot img{width:100%;height:auto;min-height:120px;background:#1d1b19;transition:transform .8s var(--ease)}
+.shot:hover img{transform:scale(1.06)}
+.shot .tag{position:absolute;left:10px;top:10px;background:rgba(11,11,11,.78);backdrop-filter:blur(6px);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;padding:4px 10px;border-radius:99px;color:var(--orange)}
+.shot .play{position:absolute;right:12px;top:12px;width:40px;height:40px;border-radius:50%;background:var(--orange);color:var(--ink);display:grid;place-items:center;font-size:.9rem;padding-left:3px}
+.shot .cap{position:absolute;inset:auto 0 0 0;padding:44px 14px 13px;background:linear-gradient(transparent,rgba(0,0,0,.88));font-size:.86rem;line-height:1.35;transform:translateY(35%);opacity:0;transition:.4s var(--ease)}
+.shot:hover .cap,.shot:focus-visible .cap{transform:none;opacity:1}
+@media (hover:none){.shot .cap{transform:none;opacity:1;font-size:.78rem}}
+.center{text-align:center;margin-top:36px}
+.nores{color:#c9c2b4;padding:40px 0}
+#lb{position:fixed;inset:0;background:rgba(8,7,6,.95);z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
+#lb.open{display:flex;animation:fd .25s}
+@keyframes fd{from{opacity:0}}
+#lb figure{max-width:min(960px,94vw);text-align:center}
+#lb .media img{max-height:78vh;width:auto;margin:auto;border-radius:6px}
+#lb .media iframe{width:min(900px,92vw);aspect-ratio:16/9;border:0;border-radius:6px}
+#lb .media video{max-width:92vw;max-height:78vh;border-radius:6px;margin:auto}
+#lb figcaption{margin-top:14px;color:#e3dccd}
+#lb figcaption small{display:block;font-family:'Space Mono',monospace;letter-spacing:.14em;text-transform:uppercase;font-size:.66rem;color:var(--orange);margin-top:4px}
+#lb button{position:absolute;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);color:#fff;width:48px;height:48px;border-radius:50%;font-size:1.4rem}
+#lb button:hover{background:var(--orange);color:var(--ink)}
+#lb .x{top:20px;right:20px}#lb .p{left:20px;top:50%;margin-top:-24px}#lb .nx{right:20px;top:50%;margin-top:-24px}
+
+/* process */
+.steps{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:24px;margin-top:64px}
+.steps::before{content:"";position:absolute;left:12%;right:12%;top:28px;border-top:2px dashed #cfc4af}
+.steps .fill{position:absolute;left:12%;top:28px;border-top:2px dashed var(--orange);width:0;transition:width 1.6s var(--ease)}
+.steps.in .fill{width:76%}
+.step{position:relative;text-align:center;padding:0 8px}
+.step .dot{width:56px;height:56px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;background:var(--cream);border:2px solid var(--orange);font-family:Anton,sans-serif;font-size:1.3rem;color:var(--navy);position:relative;z-index:2;transition:.4s}
+.step:hover .dot{background:var(--orange);transform:scale(1.12) rotate(8deg)}
+.step h3{font-size:1.2rem;color:var(--navy);margin-bottom:6px}
+.step p{font-size:.93rem;color:#5a5347}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:64px}
+.pair figure{position:relative;border-radius:6px;overflow:hidden}
+.pair img{width:100%;height:330px;object-fit:cover;transition:transform 1s var(--ease);background:#d9cfbd}
+.pair figure:hover img{transform:scale(1.06)}
+.pair figcaption{position:absolute;left:16px;bottom:14px;background:rgba(11,11,11,.82);color:#fff;padding:5px 14px;border-radius:99px;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase}
+
+/* pricing */
+.alt{background:var(--cream2)}
+.rates{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:44px}
+.rate{background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);padding:26px 24px;border-radius:4px;transition:transform .35s var(--ease),box-shadow .35s}
+.rate:nth-child(2){border-left-color:var(--red)}
+.rate:hover{transform:translateY(-8px);box-shadow:0 26px 40px -26px rgba(43,42,106,.5)}
+.rate small{font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--red)}
+.rate h3{font-size:1.35rem;color:var(--navy);margin:4px 0 2px}
+.rate p{font-size:.84rem;color:var(--muted);margin-bottom:12px}
+.rate .row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-top:1px dashed var(--line);font-size:.93rem}
+.rate .row:first-of-type{border-top:0}
+.rate .row b{font-family:Anton,sans-serif;font-weight:400;font-size:1.9rem;line-height:1;white-space:nowrap}
+.rate .row b i{font-family:'Space Mono',monospace;font-style:normal;font-size:.62rem;letter-spacing:.06em;color:var(--muted);margin-left:5px;text-transform:uppercase}
+.calc{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;margin-top:20px}
+.panel{background:#fff;border:1px solid var(--line);border-radius:6px;padding:26px 28px}
+.panel h3{font-size:1.25rem;color:var(--navy);margin-bottom:12px}
+.f label{display:block;font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;margin-bottom:6px;color:var(--navy)}
+.f input,.f select,.f textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:6px;background:#fff;font:inherit;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+.f textarea{min-height:110px;resize:vertical}
+.f input:focus,.f select:focus,.f textarea:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 4px rgba(243,146,33,.2)}
+.est{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+.estout{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px;padding-top:16px;border-top:1px dashed var(--line)}
+.estout .amt{font-family:Anton,sans-serif;font-size:2.8rem;color:var(--navy);line-height:1}
+.estout small{display:block;color:var(--muted);font-size:.78rem}
+.band{background:var(--navy);color:#fff;border-radius:6px;padding:28px 30px;display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between}
+.band h3{font-size:1.2rem;margin-bottom:4px}
+.band p{color:#cfcdf0;font-size:.92rem;max-width:54ch}
+.fine{font-size:.82rem;color:var(--muted);margin-top:16px}
+
+/* turnaround */
+.pillrow{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:16px}
+.hpill{display:inline-flex;align-items:center;gap:9px;font-size:.82rem;padding:6px 14px;border-radius:99px;background:#fff;border:1px solid var(--line);font-weight:500}
+.hpill i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.hpill.on i{background:#1f9d57;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(31,157,87,.6)}70%,100%{box-shadow:0 0 0 9px rgba(31,157,87,0)}}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:40px}
+.dl{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:12px 0;border-top:1px dashed var(--line);font-size:.94rem}
+.dl:first-of-type{border-top:0}
+.dl small{display:block;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.dl b{text-align:right;font-weight:700}
+.dl b.rush{color:var(--red)}
+.rushbox{margin-top:20px;border:1.5px dashed var(--orange);background:#fff8ec;border-radius:6px;padding:18px 22px;display:flex;gap:14px;align-items:flex-start}
+.rushbox .ex{font-family:Anton,sans-serif;font-size:1.8rem;color:var(--orange);line-height:1}
+.rushbox b{display:block;color:var(--navy)}
+.hours{margin-top:20px;background:var(--ink);color:#fff;border-radius:6px;padding:26px 28px}
+.hours h3{font-size:1.15rem;margin-bottom:12px}
+.hours .dl{border-color:#2a2825;color:#e8e1d3}
+.hours .dl b{color:var(--orange);font-family:'Space Mono',monospace;font-size:.86rem}
+.hours .tz{font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.14em;color:var(--red);margin-top:8px}
+
+/* contact */
+.contact{background:radial-gradient(800px 500px at 100% 0,rgba(239,65,54,.18),transparent 60%),var(--navy2);color:#fff}
+.contact h2{color:#fff}.contact .lead{color:#cfcdf0}
+.cwrap{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;margin-top:24px;align-items:start}
+.ways{display:grid;gap:14px;margin-top:28px}
+.way{display:flex;gap:16px;align-items:center;padding:16px 18px;border-radius:6px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.05);transition:.3s var(--ease)}
+.way:hover{transform:translateX(8px);border-color:var(--orange);background:rgba(243,146,33,.1)}
+.way .i{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:rgba(243,146,33,.2);font-size:1.2rem;flex:none}
+.way small{display:block;font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:#aeabdb}
+.way b{font-weight:600;word-break:break-word}
+.portalcta{margin-top:26px;padding:18px 20px;border:1.5px dashed rgba(255,255,255,.3);border-radius:6px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.portalcta span{font-size:.92rem;color:#d9d7f5}
+form.qf{background:var(--cream);color:var(--ink);padding:34px;border-radius:6px;box-shadow:0 40px 80px -30px #000;display:grid;grid-template-columns:1fr 1fr;gap:16px}
+form.qf h3{grid-column:1/-1;font-family:Anton,sans-serif;font-weight:400;font-size:2rem;color:var(--navy)}
+form.qf .sub{grid-column:1/-1;color:#6f665a;margin-top:-8px;font-size:.92rem}
+.f.full{grid-column:1/-1}.f{position:relative}
+.f .err{display:none;color:var(--red);font-size:.76rem;margin-top:4px}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--red)}
+.f.bad .err{display:block;animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.send{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:12px}
+.send .btn{flex:1 1 190px}
+form.qf .note{grid-column:1/-1;font-size:.8rem;color:#7a7064}
+
+footer{background:#080808;color:#bdb6a8;padding:48px 0 28px}
+.foot{display:flex;flex-wrap:wrap;gap:28px;justify-content:space-between;align-items:center}
+.foot .lg{background:var(--cream);padding:8px 14px;border-radius:6px}
+.foot .lg img{height:40px}
+.foot nav{display:flex;flex-wrap:wrap;gap:22px;font-size:.9rem}
+.foot nav a:hover{color:var(--orange)}
+.copy{margin-top:28px;text-align:center;font-size:.82rem;color:#7d766a}
+#top-btn{position:fixed;right:20px;bottom:22px;width:48px;height:48px;border-radius:50%;background:var(--orange);color:var(--ink);border:0;font-size:1.2rem;z-index:50;opacity:0;pointer-events:none;transform:translateY(20px);transition:.35s var(--ease);box-shadow:0 10px 24px -8px rgba(0,0,0,.6)}
+#top-btn.show{opacity:1;pointer-events:auto;transform:none}
+#toast{position:fixed;left:50%;bottom:26px;translate:-50% 140px;background:var(--ink);color:#fff;padding:13px 22px;border-radius:6px;font-weight:500;z-index:130;transition:translate .5s var(--ease);box-shadow:0 14px 40px -10px #000;border-left:4px solid var(--orange);max-width:92vw;font-size:.92rem}
+#toast.show{translate:-50% 0}#toast.err{border-left-color:var(--red)}
+
+.rv{opacity:0;transform:translateY(32px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none}
+.rv.l{transform:translateX(-40px)}.rv.r{transform:translateX(40px)}
+.rv.l.in,.rv.r.in{transform:none}
+
+main{overflow-x:clip}
+@media (max-width:980px){
+  section{padding:76px 0}
+  .rv.l,.rv.r{transform:translateY(32px)}
+  .rv.l.in,.rv.r.in{transform:none}
+  .hero .wrap,.cwrap,.calc{grid-template-columns:1fr}
+  .stack{height:430px;max-width:460px;margin:10px auto 0}
+  .rates{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .steps{grid-template-columns:repeat(2,1fr);gap:40px 20px}.steps::before,.steps .fill{display:none}
+  .burger{display:block}
+  .links{position:fixed;inset:0 0 0 auto;width:min(320px,84vw);flex-direction:column;align-items:flex-start;justify-content:center;gap:24px;padding:40px;background:var(--ink);color:#fff;transform:translateX(100%);transition:transform .45s var(--ease);font-size:1.15rem;z-index:70}
+  .links.open{transform:none}
+  .links a.login{color:var(--orange)}
+  .burger.open{color:#fff}
+  .links .btn-dash{color:var(--orange)}
+}
+@media (max-width:620px){
+  .pair{grid-template-columns:1fr}.pair img{height:240px}
+  form.qf{grid-template-columns:1fr;padding:24px 20px}
+  .est{grid-template-columns:1fr}
+  #lb .p{left:8px}#lb .nx{right:8px}
+  .gallery{columns:2 140px;column-gap:10px}.shot{margin-bottom:10px}
+  .shot .cap{font-size:.7rem;padding:30px 9px 9px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+</style>
+<noscript><style>.rv{opacity:1!important;transform:none!important}#loader{display:none}</style></noscript>
+</head>
+<body id="top">
+
+<div id="loader" aria-hidden="true"><svg viewBox="0 0 190 30"><path d="M5 15 Q 25 -2 45 15 T 85 15 T 125 15 T 185 15"/></svg></div>
+<div id="bar"></div>
+
+<header id="hdr">
+  <div class="wrap nav">
+    <a class="logo" href="#top" aria-label="Gonzales Embroidery — home"><img src="assets/img/logo.png" alt="Gonzales Embroidery" width="150" height="70"></a>
+    <button class="burger" id="burger" aria-label="Open menu" aria-expanded="false" aria-controls="links"><span></span><span></span><span></span></button>
+    <nav class="links" id="links" aria-label="Main">
+      <a href="#services">Services</a>
+      <a href="#work">Portfolio</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#turnaround">Turnaround</a>
+      <a href="#contact">Contact</a>
+      <a href="login.html" class="login">Client Login</a>
+      <a href="#contact" class="btn btn-dash">Get a Quote</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow rv">Custom Embroidery &amp; Apparel Studio</span>
+      <h1 class="rv" style="--d:.1s">Every <em>stitch<svg viewBox="0 0 300 16" preserveAspectRatio="none"><path d="M2 9 Q 40 0 80 9 T 160 9 T 240 9 T 298 9"/></svg></em> is intentional.</h1>
+      <p class="sub rv" style="--d:.2s">From one-off keepsakes to bulk team orders — embroidery, patches, caps, and print apparel, made with careful hands and fast turnaround.</p>
+      <div class="cta rv" style="--d:.3s">
+        <a href="#contact" class="btn btn-primary">Get a Quote →</a>
+        <a href="#work" class="btn btn-ghost">See Our Work</a>
+      </div>
+      <div class="chips rv" style="--d:.4s"><span>Same-day caps &amp; left chest</span><span>Rush available</span><span>1 piece to bulk</span></div>
+    </div>
+    <div class="stack rv r" style="--d:.2s" id="stack">
+      <div class="card c1"><img src="assets/sewouts/digi-cap-warrior.jpg" alt="Ultimate Warrior embroidered snapback" fetchpriority="high"></div>
+      <div class="card c2"><img src="assets/sewouts/digi-hoodie-anime.jpg" alt="Full-color embroidered anime portrait sweatshirt"></div>
+      <div class="card c3"><img src="assets/sewouts/patch-pvc-skeleton.jpg" alt="Multi-layer PVC patch on a snapback"></div>
+      <div class="badge"><b>1 piece<br>to bulk</b></div>
+    </div>
+  </div>
+  <a href="#services" class="scroll-hint" aria-label="Scroll to services"></a>
+</section>
+
+<div class="mq" aria-hidden="true"><div class="marquee"><div class="track" id="track"></div></div></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="wrap">
+    <span class="eyebrow rv">What We Stitch</span>
+    <h2 class="rv">Services made to order</h2>
+    <p class="lead rv">Tap any service to start a quote for it. See exact rates in the <a href="#pricing" style="color:#c46a00;text-decoration:underline">pricing section</a>.</p>
+    <div class="grid4" id="svcGrid"></div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="work" class="dark">
+  <div class="wrap">
+    <span class="eyebrow rv">Recent Work</span>
+    <h2 class="rv">Stitched &amp; printed for real people</h2>
+    <p class="lead rv">Real sew-outs from our machines — filter by what you need.</p>
+    <div class="filters rv" id="filters" role="group" aria-label="Filter sew-outs"></div>
+    <div class="gallery" id="gallery"></div>
+    <div class="center rv"><a class="btn btn-ghost" href="#contact">Start your own →</a></div>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="wrap">
+    <span class="eyebrow rv">Our Process</span>
+    <h2 class="rv">From idea to finished stitch</h2>
+    <p class="lead rv">Four clear steps, all handled in-house, so your order moves quickly and nothing gets lost in translation.</p>
+    <div class="steps rv" id="steps">
+      <div class="fill"></div>
+      <div class="step"><div class="dot">01</div><h3>Design</h3><p>Send us your logo, art, or idea — or we'll help sketch one out with you.</p></div>
+      <div class="step"><div class="dot">02</div><h3>Digitize</h3><p>Every design is converted into a precise stitch or print file, color by color.</p></div>
+      <div class="step"><div class="dot">03</div><h3>Stitch &amp; Print</h3><p>Produced in-house on our embroidery machines and print equipment.</p></div>
+      <div class="step"><div class="dot">04</div><h3>Deliver</h3><p>Quality-checked, packed, and delivered — ready to wear or gift.</p></div>
+    </div>
+    <div class="pair">
+      <figure class="rv l"><img loading="lazy" src="https://mubashirwali-ceo.github.io/Gonzales-Embroidery/assets/img/process-machine.jpg" alt="Embroidery machine stitching a cap"><figcaption>In-house embroidery</figcaption></figure>
+      <figure class="rv r"><img loading="lazy" src="https://mubashirwali-ceo.github.io/Gonzales-Embroidery/assets/img/process-print.jpg" alt="Freshly printed team t-shirt"><figcaption>Print &amp; DTF</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" class="alt">
+  <div class="wrap">
+    <span class="eyebrow rv">Pricing</span>
+    <h2 class="rv">Simple rates, <span style="color:var(--orange)">no surprises.</span></h2>
+    <p class="lead rv">Straightforward pricing for embroidery digitizing and vector artwork. All rates are <b>per piece</b>, and every job still gets a quick quote so you know the exact cost before we start.</p>
+    <div class="rates">
+      <article class="rate rv"><small>Embroidery</small><h3>Small Logos</h3><p>Caps or left chest — up to 5 inches</p>
+        <div class="row"><span>Small logo, any single design</span><b>$8<i>/ piece</i></b></div></article>
+      <article class="rate rv" style="--d:.1s"><small>Embroidery</small><h3>Large Logos</h3><p>Front chest or jacket back — 6 inches and above</p>
+        <div class="row"><span>Simple design</span><b>$15<i>/ piece</i></b></div>
+        <div class="row"><span>Complicated design</span><b>$30<i>/ piece</i></b></div></article>
+      <article class="rate rv" style="--d:.2s"><small>Digitizing</small><h3>Vector Art</h3><p>Clean vector files for print or cutting</p>
+        <div class="row"><span>Normal vector</span><b>$10<i>/ piece</i></b></div>
+        <div class="row"><span>Complex vector</span><b>$15+<i>/ piece</i></b></div></article>
+    </div>
+
+    <div class="calc">
+      <div class="panel rv l">
+        <h3>Quick price estimate</h3>
+        <div class="est">
+          <div class="f"><label for="e-i">Item</label><select id="e-i"></select></div>
+          <div class="f"><label for="e-q">Pieces</label><input id="e-q" type="number" min="1" max="100000" value="1" inputmode="numeric"></div>
+        </div>
+        <div class="estout"><div><span class="amt" id="e-o">$8</span><small id="e-n">Rates are per piece. We confirm the exact price before starting.</small></div><button type="button" class="btn btn-navy" id="e-go">Request this quote</button></div>
+      </div>
+      <div class="band rv r" style="flex-direction:column;align-items:flex-start;justify-content:center">
+        <div><h3>Custom patches &amp; bulk team orders</h3><p>Patch pricing depends on size, backing, and quantity, and bulk/team orders get volume pricing. Send us your design and quantity for an exact quote.</p></div>
+        <a class="btn btn-primary" href="#contact">Request a quote</a>
+      </div>
+    </div>
+    <p class="fine rv">Complex vector pricing starts at $15 and depends on the artwork — some designs take longer to trace and clean up than others. We'll always confirm the price before starting.</p>
+  </div>
+</section>
+
+<!-- TURNAROUND -->
+<section id="turnaround">
+  <div class="wrap">
+    <span class="eyebrow rv">Turnaround Times</span>
+    <h2 class="rv">How long it <span style="color:var(--orange)">actually</span> takes.</h2>
+    <p class="lead rv">Most caps and left-chest embroidery are stitched the same day. Here's what to expect for standard and rush orders, plus our working hours.</p>
+    <div class="pillrow rv"><span class="hpill" id="openpill"><i></i><span id="opentxt">Checking hours…</span></span></div>
+    <div class="grid2">
+      <div class="panel rv l"><h3>Embroidery Turnaround</h3>
+        <div class="dl"><span>Cap or left chest<small>Standard</small></span><b>1–3 hours</b></div>
+        <div class="dl"><span>Cap or left chest<small>Rush</small></span><b class="rush">30 min–1½ hrs</b></div>
+        <div class="dl"><span>Jacket back<small>Standard</small></span><b>2–4 hours</b></div>
+        <div class="dl"><span>Jacket back<small>Rush</small></span><b class="rush">Depends on artwork</b></div>
+      </div>
+      <div class="panel rv r"><h3>Vector Turnaround</h3>
+        <div class="dl"><span>Normal design</span><b>2–18 hours</b></div>
+        <div class="dl"><span>Complex design</span><b>12 hrs–depends on artwork</b></div>
+        <p class="fine">A complex vector can sometimes take a couple of weeks depending on the amount of detail — we'll give you a real estimate up front.</p>
+      </div>
+    </div>
+    <div class="rushbox rv"><span class="ex">!</span><div><b>Need it in a rush?</b>We'll do our best to accommodate your timeline — message us with your deadline and we'll let you know what's possible.</div></div>
+    <div class="hours rv"><h3>Working Hours</h3>
+      <div class="dl"><span>Monday – Friday</span><b>10:30 AM – 9:00 PM</b></div>
+      <div class="dl"><span>Saturday – Sunday</span><b>2:00 PM – 9:00 PM</b></div>
+      <div class="tz">CENTRAL TIME ZONE</div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <span class="eyebrow rv">Let's Talk</span>
+    <h2 class="rv">Let's create something together.</h2>
+    <p class="lead rv">Tell us what you're making — a single gift or a hundred-piece team order. We'll reply with pricing and timing.</p>
+    <div class="cwrap">
+      <div>
+        <div class="ways">
+          <a class="way rv l" href="mailto:order@gonzalesembroidery.com"><span class="i">✉️</span><span><small>Email</small><b>order@gonzalesembroidery.com</b></span></a>
+          <a class="way rv l" style="--d:.1s" href="tel:+14097977539"><span class="i">📞</span><span><small>Call / Text (US)</small><b>+1 (409) 797-7539</b></span></a>
+          <a class="way rv l" style="--d:.2s" href="tel:+923700132181"><span class="i">💬</span><span><small>Call / WhatsApp</small><b>+92 370 0132181</b></span></a>
+        </div>
+        <div class="portalcta rv"><span>Already a client? Track orders and see sew-outs.</span><span style="display:flex;gap:10px;flex-wrap:wrap"><a class="btn btn-ghost" href="login.html">Client login →</a><a class="btn btn-ghost" href="portal.html">New portal preview →</a></span></div>
+      </div>
+      <form class="qf rv r" id="qf" novalidate>
+        <h3>Request a quote</h3>
+        <p class="sub">Fill this in, then send it by email or WhatsApp — your details are pre-written for you.</p>
+        <div class="f"><label for="name">Your name</label><input id="name" required autocomplete="name"><div class="err">Please enter your name.</div></div>
+        <div class="f"><label for="contactf">Email or phone</label><input id="contactf" required autocomplete="email"><div class="err">Add an email or phone so we can reply.</div></div>
+        <div class="f"><label for="service">Service</label><select id="service" required><option value="">Choose…</option></select><div class="err">Please choose a service.</div></div>
+        <div class="f"><label for="qty">Quantity</label><input id="qty" type="number" min="1" inputmode="numeric" placeholder="e.g. 24" required><div class="err">Enter how many pieces.</div></div>
+        <div class="f full"><label for="when">Needed by (optional)</label><input id="when" type="date"></div>
+        <div class="f full"><label for="msg">Tell us about your project</label><textarea id="msg" required placeholder="Item, colors, placement, ideas…"></textarea><div class="err">A few words about your project help us quote accurately.</div></div>
+        <div class="send">
+          <button type="button" class="btn btn-primary" id="sendMail">Send by Email</button>
+          <button type="button" class="btn btn-wa" id="sendWa">Send by WhatsApp</button>
+        </div>
+        <p class="note">Have a logo or artwork? Attach it when your email or WhatsApp message opens.</p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="lg" href="#top"><img src="assets/img/logo.png" alt="Gonzales Embroidery"></a>
+      <nav aria-label="Footer"><a href="#services">Services</a><a href="#work">Portfolio</a><a href="#pricing">Pricing</a><a href="#turnaround">Turnaround</a><a href="#contact">Contact</a><a href="login.html">Client Login</a></nav>
+    </div>
+    <p class="copy">© <span id="yr">2026</span> Gonzales Embroidery. All rights reserved.</p>
+  </div>
+</footer>
+
+<button id="top-btn" aria-label="Back to top">↑</button>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="lb" role="dialog" aria-modal="true" aria-label="Sew-out viewer">
+  <button class="x" aria-label="Close">✕</button><button class="p" aria-label="Previous">‹</button><button class="nx" aria-label="Next">›</button>
+  <figure><div class="media"></div><figcaption></figcaption></figure>
+</div>
+
+<script src="assets/sewouts.js"></script>
+<script>
+(function(){
+"use strict";
+var SERVICES=[
+ {t:"Custom Embroidery",d:"Jackets, sweatshirts, polos, and personalized apparel — stitched with precise detail and lasting quality."},
+ {t:"Caps & Hats",d:"Snapbacks, trucker hats, and structured caps embroidered front, back, or side."},
+ {t:"Custom Patches",d:"Woven, embroidered, and laser-engraved leather patches for brands, clubs, and gear."},
+ {t:"Screen Print & DTF",d:"Full-color prints for teams, events, and businesses that need bold graphics at scale."},
+ {t:"Team & Corporate Branding",d:"Bulk orders for schools, clubs, and organizations — consistent quality across every piece."},
+ {t:"Personalized Gifts",d:"Monogrammed towels, totes, and keepsakes for the moments worth remembering."},
+ {t:"Embroidery Digitizing",d:"Your logo or artwork converted into clean, production-ready stitch files."},
+ {t:"Vector Art",d:"Clean vector files for print or cutting, redrawn from any image."}
+];
+var EST=[["Small logo — caps or left chest",8,0,"Custom Embroidery"],["Large logo — simple design",15,0,"Custom Embroidery"],["Large logo — complicated design",30,0,"Custom Embroidery"],["Vector art — normal",10,0,"Vector Art"],["Vector art — complex (starts at)",15,1,"Vector Art"]];
+var CATS=window.SEWOUT_CATS||{digitizing:"Digitizing",vector:"Vector",patches:"Patches"};
+var WORK=(window.SEWOUTS||[]).slice();
+var EMAIL="order@gonzalesembroidery.com",WA="923700132181";
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function cap(s){return s?s.charAt(0).toUpperCase()+s.slice(1):""}
+function src(w){var p=w.img||w.poster||"";return /^(https?:|\/|data:)/.test(p)?p:"assets/sewouts/"+p}
+function posterOf(w){var p=w.poster||w.img||"";return /^(https?:|\/|data:)/.test(p)?p:"assets/sewouts/"+p}
+
+/* loader */
+function hideLoader(){var l=$("#loader");if(l)l.classList.add("done")}
+window.addEventListener("load",function(){setTimeout(hideLoader,800)});setTimeout(hideLoader,2400);
+
+/* marquee */
+var seq=SERVICES.map(function(s){return "<span>"+esc(s.t)+"</span><i>✦</i>"}).join("");
+$("#track").innerHTML=seq+seq+seq+seq;
+
+/* services + form select */
+var sel=$("#service");
+sel.insertAdjacentHTML("beforeend",SERVICES.map(function(s){return "<option>"+esc(s.t)+"</option>"}).join("")+"<option>Other</option>");
+$("#svcGrid").innerHTML=SERVICES.map(function(s,i){
+ return '<button type="button" class="svc rv" style="--d:'+(i%4*.08)+'s" data-s="'+esc(s.t)+'"><div class="n">0'+(i+1)+'</div><h3>'+esc(s.t)+'</h3><p>'+esc(s.d)+'</p><span class="go">Get a quote <span>→</span></span></button>';
+}).join("");
+$$(".svc").forEach(function(c){
+ c.addEventListener("mousemove",function(e){var r=c.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top;c.style.setProperty("--mx",x+"px");c.style.setProperty("--my",y+"px")});
+ c.addEventListener("click",function(){sel.value=c.getAttribute("data-s");sel.parentNode.classList.remove("bad");$("#contact").scrollIntoView({behavior:"smooth"});setTimeout(function(){$("#name").focus({preventScroll:true})},700)});
+});
+
+/* gallery */
+var filtersEl=$("#filters"),gal=$("#gallery");
+var catKeys=Object.keys(CATS);WORK.forEach(function(w){if(catKeys.indexOf(w.cat)<0)catKeys.push(w.cat)});
+catKeys=catKeys.filter(function(k){return WORK.some(function(w){return w.cat===k})});
+function catLabel(k){return CATS[k]||cap(k)}
+filtersEl.innerHTML='<button class="on" data-f="all">All<small>'+WORK.length+"</small></button>"+catKeys.map(function(k){return '<button data-f="'+esc(k)+'">'+esc(catLabel(k))+"<small>"+WORK.filter(function(w){return w.cat===k}).length+"</small></button>"}).join("");
+if(!WORK.length)gal.innerHTML='<p class="nores">New sew-outs are on the way — check back soon.</p>';
+else gal.innerHTML=WORK.map(function(w,i){
+ var vid=w.type==="video";
+ return '<button type="button" class="shot rv" style="--d:'+(i%4*.06)+'s" data-i="'+i+'" data-k="'+esc(w.cat)+'" aria-label="'+(vid?"Play video: ":"View: ")+esc(w.title)+'"><img loading="lazy" decoding="async" src="'+esc(posterOf(w))+'" alt="'+esc(w.title)+'"'+(w.w&&w.h?' width="'+w.w+'" height="'+w.h+'"':"")+'><span class="tag">'+esc(catLabel(w.cat))+"</span>"+(vid?'<span class="play">▶</span>':"")+'<span class="cap">'+esc(w.title)+"</span></button>";
+}).join("");
+$$("#filters button").forEach(function(b){
+ b.addEventListener("click",function(){
+  $$("#filters button").forEach(function(x){x.classList.remove("on")});b.classList.add("on");
+  var f=b.getAttribute("data-f");
+  $$(".shot").forEach(function(s){var show=f==="all"||s.getAttribute("data-k")===f;s.classList.toggle("hide",!show);if(show){s.classList.remove("in");void s.offsetWidth;s.classList.add("in")}});
+ });
+});
+$$(".shot img").forEach(function(im){im.addEventListener("error",function(){var s=im.closest(".shot");if(s)s.classList.add("hide")})});
+
+/* lightbox */
+var lb=$("#lb"),media=$(".media",lb),lbc=$("figcaption",lb),cur=0,vis=[],tx=0;
+function visible(){return $$(".shot").filter(function(s){return !s.classList.contains("hide")})}
+function ytId(v){var m=String(v).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)?([\w-]{11})$/);return m?m[1]:v}
+function show(n){
+ vis=visible();if(!vis.length)return;cur=(n+vis.length)%vis.length;
+ var w=WORK[+vis[cur].getAttribute("data-i")];
+ if(w.type==="video"){
+  media.innerHTML=w.youtube?'<iframe src="https://www.youtube.com/embed/'+esc(ytId(w.youtube))+'?autoplay=1" allow="autoplay;fullscreen" allowfullscreen title="'+esc(w.title)+'"></iframe>':'<video src="'+esc(w.src)+'" poster="'+esc(posterOf(w))+'" controls autoplay playsinline preload="metadata"></video>';
+  var v=$("video",media);if(v)v.addEventListener("error",function(){media.innerHTML='<img src="'+esc(posterOf(w))+'" alt="'+esc(w.title)+'"><p style="color:#fff;text-align:center;margin-top:10px;font-size:.9rem">This video is being added — check back soon.</p>'});
+ }else media.innerHTML='<img src="'+esc(src(w))+'" alt="'+esc(w.title)+'">';
+ lbc.innerHTML=esc(w.title)+"<small>"+esc(catLabel(w.cat))+" · "+(cur+1)+" / "+vis.length+"</small>";
+}
+function openLb(el){vis=visible();show(vis.indexOf(el));lb.classList.add("open");document.body.classList.add("noscroll");$(".x",lb).focus()}
+function closeLb(){lb.classList.remove("open");media.innerHTML="";document.body.classList.remove("noscroll")}
+gal.addEventListener("click",function(e){var s=e.target.closest(".shot");if(s)openLb(s)});
+$(".x",lb).onclick=closeLb;$(".p",lb).onclick=function(){show(cur-1)};$(".nx",lb).onclick=function(){show(cur+1)};
+lb.addEventListener("click",function(e){if(e.target===lb)closeLb()});
+lb.addEventListener("touchstart",function(e){tx=e.changedTouches[0].clientX},{passive:true});
+lb.addEventListener("touchend",function(e){var d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>60)show(cur+(d<0?1:-1))},{passive:true});
+document.addEventListener("keydown",function(e){
+ if(lb.classList.contains("open")){if(e.key==="Escape")closeLb();if(e.key==="ArrowLeft")show(cur-1);if(e.key==="ArrowRight")show(cur+1)}
+ else if(e.key==="Escape")closeMenu();
+});
+
+/* reveal */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}})},{threshold:.12,rootMargin:"0px 0px -5% 0px"});
+$$(".rv").forEach(function(el){io.observe(el)});
+/* safety net: never leave content hidden */
+setTimeout(function(){$$(".rv:not(.in)").forEach(function(el){var r=el.getBoundingClientRect();if(r.top<innerHeight*1.2)el.classList.add("in")})},2500);
+
+/* header, progress, active link */
+var hdr=$("#hdr"),bar=$("#bar"),tb=$("#top-btn"),links=$$("#links a[href^='#']:not(.btn)");
+var secs=["services","work","process","pricing","turnaround","contact"].map(function(id){return document.getElementById(id)});
+var map={process:"work"};
+function onScroll(){
+ var y=window.scrollY,h=document.documentElement.scrollHeight-innerHeight;
+ hdr.classList.toggle("scrolled",y>40);bar.style.width=(h>0?y/h*100:0)+"%";tb.classList.toggle("show",y>700);
+ var c="";secs.forEach(function(s){if(s&&s.getBoundingClientRect().top<innerHeight*.4)c=s.id});c=map[c]||c;
+ links.forEach(function(a){a.classList.toggle("active",a.getAttribute("href")==="#"+c)});
+ var st=$("#stack");if(st&&y<innerHeight)st.style.transform="translateY("+(y*.05)+"px)";
+}
+addEventListener("scroll",onScroll,{passive:true});onScroll();
+tb.onclick=function(){scrollTo({top:0,behavior:"smooth"})};
+var stepsEl=$("#steps");new IntersectionObserver(function(es,o){es.forEach(function(e){if(e.isIntersecting){stepsEl.classList.add("in");o.disconnect()}})},{threshold:.4}).observe(stepsEl);
+
+/* mobile menu */
+var burger=$("#burger"),menu=$("#links");
+function closeMenu(){menu.classList.remove("open");burger.classList.remove("open");burger.setAttribute("aria-expanded","false");hdr.classList.remove("solid")}
+burger.onclick=function(){var o=menu.classList.toggle("open");burger.classList.toggle("open",o);burger.setAttribute("aria-expanded",o)};
+$$("#links a").forEach(function(a){a.addEventListener("click",closeMenu)});
+
+/* toast */
+var tt;function toast(m,k){var t=$("#toast");t.textContent=m;t.className="show"+(k==="err"?" err":"");clearTimeout(tt);tt=setTimeout(function(){t.className=""},4200)}
+
+/* estimator */
+var ei=$("#e-i"),eq=$("#e-q");
+ei.innerHTML=EST.map(function(e,i){return '<option value="'+i+'">'+esc(e[0])+"</option>"}).join("");
+function money(n){return "$"+n.toLocaleString("en-US",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})}
+function est(){var e=EST[+ei.value],q=Math.max(1,Math.floor(+eq.value||1)),t=e[1]*q;$("#e-o").textContent=(e[2]?"From ":"")+money(t);$("#e-n").textContent=q+" piece"+(q>1?"s":"")+" × "+money(e[1])+(e[2]?"+":"")+" per piece. We confirm the exact price before starting."}
+ei.addEventListener("change",est);eq.addEventListener("input",est);est();
+$("#e-go").onclick=function(){
+ var e=EST[+ei.value],q=Math.max(1,Math.floor(+eq.value||1));
+ sel.value=e[3];$("#qty").value=q;$("#msg").value="Estimate: "+e[0]+" × "+q+" = "+(e[2]?"from ":"")+money(e[1]*q)+"\n";
+ $$("#qf .f").forEach(function(f){f.classList.remove("bad")});
+ $("#contact").scrollIntoView({behavior:"smooth"});setTimeout(function(){$("#name").focus({preventScroll:true})},700);
+};
+
+/* open now (Central Time) */
+function openNow(){
+ try{
+  var p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(new Date()),o={};
+  p.forEach(function(x){o[x.type]=x.value});
+  var m=(parseInt(o.hour,10)%24)*60+parseInt(o.minute,10),wk=["Sat","Sun"].indexOf(o.weekday)<0,from=wk?630:840;
+  return m>=from&&m<1260;
+ }catch(e){return null}
+}
+function paintOpen(){var s=openNow(),pill=$("#openpill");if(s===null){pill.style.display="none";return}pill.classList.toggle("on",s);$("#opentxt").textContent=s?"We're open now (Central Time)":"Currently closed — message us and we'll reply when we open"}
+paintOpen();setInterval(paintOpen,60000);
+
+/* quote form */
+var F={name:$("#name"),contactf:$("#contactf"),service:sel,qty:$("#qty"),msg:$("#msg")};
+$("#when").min=new Date().toISOString().slice(0,10);
+function valid(){
+ var ok=true;
+ Object.keys(F).forEach(function(k){var el=F[k],v=el.value.trim(),bad=!v;if(k==="qty"&&v&&+v<1)bad=true;el.parentNode.classList.toggle("bad",bad);if(bad)ok=false});
+ if(!ok){var f=$("#qf .f.bad input,#qf .f.bad select,#qf .f.bad textarea");if(f)f.focus();toast("Please complete the highlighted fields.","err")}
+ return ok;
+}
+Object.keys(F).forEach(function(k){F[k].addEventListener("input",function(){F[k].parentNode.classList.remove("bad")});F[k].addEventListener("change",function(){F[k].parentNode.classList.remove("bad")})});
+function body(){var w=$("#when").value;return "Hello Gonzales Embroidery,\n\nI'd like a quote.\n\nName: "+F.name.value.trim()+"\nContact: "+F.contactf.value.trim()+"\nService: "+F.service.value+"\nQuantity: "+F.qty.value+(w?"\nNeeded by: "+w:"")+"\n\nProject details:\n"+F.msg.value.trim()+"\n"}
+$("#sendMail").onclick=function(){if(!valid())return;location.href="mailto:"+EMAIL+"?subject="+encodeURIComponent("Quote request — "+F.service.value+" ("+F.qty.value+" pcs)")+"&body="+encodeURIComponent(body());toast("Opening your email app — attach your artwork there.")};
+$("#sendWa").onclick=function(){if(!valid())return;window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(body()),"_blank","noopener");toast("Opening WhatsApp with your request.")};
+$("#qf").addEventListener("submit",function(e){e.preventDefault()});
+$("#yr").textContent=new Date().getFullYear();
+})();
+</script>
+</body>
+</html>

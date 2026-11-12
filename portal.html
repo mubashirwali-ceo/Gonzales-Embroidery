@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Portal — Gonzales Embroidery</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0b">
+<link rel="icon" href="assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#0b0b0b;--navy:#2b2a6a;--navy2:#201f52;--orange:#f39221;--cream:#f6f1e9;--paper:#fff;--line:#e4dccd;--muted:#7b7467;--red:#d4452f;--green:#1f9d57;--r:10px;--ease:cubic-bezier(.2,.7,.2,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{font-family:'Work Sans',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+body.noscroll{overflow:hidden}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+h1,h2,h3{font-family:Anton,Impact,sans-serif;font-weight:400;letter-spacing:.01em;color:var(--navy);line-height:1.1}
+.mono,.eyebrow,.tab,th,label.l{font-family:'Space Mono',monospace}
+.eyebrow{font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);display:flex;gap:10px;align-items:center}
+.eyebrow::before{content:"";width:30px;border-top:1.5px solid var(--orange)}
+:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1.5px solid transparent;background:var(--orange);color:var(--ink);padding:12px 22px;font-family:'Space Mono',monospace;font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;font-weight:700;border-radius:4px;transition:transform .2s var(--ease),box-shadow .2s,background .2s;text-decoration:none}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px -8px rgba(243,146,33,.8)}
+.btn:active{transform:none}
+.btn.navy{background:var(--navy);color:#fff}
+.btn.navy:hover{box-shadow:0 8px 18px -8px rgba(43,42,106,.8)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn.ghost:hover{border-color:var(--orange);box-shadow:none}
+.btn.wa{background:#1faa59;color:#fff}
+.btn.green{background:#0b8a43;color:#fff}
+.btn.danger{background:transparent;border-color:var(--red);color:var(--red)}
+.btn.sm{padding:7px 12px;font-size:.7rem}
+.btn:disabled{opacity:.5;pointer-events:none}
+
+/* auth */
+.auth{display:grid;grid-template-columns:1.05fr 1fr;min-height:100vh}
+.brandp{background:var(--ink);color:#fff;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.brandp::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 400px at 100% 0,rgba(243,146,33,.25),transparent 60%),radial-gradient(500px 400px at 0 100%,rgba(43,42,106,.9),transparent 60%)}
+.brandp>*{position:relative}
+.brandp .lgw{display:inline-block;background:var(--cream);padding:8px 14px;border-radius:8px}.brandp img{height:50px}
+.brandp h2{color:#fff;font-size:clamp(2.4rem,4.5vw,4rem);margin:18px 0}
+.brandp h2 em{color:var(--orange);font-style:normal}
+.brandp p{color:#c9c4b8;max-width:46ch}
+.perks{list-style:none;display:grid;gap:14px;margin-top:30px}
+.perks li{display:flex;gap:14px;align-items:center;font-size:.95rem;opacity:0;transform:translateX(-18px);animation:in .7s var(--ease) forwards}
+.perks li:nth-child(2){animation-delay:.15s}.perks li:nth-child(3){animation-delay:.3s}.perks li:nth-child(4){animation-delay:.45s}
+.perks b{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:rgba(243,146,33,.16);color:var(--orange);flex:none}
+@keyframes in{to{opacity:1;transform:none}}
+.stitchline{width:100%;height:20px;margin-top:40px}
+.stitchline path{stroke:var(--orange);stroke-width:3;fill:none;stroke-dasharray:12 9;stroke-dashoffset:900;animation:dash 3s .3s var(--ease) forwards}
+@keyframes dash{to{stroke-dashoffset:0}}
+.authbox{padding:56px;display:flex;flex-direction:column;justify-content:center;max-width:560px;width:100%;margin:auto}
+.authbox h1{font-size:3.6rem;margin:10px 0 24px}
+.tabs{display:flex;gap:8px;margin-bottom:22px}
+.tab{border:1px solid var(--line);background:var(--paper);padding:11px 18px;font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;border-radius:3px;transition:.2s}
+.tab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+form.fm{display:grid;gap:14px}
+.fld label,label.l{display:block;font-size:.72rem;font-weight:700;margin-bottom:5px;color:var(--navy);letter-spacing:.04em}
+.fld input,.fld select,.fld textarea,.inp{width:100%;padding:12px 13px;border:1.5px solid var(--line);border-radius:6px;background:#fff;font:inherit;color:var(--ink);transition:border-color .2s,box-shadow .2s}
+.fld textarea{min-height:86px;resize:vertical}
+.fld input:focus,.fld select:focus,.fld textarea:focus,.inp:focus{outline:none;border-color:var(--orange);box-shadow:0 0 0 3px rgba(243,146,33,.2)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.msgerr{background:#fdecea;color:#9b2c1d;border:1px solid #f3c1b9;padding:10px 14px;border-radius:6px;font-size:.88rem}
+.msgok{background:#e8f6ee;color:#17623a;border:1px solid #bfe4cd;padding:10px 14px;border-radius:6px;font-size:.88rem}
+.linkb{background:none;border:0;color:var(--red);text-decoration:underline;font-size:.88rem;text-align:left;padding:0}
+.demo{margin-top:22px;padding:14px 16px;border:1px dashed var(--orange);border-radius:8px;font-size:.83rem;background:#fff8ee}
+.demo code{font-family:'Space Mono',monospace;background:#fff;padding:1px 6px;border-radius:3px;border:1px solid var(--line)}
+.demo button{margin-top:8px}
+.fine{color:var(--muted);font-size:.78rem;margin-top:18px}
+
+/* shell */
+.ribbon{background:var(--navy2);color:#d9d7f5;font-size:.78rem;padding:7px 16px;text-align:center;display:flex;gap:12px;justify-content:center;align-items:center}
+.ribbon button{background:none;border:0;color:#fff;opacity:.7;font-size:1rem}
+.top{background:var(--ink);color:#fff;display:flex;align-items:center;gap:18px;padding:10px 24px;position:sticky;top:0;z-index:30;border-bottom:1px solid #222}
+.top .lg{background:var(--cream);padding:4px 10px;border-radius:6px;display:flex}.top img{height:34px}
+.top .role{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--orange);border:1px dashed var(--orange);padding:4px 10px;border-radius:3px}
+.top .sp{flex:1}
+.who{display:flex;align-items:center;gap:12px;font-size:.88rem}
+.av{width:34px;height:34px;border-radius:50%;background:var(--orange);color:var(--ink);display:grid;place-items:center;font-weight:700}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:calc(100vh - 62px)}
+.side{background:#fff;border-right:1px solid var(--line);padding:20px 12px;position:sticky;top:62px;height:calc(100vh - 62px);overflow:auto}
+.side a{display:flex;gap:12px;align-items:center;padding:11px 14px;border-radius:6px;text-decoration:none;font-size:.92rem;font-weight:500;color:#3b372f;margin-bottom:4px;transition:.2s;position:relative}
+.side a i{font-style:normal;width:22px;text-align:center}
+.side a:hover{background:#f3ede1}
+.side a.on{background:var(--navy);color:#fff}
+.side a .bd{margin-left:auto;background:var(--orange);color:var(--ink);font-size:.68rem;font-weight:700;padding:1px 8px;border-radius:99px}
+main{padding:30px clamp(16px,3vw,44px) 70px;max-width:1300px;width:100%;min-width:0}
+.cols>*,.grid2>*,.shell>*{min-width:0}
+.view{animation:vin .5s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(14px)}}
+.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:14px;margin-bottom:24px}
+.head h1{font-size:clamp(2rem,4vw,3rem)}
+.head p{color:var(--muted)}
+
+/* tiles & cards */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin-bottom:28px}
+.tiles.s8{grid-template-columns:repeat(4,1fr)}
+.tiles.s8.sm{grid-template-columns:repeat(8,1fr);gap:10px;margin-bottom:22px}
+.tile{background:var(--ink);color:#fff;padding:20px 22px;border-radius:4px;position:relative;overflow:hidden;transition:transform .3s var(--ease)}
+.tile:hover{transform:translateY(-4px)}
+.tile::after{content:"";position:absolute;right:-30px;top:-30px;width:90px;height:90px;border-radius:50%;background:rgba(243,146,33,.1)}
+.tile small{font-family:'Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;font-size:.66rem;color:#bdb7a8;display:block;line-height:1.35}
+.tile b{font-family:Anton,sans-serif;font-weight:400;font-size:2.5rem;line-height:1.2;display:block;margin-top:8px}
+.tile.or b{color:var(--orange)}.tile.gr b{color:#4be08a}
+.tiles.sm .tile{padding:12px 12px 10px}.tiles.sm .tile small{font-size:.56rem;letter-spacing:.08em;min-height:2.6em}.tiles.sm .tile b{font-size:1.55rem;margin-top:4px}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px;margin-bottom:22px}
+.card h2{font-size:1.7rem;margin-bottom:14px}
+.card h3{font-size:1.3rem;margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.cols{display:grid;grid-template-columns:1.5fr 1fr;gap:22px}
+.hpill{display:inline-flex;align-items:center;gap:8px;font-size:.82rem;padding:6px 14px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.hpill i{width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.hpill.on i{background:var(--green);box-shadow:0 0 0 0 rgba(31,157,87,.6);animation:pulse 1.8s infinite}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(31,157,87,0)}}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:#fff}
+.tw.tall{max-height:66vh;overflow:auto}
+.tw.tall th{position:sticky;top:0;z-index:2}
+table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:760px}
+table.xl{min-width:900px}
+th{background:var(--ink);color:#e9e3d6;text-align:left;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;padding:13px 14px;white-space:nowrap}
+th.sort{cursor:pointer;user-select:none}
+th.sort:hover{color:var(--orange)}
+th .ar{opacity:.4;margin-left:6px;font-size:.62rem}
+th.on .ar{opacity:1;color:var(--orange)}
+td{padding:11px 14px;border-top:1px solid #eee7d9;vertical-align:middle}
+table.xl td{white-space:nowrap}
+table.xl td.job{white-space:normal;min-width:170px}
+tbody tr{transition:background .15s;cursor:pointer}
+tbody tr:hover{background:#fbf6ec}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+a.xlink{color:#1a5fd0;text-decoration:underline}
+.empty{padding:44px 20px;text-align:center;color:var(--muted)}
+.empty b{display:block;font-family:Anton;font-weight:400;font-size:1.5rem;color:var(--navy);margin-bottom:6px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+.bar .inp{max-width:300px}
+.bar select.inp{max-width:170px}
+.bar input[type=date].inp{max-width:160px}
+.cnt{color:var(--muted);font-size:.86rem}
+.sp1{flex:1}
+.more{padding:14px;text-align:center;background:#fbf6ec}
+
+/* status chips (same colours as the Excel sheet) */
+.bg{display:inline-block;font-family:'Space Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;padding:3px 10px;border-radius:99px;font-weight:700;white-space:nowrap}
+.s-Paid{background:#0b8a43;color:#fff}
+.s-Pending{background:#d32f2f;color:#fff}
+.s-Quote{background:#ffe600;color:#111}
+.g-Received,.q-New{background:#e8eefc;color:#2450a8}
+.g-Design,.g-Digitizing{background:#f0e8fb;color:#6a3aa8}
+.g-InProduction,.g-QualityCheck,.q-Replied{background:#fff0dc;color:#a8620f}
+.g-Ready{background:#e1f5f1;color:#0d6e5d}
+.g-Delivered,.q-Converted{background:#e2f4e9;color:#17623a}
+.q-Closed{background:#eee;color:#666}
+select.stsel{font:700 .76rem 'Space Mono',monospace;letter-spacing:.04em;text-transform:uppercase;border:0;border-radius:4px;padding:6px 8px;cursor:pointer;min-width:104px;text-align:center}
+select.stsel.s-Paid{background:#0b8a43;color:#fff}
+select.stsel.s-Pending{background:#d32f2f;color:#fff}
+select.stsel.s-Quote{background:#ffe600;color:#111}
+select.stsel option{background:#fff;color:#111}
+.pos{color:var(--green)}.neg{color:var(--red)}
+
+/* tracker */
+.trk{position:relative;padding:8px 0 4px;margin:6px 0}
+.trk .line{position:absolute;left:calc(100%/14);right:calc(100%/14);top:25px;height:0;border-top:2px dashed #d9cfbd}
+.trk .line i{position:absolute;left:0;top:-2px;height:0;border-top:2px solid var(--orange);width:var(--p);animation:grow 1.5s .2s var(--ease) backwards}
+@keyframes grow{from{width:0}}
+.trk ol{list-style:none;display:grid;grid-template-columns:repeat(7,1fr);position:relative}
+.trk li{text-align:center;font-size:.7rem;color:var(--muted);font-weight:600}
+.trk li b{display:grid;place-items:center;width:34px;height:34px;margin:0 auto 8px;border-radius:50%;background:#fff;border:2px solid #d9cfbd;font-family:'Space Mono',monospace;font-size:.78rem;transition:.3s}
+.trk li.done b{background:var(--orange);border-color:var(--orange);color:var(--ink)}
+.trk li.now b{background:var(--navy);border-color:var(--navy);color:#fff;animation:ring 2s infinite}
+.trk li.now,.trk li.done{color:var(--ink)}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(43,42,106,.45)}80%,100%{box-shadow:0 0 0 12px rgba(43,42,106,0)}}
+.hint{background:#fff8ee;border-left:4px solid var(--orange);padding:12px 16px;border-radius:0 6px 6px 0;font-size:.9rem;margin-top:12px}
+
+/* chart */
+.chart{display:flex;align-items:flex-end;gap:16px;height:190px;padding:10px 4px 0;border-bottom:2px solid var(--ink)}
+.chart .m{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px}
+.chart .bars{display:flex;gap:4px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.chart .bars i{width:min(26px,40%);background:var(--navy);border-radius:3px 3px 0 0;animation:up .9s var(--ease) backwards;position:relative}
+.chart .bars i+i{background:#0b8a43}
+@keyframes up{from{height:0!important}}
+.legend{display:flex;gap:18px;font-size:.78rem;margin-top:10px}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--navy);margin-right:6px}
+.legend span+span::before{background:#0b8a43}
+.xl2{display:flex;gap:16px;padding-top:6px;font-size:.7rem;color:var(--muted);font-family:'Space Mono',monospace}
+.xl2 span{flex:1;text-align:center}
+
+/* guide */
+.rates{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.rate{background:#fff;border:1px solid var(--line);border-left:4px solid var(--orange);padding:20px;border-radius:4px}
+.rate:nth-child(2){border-left-color:var(--red)}
+.rate small{font-family:'Space Mono',monospace;font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--red)}
+.rate h3{font-family:'Work Sans';font-weight:700;font-size:1.15rem;margin:4px 0 2px}
+.rate p{font-size:.82rem;color:var(--muted);margin-bottom:12px}
+.rate .row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:9px 0;border-top:1px dashed var(--line);font-size:.9rem}
+.rate .row:first-of-type{border-top:0}
+.rate .row b{font-family:Anton;font-weight:400;font-size:1.5rem;color:var(--ink)}
+.dl{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px dashed var(--line);font-size:.9rem}
+.dl:first-of-type{border-top:0}
+.dl small{display:block;color:var(--muted);font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase}
+.dl b{white-space:nowrap}
+.band{background:var(--navy);color:#fff;border-radius:6px;padding:24px 28px;display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;margin:22px 0}
+.band h3{color:#fff;font-family:'Work Sans';font-weight:700;font-size:1.1rem}
+.band p{color:#cfcdf0;font-size:.9rem;max-width:56ch}
+.est{display:grid;grid-template-columns:2fr 1fr;gap:12px;align-items:end}
+.estout{font-family:Anton;font-size:2rem;color:var(--navy);margin-top:10px}
+ol.how{list-style:none;counter-reset:s;display:grid;gap:12px;margin:4px 0 0}
+ol.how li{counter-increment:s;position:relative;padding:2px 0 2px 46px;font-size:.95rem}
+ol.how li::before{content:counter(s);position:absolute;left:0;top:0;width:32px;height:32px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-family:'Space Mono',monospace;font-weight:700;font-size:.82rem}
+code.f{font-family:'Space Mono',monospace;background:#f3ede1;padding:2px 7px;border-radius:4px;font-size:.74rem;word-break:break-word;display:inline-block}
+.legendrow{display:flex;flex-wrap:wrap;gap:10px;margin:8px 0 2px}
+
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(11,11,11,.62);backdrop-filter:blur(3px);z-index:80;display:none;justify-content:flex-end}
+#modal.open{display:flex;animation:fd .25s}
+@keyframes fd{from{opacity:0}}
+.mbox{background:var(--cream);width:min(760px,100%);height:100%;overflow:auto;padding:30px 30px 50px;position:relative;animation:slide .4s var(--ease)}
+.mbox.ctr{margin:auto;height:auto;max-height:92vh;border-radius:12px;width:min(580px,94vw);animation:pop .3s var(--ease)}
+#modal.c{justify-content:center;align-items:center}
+@keyframes slide{from{transform:translateX(60px);opacity:0}}
+@keyframes pop{from{transform:scale(.94);opacity:0}}
+.mx{position:absolute;right:16px;top:14px;width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:1rem;z-index:2}
+.mx:hover{background:var(--orange)}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin:18px 0}
+.dgrid div{background:#fff;border:1px solid var(--line);padding:12px 14px;border-radius:6px}
+.dgrid small{display:block;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.dgrid b{font-size:1.05rem}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.gal figure{position:relative;border-radius:6px;overflow:hidden;background:#000;aspect-ratio:1;cursor:zoom-in}
+.gal img{width:100%;height:100%;object-fit:cover;transition:transform .5s var(--ease)}
+.gal figure:hover img{transform:scale(1.08)}
+.gal .rm{position:absolute;right:6px;top:6px;background:rgba(0,0,0,.7);color:#fff;border:0;width:26px;height:26px;border-radius:50%}
+.vid{margin:10px 0;border-radius:8px;overflow:hidden;background:#000}
+.vid iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+.vid a{display:block;padding:12px 16px;color:#fff;background:var(--navy)}
+.chat{display:grid;gap:8px;max-height:280px;overflow:auto;padding:4px;margin-bottom:10px}
+.bub{max-width:82%;padding:9px 13px;border-radius:12px;font-size:.9rem;background:#fff;border:1px solid var(--line)}
+.bub small{display:block;color:var(--muted);font-size:.68rem;margin-top:3px}
+.bub.me{margin-left:auto;background:var(--navy);color:#fff;border-color:var(--navy)}
+.bub.me small{color:#bcbbe6}
+.bub.sys{margin:auto;background:transparent;border:0;font-size:.76rem;color:var(--muted);text-align:center;font-family:'Space Mono',monospace}
+.row2{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row2 .inp{flex:1;min-width:140px}
+.drop{border:2px dashed var(--line);border-radius:8px;padding:16px;text-align:center;color:var(--muted);font-size:.86rem;cursor:pointer;transition:.2s;background:#fff}
+.drop:hover{border-color:var(--orange);color:var(--ink)}
+.thumbs{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.log{background:var(--ink);color:#b7f0c8;font-family:'Space Mono',monospace;font-size:.8rem;padding:16px 18px;border-radius:6px;white-space:pre-wrap;min-height:90px;max-height:320px;overflow:auto}
+#toast{position:fixed;left:50%;bottom:26px;translate:-50% 140px;background:var(--ink);color:#fff;padding:13px 22px;border-radius:6px;z-index:120;transition:translate .45s var(--ease);box-shadow:0 14px 40px -10px #000;max-width:92vw;font-size:.9rem;border-left:4px solid var(--orange)}
+#toast.show{translate:-50% 0}#toast.err{border-left-color:var(--red)}
+#lb{position:fixed;inset:0;background:rgba(0,0,0,.93);z-index:130;display:none;place-items:center;padding:20px}
+#lb.open{display:grid}#lb img{max-width:94vw;max-height:90vh;border-radius:8px}
+.cf{position:fixed;top:-12px;width:9px;height:14px;z-index:140;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg);opacity:.8}}
+#printArea{display:none}
+
+@media (max-width:1100px){.tiles.s8.sm{grid-template-columns:repeat(4,1fr)}}
+@media (max-width:900px){
+ .auth{grid-template-columns:1fr}.brandp{padding:30px 24px}.brandp h2{font-size:2.3rem}.perks{display:none}.authbox{padding:32px 22px}
+ .shell{grid-template-columns:1fr}
+ .side{position:static;height:auto;display:flex;overflow-x:auto;padding:8px;border-right:0;border-bottom:1px solid var(--line);gap:4px;top:auto}
+ .side a{white-space:nowrap;margin:0;padding:9px 14px}
+ .grid2,.cols{grid-template-columns:1fr}
+ .who span.nm{display:none}
+ .trk{overflow-x:auto}.trk ol{grid-template-columns:repeat(7,minmax(62px,1fr))}
+ .trk .line{left:31px;right:31px}
+ .est{grid-template-columns:1fr}
+ .mbox{padding:24px 18px 44px}
+ .tiles.s8{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:520px){.tiles.s8.sm{grid-template-columns:repeat(2,1fr)}.g2{grid-template-columns:1fr}}
+@media print{
+ body>*:not(#printArea){display:none!important}
+ #printArea{display:block!important;padding:30px;font-family:'Work Sans',sans-serif;color:#000}
+ #printArea table{min-width:0;width:100%;font-size:12px}
+ #printArea th{background:#eee!important;color:#000!important;position:static}
+ #printArea td,#printArea th{padding:7px 8px;border-bottom:1px solid #ccc;text-align:left}
+ #printArea .num{text-align:right}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div id="lb"><img alt=""></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="printArea"></div>
+<input type="file" id="fileOrder" accept="image/*" hidden multiple>
+<input type="file" id="fileQuote" accept="image/*" hidden multiple>
+<input type="file" id="fileImport" accept=".xlsx,.xls,.csv" hidden multiple>
+<input type="file" id="fileRestore" accept=".json" hidden>
+<noscript><p style="padding:40px">The client portal needs JavaScript enabled.</p></noscript>
+
+<script>
+(function(){
+"use strict";
+
+/* ───────── constants ───────── */
+var KEY="ge_portal_v2", SKEY="ge_portal_session_v2", RKEY="ge_portal_ribbon";
+var SITE="", LOGO="assets/img/logo.png";
+var EMAIL="order@gonzalesembroidery.com", WA="923700132181";
+var TYPES=["Cap","Left Chest","Front Chest","Jacket Back","Vector"];
+var DIGI=["Front Chest","Left Chest","Cap","Jacket Back"];          /* counted as "Digitizing" — same list as the Excel formula */
+var STATUSES=["Paid","Pending","Quote"];                              /* Order Status, same as the Excel sheet */
+var TYPE_PRICE={"Cap":8,"Left Chest":8,"Front Chest":15,"Jacket Back":15,"Vector":10};
+var STAGES=["Received","Design","Digitizing","In Production","Quality Check","Ready","Delivered"];
+var HINTS={"Received":"We've received your order and will confirm the details shortly.","Design":"We're preparing and refining your artwork.","Digitizing":"Your design is being converted into a stitch file, color by color.","In Production":"Your order is on the machines right now.","Quality Check":"Final quality check before packing.","Ready":"Your order is ready.","Delivered":"Delivered — thank you for stitching with us!"};
+var SERVICES=["Small Logo Embroidery (caps / left chest)","Large Logo Embroidery (front chest / jacket back)","Vector Art","Embroidery Digitizing","Custom Patches","Screen Print & DTF","Team & Corporate Branding","Personalized Gifts","Other"];
+var RATES=[
+ {tag:"Embroidery",title:"Small Logos",sub:"Caps or left chest — up to 5 inches",rows:[["Small logo, any single design",8]]},
+ {tag:"Embroidery",title:"Large Logos",sub:"Front chest or jacket back — 6 inches and above",rows:[["Simple design",15],["Complicated design",30]]},
+ {tag:"Digitizing",title:"Vector Art",sub:"Clean vector files for print or cutting",rows:[["Normal vector",10],["Complex vector","15+"]]}
+];
+var EST=[["Small logo (caps / left chest)",8,0],["Large logo — simple design",15,0],["Large logo — complicated design",30,0],["Vector art — normal",10,0],["Vector art — complex (starts at)",15,1]];
+var TAT=[
+ ["Embroidery Turnaround",[["Cap or left chest","Standard","1–3 hours"],["Cap or left chest","Rush","30 min–1½ hrs"],["Jacket back","Standard","2–4 hours"],["Jacket back","Rush","Depends on artwork"]]],
+ ["Vector Turnaround",[["Normal design","","2–18 hours"],["Complex design","","12 hrs–depends on artwork"]]]
+];
+var DEMO_PH=function(n){return "assets/sewouts/"+n+".jpg"};
+var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+/* ───────── helpers ───────── */
+var $=function(s,r){return (r||document).querySelector(s)};
+var $$=function(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))};
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]})}
+function money(n){n=Number(n)||0;return "$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2})}
+function uid(){return Math.random().toString(36).slice(2,10)+Date.now().toString(36).slice(-4)}
+function pad(n){return String(n).padStart(2,"0")}
+function iso(d){d=d||new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function fmtD(s){if(!s)return "—";var d=new Date(s+"T00:00:00");return isNaN(d)?esc(s):d.toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+function fmtXl(s){if(!s)return "—";var p=String(s).split("-");return p.length<3?esc(s):(+p[2])+"-"+MON[+p[1]-1]+"-"+p[0].slice(2)}   /* 11-Nov-26, like the sheet */
+function fmtT(ms){var d=new Date(ms);return d.toLocaleDateString("en-US",{month:"short",day:"numeric"})+" · "+d.toLocaleTimeString("en-US",{hour:"numeric",minute:"2-digit"})}
+function num(v){if(typeof v==="number")return v;var n=parseFloat(String(v==null?"":v).replace(/[^0-9.\-]/g,""));return isNaN(n)?0:n}
+function lc(s){return String(s==null?"":s).trim().toLowerCase()}
+function initials(n){return String(n||"?").trim().split(/\s+/).slice(0,2).map(function(w){return w[0]}).join("").toUpperCase()}
+function r2(n){return Math.round(n*100)/100}
+function priceTxt(o){return typeof o.price==="number"?money(o.price):"Free"}
+function ls(){try{return window.localStorage}catch(e){return null}}
+
+/* ───────── SHA-256 (sync) ───────── */
+var sha256=(function(){
+ var K=[],H=[],n=2;
+ function isP(x){for(var i=2;i*i<=x;i++)if(x%i===0)return false;return true}
+ while(K.length<64){if(isP(n)){if(H.length<8)H.push((Math.pow(n,.5)%1)*4294967296|0);K.push((Math.pow(n,1/3)%1)*4294967296|0)}n++}
+ return function(msg){
+  var bytes=new TextEncoder().encode(msg),l=bytes.length,nb=((l+9+63)>>6)<<6;
+  var buf=new Uint8Array(nb);buf.set(bytes);buf[l]=0x80;
+  var dv=new DataView(buf.buffer);dv.setUint32(nb-4,(l*8)>>>0);dv.setUint32(nb-8,Math.floor(l*8/4294967296));
+  var h=H.slice(),w=new Int32Array(64);
+  for(var o=0;o<nb;o+=64){
+   for(var i=0;i<16;i++)w[i]=dv.getInt32(o+i*4);
+   for(i=16;i<64;i++){
+    var a1=w[i-15],b1=w[i-2];
+    var s0=((a1>>>7)|(a1<<25))^((a1>>>18)|(a1<<14))^(a1>>>3);
+    var s1=((b1>>>17)|(b1<<15))^((b1>>>19)|(b1<<13))^(b1>>>10);
+    w[i]=(w[i-16]+s0+w[i-7]+s1)|0;
+   }
+   var a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
+   for(i=0;i<64;i++){
+    var S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));
+    var ch=(e&f)^(~e&g);
+    var t1=(hh+S1+ch+K[i]+w[i])|0;
+    var S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));
+    var mj=(a&b)^(a&c)^(b&c);
+    var t2=(S0+mj)|0;
+    hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+   }
+   h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0;
+  }
+  return h.map(function(x){return (x>>>0).toString(16).padStart(8,"0")}).join("");
+ };
+})();
+function hashPw(pw,salt){var h=salt+":"+pw;for(var i=0;i<800;i++)h=sha256(h+salt);return h}
+function setPw(u,pw){u.salt=uid()+uid();u.hash=hashPw(pw,u.salt)}
+
+/* ───────── data ───────── */
+var db, me=null, dirty=false;
+function mkUser(o){return Object.assign({id:uid(),role:"client",name:"",email:"",phone:"",address:"",work:"",salt:"",hash:"",created:iso(),cid:0},o)}
+function mkOrder(o){return Object.assign({id:uid(),no:0,clientId:"",date:iso(),job:"",type:"",price:0,status:"Pending",stage:"Received",notes:"",photos:[],videos:[],messages:[]},o)}
+function custId(u){return "A"+String(u&&u.cid||0).padStart(2,"0")}               /* A01, A02 … like the sheet */
+function nextCid(){var m=0;db.users.forEach(function(u){if(u.cid>m)m=u.cid});return m+1}
+function nextNo(){var m=0;db.orders.forEach(function(o){if(o.no>m)m=o.no});return m+1}   /* last + 1, like =C23+1 */
+function user(id){return db.users.filter(function(u){return u.id===id})[0]}
+function order(id){return db.orders.filter(function(o){return o.id===id})[0]}
+function clients(){return db.users.filter(function(u){return u.role==="client"})}
+function isAdmin(){return me&&me.role==="admin"}
+function myOrders(){return db.orders.filter(function(o){return o.clientId===me.id})}
+function seed(){
+ var d={v:2,users:[],orders:[],quotes:[]};db=d;
+ var owner=mkUser({role:"admin",name:"Shop Owner",email:"owner@demo.com",demo:1});setPw(owner,"demo123");d.users.push(owner);
+ [["ABC","abc@gmail.com"],["XYZ","xyz@gmail.com"],["MNO","mno@gmail.com"]].forEach(function(p,i){var u=mkUser({name:p[0],email:p[1],demo:1,cid:i+1});setPw(u,"demo123");d.users.push(u)});
+ var A=d.users[1],X=d.users[2],M=d.users[3];
+ /* the same 9 test rows that are in the Excel sheet */
+ var rows=[
+  [A,"Test Logo Cap","2026-11-11",8,"Cap","Paid","Delivered","digi-cap-warrior"],
+  [X,"Test Logo LC","2026-11-11",8,"Left Chest","Pending","Delivered","digi-fourth-grade"],
+  [A,"Test Logo JB","2026-11-11",15,"Jacket Back","Paid","Delivered","digi-jacket-lawrence-red"],
+  [X,"Test Logo Vector","2026-11-11",10,"Vector","Pending","Quality Check","vector-cap-graffiti"],
+  [A,"Test Logo Cap","2026-11-11",8,"Cap","Paid","Delivered",""],
+  [X,"Test Logo LC","2026-11-11",8,"Left Chest","Pending","Delivered",""],
+  [A,"Test Logo JB","2026-11-11",15,"Jacket Back","Paid","Delivered",""],
+  [X,"Test Logo Vector","2026-11-11",10,"Vector","Pending","In Production","vector-kidzcan-budget"],
+  [M,"Test Logo JB","2026-11-12",null,"Jacket Back","Quote","Received",""]
+ ];
+ rows.forEach(function(r,i){
+  var o=mkOrder({no:i+1,clientId:r[0].id,job:r[1],date:r[2],price:r[3],type:r[4],status:r[5],stage:r[6],demo:1});
+  if(r[7])o.photos=[DEMO_PH(r[7])];
+  o.messages.push({from:"system",text:"Order created",at:new Date(r[2]+"T10:00:00").getTime()});
+  d.orders.push(o);
+ });
+ return d;
+}
+function load(){var s=ls();try{var d=JSON.parse(s.getItem(KEY)||"null");if(d&&d.v===2&&d.users){return d}}catch(e){}return seed()}
+function save(){try{ls().setItem(KEY,JSON.stringify(db));return true}catch(e){toast("Browser storage is full — remove some photos.","err");return false}}
+function commit(){dirty=true;return save()}
+
+/* ── the Excel summary formulas, as code ── */
+function summary(list){
+ var s={digi:0,vec:0,quotes:0,rev:0,paid:0,pending:0,paidRev:0,pendRev:0};
+ list.forEach(function(o){
+  var t=lc(o.type),st=lc(o.status),p=typeof o.price==="number"?o.price:0;     /* SUM ignores text such as "Free" */
+  if(DIGI.some(function(x){return lc(x)===t}))s.digi++;                       /* COUNTIFS Front Chest + Left Chest + Cap + Jacket Back */
+  if(t==="vector")s.vec++;                                                    /* COUNTIF "Vector" */
+  if(st==="quote")s.quotes++;                                                 /* COUNTIF "Quote" */
+  s.rev+=p;                                                                   /* SUM of all prices */
+  if(st==="paid"){s.paid++;s.paidRev+=p}                                      /* COUNTIF / SUMIF "Paid" */
+  if(st==="pending"){s.pending++;s.pendRev+=p}                                /* COUNTIF / SUMIF "Pending" */
+ });
+ s.rev=r2(s.rev);s.paidRev=r2(s.paidRev);s.pendRev=r2(s.pendRev);
+ return s;
+}
+function clientStats(c){var l=db.orders.filter(function(o){return o.clientId===c.id}),s=summary(l);s.count=l.length;return s}
+
+/* ───────── ui primitives ───────── */
+var tt;function toast(m,k){var t=$("#toast");t.textContent=m;t.className="show"+(k==="err"?" err":"");clearTimeout(tt);tt=setTimeout(function(){t.className=""},3800)}
+function modal(html,ctr){
+ var m=$("#modal"),old=$(".mbox",m),st=old&&!ctr?old.scrollTop:0;
+ m.className="open"+(ctr?" c":"");
+ m.innerHTML='<div class="mbox'+(ctr?" ctr":"")+'"><button class="mx" data-act="close" aria-label="Close">✕</button>'+html+"</div>";
+ document.body.classList.add("noscroll");
+ if(st)$(".mbox",m).scrollTop=st;
+}
+function closeModal(){
+ $("#modal").className="";$("#modal").innerHTML="";document.body.classList.remove("noscroll");curOrder=null;
+ if(dirty){dirty=false;refreshBehind()}
+}
+function refreshBehind(){
+ if(!me)return;var r=route();
+ if(r==="orders"&&$("#otbl")){applyOrderFilter();var ss=$("#sumstrip");if(ss)ss.innerHTML=sumHTML(summary(db.orders),true,true)}
+ else if(r==="clients"&&$("#ctbl"))applyClientFilter();
+ else render();
+}
+function badge(s){return '<span class="bg s-'+esc(s)+'">'+esc(s)+"</span>"}
+function stageBadge(s){return '<span class="bg g-'+esc(String(s).replace(/\s/g,""))+'">'+esc(s)+"</span>"}
+function qbadge(s){return '<span class="bg q-'+esc(s)+'">'+esc(s)+"</span>"}
+function confetti(){var cols=["#f39221","#2b2a6a","#fff","#d4452f","#1f9d57"];for(var i=0;i<60;i++){var p=document.createElement("i");p.className="cf";p.style.left=Math.random()*100+"vw";p.style.background=cols[i%5];p.style.animationDuration=(1.8+Math.random()*1.8)+"s";p.style.animationDelay=Math.random()*.5+"s";p.style.borderRadius=i%3?"2px":"50%";document.body.appendChild(p);setTimeout(function(el){el.remove()},4200,p)}}
+function countUp(){
+ $$("[data-n]").forEach(function(el){
+  var to=+el.getAttribute("data-n"),m=el.hasAttribute("data-m"),t0=performance.now(),dur=900;
+  function f(t){var k=Math.min(1,(t-t0)/dur);k=1-Math.pow(1-k,3);var v=to*k;el.textContent=m?money(v):Math.round(v);if(k<1)requestAnimationFrame(f)}
+  requestAnimationFrame(f);
+ });
+}
+function chicagoOpen(){
+ try{
+  var p=new Intl.DateTimeFormat("en-US",{timeZone:"America/Chicago",weekday:"short",hour:"numeric",minute:"numeric",hour12:false}).formatToParts(new Date()),o={};
+  p.forEach(function(x){o[x.type]=x.value});
+  var mins=(parseInt(o.hour,10)%24)*60+parseInt(o.minute,10),wk=["Sat","Sun"].indexOf(o.weekday)<0;
+  return mins>=(wk?10*60+30:14*60)&&mins<21*60;
+ }catch(e){return false}
+}
+function compress(file,max){
+ return new Promise(function(res,rej){
+  var r=new FileReader();r.onerror=rej;
+  r.onload=function(){var im=new Image();im.onerror=rej;im.onload=function(){
+   var k=Math.min(1,max/Math.max(im.width,im.height)),c=document.createElement("canvas");
+   c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);
+   res(c.toDataURL("image/jpeg",.72));
+  };im.src=r.result};
+  r.readAsDataURL(file);
+ });
+}
+function csv(rows){return rows.map(function(r){return r.map(function(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(",")}).join("\n")}
+function download(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type||"text/csv"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
+
+/* ───────── auth ───────── */
+function authView(){
+ var demo=db.users.some(function(u){return u.demo});
+ $("#app").innerHTML=
+ '<div class="auth"><aside class="brandp"><div><span class="lgw"><img src="'+LOGO+'" alt="Gonzales Embroidery"></span>'+
+ '<h2>Your orders,<br><em>stitch by stitch.</em></h2><p>Track every order, see sew-out previews, check what is paid or pending and request new quotes — all in one place.</p>'+
+ '<ul class="perks"><li><b>◉</b>Every order with its status — Paid, Pending or Quote</li><li><b>▣</b>Sew-out photos &amp; videos for approval</li><li><b>$</b>Invoices and statements you can print</li><li><b>✉</b>Message us right from your order</li></ul></div>'+
+ '<svg class="stitchline" viewBox="0 0 400 20" preserveAspectRatio="none"><path d="M2 10 Q 25 0 50 10 T 100 10 T 150 10 T 200 10 T 250 10 T 300 10 T 350 10 T 398 10"/></svg></aside>'+
+ '<section class="authbox"><span class="eyebrow">Client portal</span><h1>Welcome</h1>'+
+ '<div class="tabs"><button class="tab on" data-act="tab" data-t="in">Sign in</button><button class="tab" data-act="tab" data-t="up">Create account</button></div>'+
+ '<div id="aerr"></div>'+
+ '<form class="fm" data-form="signin"><div class="fld"><label for="si-e">Email</label><input id="si-e" type="email" autocomplete="email" required></div>'+
+ '<div class="fld"><label for="si-p">Password</label><input id="si-p" type="password" autocomplete="current-password" required></div>'+
+ '<div><button class="btn" type="submit">Sign in</button></div><button type="button" class="linkb" data-act="forgot">Forgot password?</button></form>'+
+ '<form class="fm" data-form="signup" hidden><div class="fld"><label for="su-n">Full name</label><input id="su-n" autocomplete="name" required></div>'+
+ '<div class="g2"><div class="fld"><label for="su-e">Email</label><input id="su-e" type="email" autocomplete="email" required></div><div class="fld"><label for="su-ph">Phone / WhatsApp</label><input id="su-ph" autocomplete="tel" required></div></div>'+
+ '<div class="fld"><label for="su-a">Address</label><textarea id="su-a"></textarea></div>'+
+ '<div class="fld"><label for="su-w">What work do you do? (business / team / hobby)</label><input id="su-w" placeholder="e.g. Sports team, clothing brand, school"></div>'+
+ '<div class="g2"><div class="fld"><label for="su-p">Password (min 6 characters)</label><input id="su-p" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label for="su-p2">Confirm password</label><input id="su-p2" type="password" autocomplete="new-password" required></div></div>'+
+ '<div><button class="btn" type="submit">Create account</button></div></form>'+
+ (demo?'<div class="demo"><b>Preview accounts</b><br>Client: <code>abc@gmail.com</code> / <code>demo123</code> (ABC · A01)<br>Owner: <code>owner@demo.com</code> / <code>demo123</code><br><button class="btn sm ghost" data-act="fill" data-e="abc@gmail.com">Try client</button> <button class="btn sm navy" data-act="fill" data-e="owner@demo.com">Try owner console</button></div>':'')+
+ '<p class="fine">Preview mode: accounts and orders are saved in this browser only. <a href="'+SITE+'index.html">← Back to website</a></p></section></div>';
+}
+function aerr(m,ok){$("#aerr").innerHTML=m?'<div class="'+(ok?"msgok":"msgerr")+'" style="margin-bottom:14px">'+esc(m)+"</div>":""}
+function doSignin(){
+ var e=lc($("#si-e").value),p=$("#si-p").value,u=db.users.filter(function(x){return lc(x.email)===e})[0];
+ if(!u)return aerr("No account found with that email.");
+ if(!u.hash)return aerr("This email was added by our shop but not activated yet. Use “Create account” with the same email to activate it.");
+ if(hashPw(p,u.salt)!==u.hash)return aerr("Incorrect password.");
+ startSession(u);
+}
+function doSignup(){
+ var n=$("#su-n").value.trim(),e=lc($("#su-e").value),ph=$("#su-ph").value.trim(),p=$("#su-p").value;
+ if(p.length<6)return aerr("Password must be at least 6 characters.");
+ if(p!==$("#su-p2").value)return aerr("Passwords do not match.");
+ var ex=db.users.filter(function(x){return lc(x.email)===e})[0],u;
+ if(ex&&ex.hash)return aerr("An account with this email already exists. Please sign in.");
+ if(ex){u=ex;u.name=n||u.name;u.phone=ph||u.phone;u.address=$("#su-a").value.trim()||u.address;u.work=$("#su-w").value.trim()||u.work}
+ else{u=mkUser({name:n,email:e,phone:ph,address:$("#su-a").value.trim(),work:$("#su-w").value.trim(),cid:nextCid()});db.users.push(u)}
+ setPw(u,p);save();startSession(u);toast("Welcome, "+u.name.split(" ")[0]+"! Your account is active.");
+}
+function startSession(u){me=u;try{ls().setItem(SKEY,u.id)}catch(e){}location.hash="";render()}
+function logout(){me=null;try{ls().removeItem(SKEY)}catch(e){}location.hash="";render()}
+
+/* ───────── shell & routing ───────── */
+var NAV_C=[["overview","◉","Overview"],["orders","▤","My Orders"],["quote","✎","New Quote"],["guide","$","Prices & Turnaround"],["profile","☺","Profile"],["help","?","How to use"]];
+var NAV_A=[["dashboard","◉","Dashboard"],["orders","▤","Orders"],["clients","☺","Clients"],["quotes","✎","Quote Requests"],["import","⇪","Import / Export"],["help","?","How to use"],["settings","⚙","Settings"]];
+function route(){var r=(location.hash||"").replace(/^#\/?/,"").split("?")[0];var nav=isAdmin()?NAV_A:NAV_C;return nav.some(function(n){return n[0]===r})?r:nav[0][0]}
+function render(){
+ if(!me){authView();return}
+ var r=route(),nav=isAdmin()?NAV_A:NAV_C,newQ=db.quotes.filter(function(q){return q.status==="New"}).length,rb="";
+ try{rb=sessionStorage.getItem(RKEY)}catch(e){}
+ var ribbon=rb?"":'<div class="ribbon" id="rib">Preview mode — data is saved in this browser only. <button data-act="rib" aria-label="Dismiss">✕</button></div>';
+ $("#app").innerHTML=ribbon+
+ '<header class="top"><a class="lg" href="'+SITE+'index.html"><img src="'+LOGO+'" alt="Gonzales Embroidery"></a><span class="role">'+(isAdmin()?"Owner console":"Client portal")+'</span><span class="sp"></span>'+
+ '<div class="who"><div class="av">'+esc(initials(me.name))+'</div><span class="nm">'+esc(me.name)+(isAdmin()?"":" · "+custId(me))+'</span><button class="btn sm ghost" style="color:#fff;border-color:#444" data-act="logout">Sign out</button></div></header>'+
+ '<div class="shell"><nav class="side" aria-label="Portal">'+nav.map(function(n){return '<a href="#/'+n[0]+'" class="'+(n[0]===r?"on":"")+'"><i>'+n[1]+"</i>"+n[2]+(n[0]==="quotes"&&newQ?'<span class="bd">'+newQ+"</span>":"")+"</a>"}).join("")+
+ '<a href="'+SITE+'index.html" style="margin-top:10px"><i>←</i>Website</a></nav><main><div class="view" id="view"></div></main></div>';
+ var V={overview:vOverview,orders:vOrders,quote:vQuote,guide:vGuide,profile:vProfile,dashboard:vDash,clients:vClients,quotes:vQuotes,import:vImport,settings:vSettings,help:vHelp};
+ $("#view").innerHTML=V[r]();
+ if(r==="orders")applyOrderFilter(true);
+ if(r==="clients")applyClientFilter();
+ if(r==="quote")estUpdate();
+ countUp();window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",function(){if(me){closeModal();render()}});
+
+/* ───────── shared fragments ───────── */
+function sumHTML(s,sm,still){
+ var it=[["Total Digitizing Orders",s.digi,0,""],["Total Vector Orders",s.vec,0,""],["Total Quotes",s.quotes,0,""],["Total Revenue",s.rev,1,""],["Paid",s.paid,0,""],["Pending",s.pending,0,""],["Paid Revenue",s.paidRev,1,"gr"],["Pending Revenue",s.pendRev,1,"or"]];
+ return '<div class="tiles s8'+(sm?" sm":"")+'">'+it.map(function(i){var v=i[2]?money(i[1]):String(i[1]);return '<div class="tile '+i[3]+'"><small>'+i[0]+"</small><b"+(still?"":' data-n="'+i[1]+'"'+(i[2]?" data-m":""))+">"+(still?v:(i[2]?"$0.00":"0"))+"</b></div>"}).join("")+"</div>";
+}
+function tracker(o){
+ var i=Math.max(0,STAGES.indexOf(o.stage||"Received")),n=STAGES.length;
+ return '<div class="trk" style="--p:'+(i/(n-1)*100)+'%"><div class="line"><i></i></div><ol>'+STAGES.map(function(s,k){return '<li class="'+(k<i?"done":k===i?"now":"")+'"><b>'+(k<i?"✓":k+1)+"</b><span>"+s+"</span></li>"}).join("")+"</ol></div>";
+}
+function hoursCard(){
+ return '<div class="card"><h2>Working Hours</h2><div class="dl"><span>Monday – Friday</span><b>10:30 AM – 9:00 PM</b></div><div class="dl"><span>Saturday – Sunday</span><b>2:00 PM – 9:00 PM</b></div><small class="mono" style="color:var(--red);font-size:.68rem;letter-spacing:.1em">CENTRAL TIME ZONE</small></div>';
+}
+function legendChips(){return '<div class="legendrow"><span class="bg s-Paid">Paid</span><span class="bg s-Pending">Pending</span><span class="bg s-Quote">Quote</span></div>'}
+
+/* ── the order table (same columns as the Excel sheet) ── */
+var sort={k:"no",d:-1},shown=150;
+var COLS_A=[["no","Order Number"],["email","Email"],["client","Client Name"],["job","Job/Logo Name"],["date","Date"],["price","Price"],["type","JB/LC/Cap"],["status","Order Status"],["cid","Customer ID"]];
+var COLS_C=[["no","Order Number"],["job","Job/Logo Name"],["date","Date"],["type","Type"],["price","Price"],["status","Order Status"]];
+function skey(o,k){var c=user(o.clientId)||{};switch(k){case "no":return o.no;case "email":return lc(c.email);case "client":return lc(c.name);case "job":return lc(o.job);case "date":return o.date||"";case "price":return typeof o.price==="number"?o.price:-1;case "type":return lc(o.type);case "status":return lc(o.status);case "cid":return c.cid||0}return 0}
+function stSel(o){return '<select class="stsel s-'+esc(o.status)+'" data-change="rowstatus" data-id="'+o.id+'" aria-label="Order status for order '+o.no+'">'+STATUSES.map(function(s){return "<option"+(s===o.status?" selected":"")+">"+s+"</option>"}).join("")+"</select>"}
+function xlTable(list,admin,opt){
+ opt=opt||{};
+ if(!list.length)return '<div class="empty"><b>No orders found</b>'+(isAdmin()?"Add an order or change the filters.":"When you place an order it will show up here.")+"</div>";
+ var cols=admin?COLS_A:COLS_C,lim=opt.still?list:list.slice(0,shown);
+ var h='<div class="tw'+(opt.still?"":" tall")+'"><table class="xl"><thead><tr>'+cols.map(function(c){
+  var on=!opt.still&&sort.k===c[0];
+  return '<th class="'+(opt.still?"":"sort")+(on?" on":"")+(c[0]==="price"?" num":"")+'"'+(opt.still?"":' data-act="sort" data-k="'+c[0]+'"')+">"+c[1]+(opt.still?"":'<span class="ar">'+(on?(sort.d>0?"▲":"▼"):"↕")+"</span>")+"</th>";
+ }).join("")+"</tr></thead><tbody>";
+ lim.forEach(function(o){
+  var c=user(o.clientId)||{},t='<tr data-act="order" data-id="'+o.id+'"><td class="num"><b>'+o.no+"</b></td>";
+  if(admin)t+='<td><a class="xlink" href="mailto:'+esc(c.email)+'">'+esc(c.email)+"</a></td><td><b>"+esc(c.name)+"</b></td>";
+  t+='<td class="job">'+esc(o.job)+"</td><td>"+fmtXl(o.date)+"</td>";
+  if(admin)t+='<td class="num">'+priceTxt(o)+"</td><td>"+esc(o.type||"—")+"</td><td>"+stSel(o)+"</td><td>"+custId(c)+"</td>";
+  else t+="<td>"+esc(o.type||"—")+'</td><td class="num">'+priceTxt(o)+"</td><td>"+badge(o.status)+"</td>";
+  h+=t+"</tr>";
+ });
+ h+="</tbody></table>"+(list.length>lim.length?'<div class="more"><button class="btn sm ghost" data-act="more">Show 150 more ('+(list.length-lim.length)+" left)</button></div>":"")+"</div>";
+ return h;
+}
+function filtered(){
+ var q=lc(($("#oq")||{}).value),st=($("#os")||{}).value||"",ty=($("#ot")||{}).value||"",f=($("#od1")||{}).value||"",t=($("#od2")||{}).value||"";
+ var l=(isAdmin()?db.orders.slice():myOrders()).filter(function(o){
+  var c=user(o.clientId)||{};
+  if(st&&o.status!==st)return false;if(ty&&o.type!==ty)return false;if(f&&(o.date||"")<f)return false;if(t&&(o.date||"")>t)return false;
+  if(q&&(o.no+" "+o.job+" "+o.type+" "+(c.name||"")+" "+(c.email||"")+" "+custId(c)+" "+o.status).toLowerCase().indexOf(q)<0)return false;
+  return true;
+ });
+ l.sort(function(a,b){var x=skey(a,sort.k),y=skey(b,sort.k),r=x<y?-1:x>y?1:0;if(!r)r=a.no-b.no;return r*sort.d});
+ return l;
+}
+function applyOrderFilter(reset){
+ if(!$("#otbl"))return;if(reset)shown=150;
+ var l=filtered(),sum=0;
+ $("#otbl").innerHTML=xlTable(l,isAdmin());
+ l.forEach(function(o){if(typeof o.price==="number")sum+=o.price});
+ $("#ocnt").textContent=l.length+" order(s) · "+money(sum);
+}
+function orderBar(){
+ return '<div class="bar"><input class="inp" id="oq" placeholder="Search client, email, job, order #, ID…" data-input="ofilter"><select class="inp" id="os" data-change="ofilter"><option value="">All statuses</option>'+STATUSES.map(function(s){return "<option>"+s+"</option>"}).join("")+'</select><select class="inp" id="ot" data-change="ofilter"><option value="">All types</option>'+TYPES.map(function(s){return "<option>"+s+"</option>"}).join("")+'</select><input class="inp" id="od1" type="date" data-change="ofilter" aria-label="From date" title="From date"><input class="inp" id="od2" type="date" data-change="ofilter" aria-label="To date" title="To date"><span class="cnt" id="ocnt"></span></div>';
+}
+
+/* ───────── client views ───────── */
+function vOverview(){
+ var l=myOrders().sort(function(a,b){return b.no-a.no}),s=summary(l),active=l.filter(function(o){return o.stage!=="Delivered"})[0],cur=active||l[0],open=chicagoOpen();
+ var h='<div class="head"><div><span class="eyebrow">Overview · '+custId(me)+'</span><h1>Hello, '+esc(me.name.split(" ")[0])+'.</h1><p>Here\'s where your orders stand.</p></div><div><span class="hpill '+(open?"on":"")+'"><i></i>'+(open?"We're open now (Central Time)":"Currently closed — we'll reply when we open")+"</span></div></div>";
+ h+='<div class="tiles"><div class="tile"><small>My orders</small><b data-n="'+l.length+'">0</b></div><div class="tile"><small>Paid</small><b data-n="'+s.paid+'">0</b></div><div class="tile"><small>Pending</small><b data-n="'+s.pending+'">0</b></div><div class="tile"><small>Quotes</small><b data-n="'+s.quotes+'">0</b></div><div class="tile '+(s.pendRev>0?"or":"")+'"><small>Amount due</small><b data-n="'+s.pendRev+'" data-m>$0.00</b></div></div>';
+ if(cur)h+='<div class="card"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center"><h2 style="margin:0">'+(active?"Order in progress":"Latest order")+" · #"+cur.no+'</h2><span>'+badge(cur.status)+" "+stageBadge(cur.stage)+'</span></div><p style="color:var(--muted);margin:6px 0 10px">'+esc(cur.job)+(cur.type?" — "+esc(cur.type):"")+"</p>"+tracker(cur)+'<div class="hint">'+esc(HINTS[cur.stage]||"")+'</div><div style="margin-top:16px"><button class="btn navy sm" data-act="order" data-id="'+cur.id+'">View order details</button></div></div>';
+ h+='<div class="cols"><div><h2 style="margin-bottom:12px;font-size:1.7rem">Recent orders</h2>'+xlTable(l.slice(0,5),false,{still:true})+'</div><div><div class="band" style="flex-direction:column;align-items:flex-start;margin-top:0"><h3>Need something new?</h3><p>Tell us what you\'re making — a single gift or a hundred-piece team order.</p><a class="btn" href="#/quote">Request a quote</a></div>'+hoursCard()+"</div></div>";
+ return h;
+}
+function vOrders(){
+ if(isAdmin())return '<div class="head"><div><span class="eyebrow">Production</span><h1>Orders</h1></div><button class="btn" data-act="neworder">+ Add order</button></div><div id="sumstrip">'+sumHTML(summary(db.orders),true)+"</div>"+orderBar()+'<div id="otbl"></div>';
+ return '<div class="head"><div><span class="eyebrow">History · '+custId(me)+'</span><h1>My Orders</h1><p>Click any order to see its sew-out preview and messages.</p></div><button class="btn ghost" data-act="stmt-all">Print statement</button></div>'+legendChips()+orderBar()+'<div id="otbl"></div>';
+}
+function vQuote(){
+ var mine=db.quotes.filter(function(q){return q.clientId===me.id}).sort(function(a,b){return b.at-a.at});
+ var h='<div class="head"><div><span class="eyebrow">New request</span><h1>Request a Quote</h1><p>We\'ll reply with pricing and timing.</p></div></div><div class="cols"><div class="card"><form class="fm" data-form="quote">'+
+ '<div class="fld"><label for="q-s">Service</label><select id="q-s" required><option value="">Choose…</option>'+SERVICES.map(function(s){return "<option>"+esc(s)+"</option>"}).join("")+"</select></div>"+
+ '<div class="g2"><div class="fld"><label for="q-q">Quantity</label><input id="q-q" type="number" min="1" required placeholder="e.g. 24"></div><div class="fld"><label for="q-d">Needed by (optional)</label><input id="q-d" type="date"></div></div>'+
+ '<div class="fld"><label for="q-t">Tell us about your project</label><textarea id="q-t" required placeholder="Item, colors, placement, ideas…"></textarea></div>'+
+ '<div><label class="l">Artwork / reference photos (optional)</label><div class="drop" data-act="pickq">＋ Click to add images</div><div class="thumbs" id="qthumbs"></div></div>'+
+ '<div class="row2"><button class="btn" type="submit">Submit request</button><button class="btn wa" type="button" data-act="qwa">WhatsApp</button><button class="btn ghost" type="button" data-act="qmail">Email</button></div>'+
+ '<p class="fine" style="margin-top:0">Vector, DST or other design files? Email them to '+EMAIL+'.</p></form></div>'+
+ '<div><div class="card"><h3>Quick price estimate</h3><div class="est"><div><label class="l">Item</label><select class="inp" id="e-i" data-change="est">'+EST.map(function(e,i){return '<option value="'+i+'">'+e[0]+"</option>"}).join("")+'</select></div><div><label class="l">Pieces</label><input class="inp" id="e-q" type="number" min="1" value="1" data-input="est"></div></div><div class="estout" id="e-o"></div><p class="fine" style="margin-top:4px">Rates are per piece. Patches & bulk orders are quoted individually.</p></div>'+
+ '<div class="card"><h3>My requests</h3>'+(mine.length?mine.map(function(q){return '<div class="dl"><span><b>'+esc(q.service)+"</b><small>"+fmtD(q.date)+" · qty "+esc(q.qty)+"</small></span>"+qbadge(q.status)+"</div>"}).join(""):'<p class="cnt">No requests yet.</p>')+"</div></div></div>";
+ quoteFiles=[];
+ return h;
+}
+var quoteFiles=[];
+function estUpdate(){var i=$("#e-i"),q=$("#e-q"),o=$("#e-o");if(!i||!q||!o)return;var e=EST[+i.value],n=Math.max(1,+q.value||1);o.textContent=(e[2]?"From ":"")+money(e[1]*n)}
+function vGuide(){
+ var h='<div class="head"><div><span class="eyebrow">Pricing</span><h1>Simple rates, no surprises.</h1><p>All rates are per piece. Every job still gets a quick quote so you know the exact cost before we start.</p></div></div><div class="rates">';
+ RATES.forEach(function(r){h+='<div class="rate"><small>'+r.tag+"</small><h3>"+r.title+"</h3><p>"+r.sub+"</p>"+r.rows.map(function(x){return '<div class="row"><span>'+x[0]+'</span><b>$'+x[1]+'<small style="font:400 .62rem \'Space Mono\',monospace;color:var(--muted);margin-left:5px">/ PIECE</small></b></div>'}).join("")+"</div>"});
+ h+='</div><div class="band"><div><h3>Custom patches &amp; bulk team orders</h3><p>Patch pricing depends on size, backing, and quantity, and bulk/team orders get volume pricing. Send us your design and quantity for an exact quote.</p></div><a class="btn" href="#/quote">Request a quote</a></div><p class="fine" style="margin:-8px 0 30px">Complex vector pricing starts at $15 and depends on the artwork. We\'ll always confirm the price before starting.</p>';
+ h+='<div class="head"><div><span class="eyebrow">Turnaround Times</span><h1>How long it actually takes.</h1><p>Most caps and left-chest embroidery are stitched the same day.</p></div></div><div class="grid2">';
+ TAT.forEach(function(t,ti){h+='<div class="card"><h3 style="font-family:\'Work Sans\';font-weight:700;font-size:1.1rem">'+t[0]+"</h3>"+t[1].map(function(r){return '<div class="dl"><span>'+r[0]+(r[1]?"<small>"+r[1]+"</small>":"")+"</span><b"+(r[1]==="Rush"?' class="neg"':"")+">"+r[2]+"</b></div>"}).join("")+(ti?'<p class="fine">A complex vector can sometimes take a couple of weeks depending on the amount of detail — we\'ll give you a real estimate up front.</p>':"")+"</div>"});
+ h+='</div><div class="hint" style="margin-bottom:22px"><b>Need it in a rush?</b> We\'ll do our best to accommodate your timeline — message us with your deadline and we\'ll let you know what\'s possible.</div>'+hoursCard();
+ return h;
+}
+function vProfile(){
+ return '<div class="head"><div><span class="eyebrow">Account</span><h1>My Profile</h1><p>Customer ID: <b>'+custId(me)+'</b></p></div></div><div class="grid2"><div class="card"><h3>Details</h3><form class="fm" data-form="profile"><div class="fld"><label>Full name</label><input id="p-n" value="'+esc(me.name)+'" required></div><div class="fld"><label>Email</label><input value="'+esc(me.email)+'" disabled></div><div class="fld"><label>Phone / WhatsApp</label><input id="p-p" value="'+esc(me.phone)+'"></div><div class="fld"><label>Address</label><textarea id="p-a">'+esc(me.address)+'</textarea></div><div class="fld"><label>Your work</label><input id="p-w" value="'+esc(me.work)+'"></div><div><button class="btn" type="submit">Save changes</button></div></form></div>'+
+ '<div class="card"><h3>Change password</h3><form class="fm" data-form="pw"><div class="fld"><label>Current password</label><input id="pw0" type="password" autocomplete="current-password" required></div><div class="fld"><label>New password (min 6)</label><input id="pw1" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label>Confirm new password</label><input id="pw2" type="password" autocomplete="new-password" required></div><div><button class="btn navy" type="submit">Update password</button></div></form></div></div>';
+}
+
+/* ───────── help (method of use + the Excel formulas) ───────── */
+var FORMULAS=[
+ ["Total Digitizing Orders",'=COUNTIFS(I15:I589,"Front Chest") + COUNTIFS(I15:I589,"Left Chest") + COUNTIFS(I15:I589,"Cap") + COUNTIFS(I15:I589,"Jacket Back")',"Orders whose JB/LC/Cap type is Front Chest, Left Chest, Cap or Jacket Back.","digi",0],
+ ["Total Vector Orders",'=COUNTIF(I15:I580,"Vector")',"Orders whose type is Vector.","vec",0],
+ ["Total Quotes",'=COUNTIF(J15:J580,"Quote")',"Orders whose status is Quote.","quotes",0],
+ ["Total Revenue",'=SUM(H15:H580)',"Every price added up. “Free” is ignored, so this always equals Paid Revenue + Pending Revenue.","rev",1],
+ ["Paid",'=COUNTIF(J15:J580,"Paid")',"Orders marked Paid.","paid",0],
+ ["Pending",'=COUNTIF(J15:J580,"Pending")',"Orders marked Pending.","pending",0],
+ ["Paid Revenue",'=SUMIF(J15:J580,"Paid",H15:H580)',"Prices of the Paid orders added up.","paidRev",1],
+ ["Pending Revenue",'=SUMIF(J15:J580,"Pending",H15:H580)',"Prices of the Pending orders added up — money still to collect.","pendRev",1],
+ ["Order Number",'=C23+1',"Each new order automatically gets the last number + 1.",null,0],
+ ["Statement total (Direct Invoice sheet)",'=SUM(H5:H9)',"A client's prices for the dates you choose, added up.",null,0]
+];
+function vHelp(){
+ if(!isAdmin())return '<div class="head"><div><span class="eyebrow">Guide</span><h1>How to use your portal</h1><p>Everything about your orders in one place.</p></div></div>'+
+ '<div class="card"><h2>What you can do here</h2><ol class="how"><li><b>Overview</b> shows your latest order and how far along it is — from Received to Delivered.</li><li><b>My Orders</b> lists every order. Search by job name, filter by status or type, and click an order to see its <b>sew-out photos and videos</b>.</li><li>Not happy with something? Open the order and <b>message us</b> right there.</li><li><b>New Quote</b> sends us your idea (add reference images if you have them). We reply with price and timing.</li><li><b>Print invoice</b> inside an order, or <b>Print statement</b> on My Orders for all your jobs at once.</li></ol></div>'+
+ '<div class="card"><h2>What the colours mean</h2>'+legendChips()+'<div class="dl"><span><span class="bg s-Paid">Paid</span></span><b style="white-space:normal;text-align:right">This order has been paid. Thank you!</b></div><div class="dl"><span><span class="bg s-Pending">Pending</span></span><b style="white-space:normal;text-align:right">Payment is still due.</b></div><div class="dl"><span><span class="bg s-Quote">Quote</span></span><b style="white-space:normal;text-align:right">A free quote or sample — nothing to pay.</b></div></div>'+
+ '<div class="card"><h2>Your Customer ID</h2><p>Your ID is <b>'+custId(me)+'</b>. Quote it when you message us and we\'ll find your jobs instantly.</p></div>';
+ var s=summary(db.orders);
+ var h='<div class="head"><div><span class="eyebrow">Method of use</span><h1>How to use the panel</h1><p>Everything from your Excel sheet, in one place.</p></div></div>';
+ h+='<div class="card"><h2>Your daily routine</h2><ol class="how">'+
+ '<li><b>Orders → + Add order.</b> Pick the client — their Customer ID (A01, A02 …) fills in by itself. New client? Choose “New client…” and type their name and email; they get the next ID automatically.</li>'+
+ '<li>Choose the type: <b>Cap, Left Chest, Front Chest, Jacket Back</b> or <b>Vector</b>. The price fills in from your rates ($8 · $8 · $15 · $15 · $10) — change it if the job is different. The Order Number is added for you.</li>'+
+ '<li>Set the <b>Order Status</b>: <span class="bg s-Pending">Pending</span> until it is paid, <span class="bg s-Paid">Paid</span> when it is, or <span class="bg s-Quote">Quote</span> for a free quote (price shows “Free”).</li>'+
+ '<li>When a client pays, just <b>click the coloured status cell in the table</b> and choose Paid. The totals at the top update instantly.</li>'+
+ '<li>Open an order to <b>add sew-out photos or a video link</b>. Your client sees them in their portal and can message you back.</li>'+
+ '<li>At the end of the month: <b>Clients → open a client → pick the dates → Print statement</b> (the same layout as your Direct Invoice sheet).</li></ol></div>';
+ h+='<div class="card"><h2>Same columns as your sheet</h2><div class="tw"><table style="min-width:560px"><thead><tr><th>Excel column</th><th>In the panel</th></tr></thead><tbody>'+
+ [["Order Number","Added automatically (last + 1). Click the header to sort."],["Email","Taken from the client. Click it to write an email."],["Client Name","Pick an existing client or add a new one."],["Job/Logo Name","Type the logo or job name."],["Date","Today by default — shown like 11-Nov-26."],["Price","Fills in from the type; “Free” for a Quote."],["JB/LC/Cap","Cap · Left Chest · Front Chest · Jacket Back · Vector"],["Order Status","Paid (green) · Pending (red) · Quote (yellow) — change it right in the table."],["Customer ID","One ID per client — A01, A02, A03 …"]].map(function(r){return "<tr style='cursor:default'><td><b>"+r[0]+"</b></td><td>"+r[1]+"</td></tr>"}).join("")+
+ '</tbody></table></div></div>';
+ h+='<div class="card"><h2>Your Excel formulas — live</h2><p class="cnt" style="margin-bottom:12px">These are the exact formulas from your Order Details sheet and what the panel does with them. The last column is the value right now.</p><div class="tw"><table style="min-width:760px"><thead><tr><th>What</th><th>Formula in Excel</th><th>What it means</th><th class="num">Now</th></tr></thead><tbody>'+
+ FORMULAS.map(function(f){var v=f[3]?(f[4]?money(s[f[3]]):s[f[3]]):"—";return "<tr style='cursor:default'><td><b>"+esc(f[0])+"</b></td><td><code class='f'>"+esc(f[1])+"</code></td><td>"+esc(f[2])+"</td><td class='num'><b>"+v+"</b></td></tr>"}).join("")+
+ '</tbody></table></div><p class="fine">Your sheet stops counting at row 580. The panel has no row limit.</p></div>';
+ h+='<div class="card"><h2>Bring your Excel in</h2><ol class="how"><li>Go to <b>Import / Export</b> and choose <b>Order_Details.xlsx</b>.</li><li>The panel finds your header row (row 14) on its own, ignores the empty numbered rows, and reads Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status and Customer ID.</li><li>You see exactly what it found. Press <b>Import everything</b> to save it. Importing the same file again never creates duplicates.</li><li>The <b>Direct Invoice</b> and <b>Xoom Payment</b> sheets are skipped — they are not order lists.</li><li>First time? Go to <b>Settings → Remove demo data</b> so the sample ABC / XYZ / MNO rows do not mix with your real orders.</li></ol></div>';
+ h+='<div class="card"><h2>Keep your data safe</h2><p>Everything is stored in <b>this browser on this computer</b>. Use the same browser each time, and press <b>Settings → Download backup</b> every week. You can restore a backup on any computer.</p></div>';
+ return h;
+}
+
+/* ───────── admin views ───────── */
+function vDash(){
+ var s=summary(db.orders),nq=db.quotes.filter(function(q){return q.status==="New"}).length,months=[],now=new Date();
+ for(var i=5;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({k:d.getFullYear()+"-"+pad(d.getMonth()+1),l:MON[d.getMonth()],b:0,p:0})}
+ db.orders.forEach(function(o){var m=months.filter(function(x){return x.k===(o.date||"").slice(0,7)})[0],p=typeof o.price==="number"?o.price:0;if(m){m.b+=p;if(lc(o.status)==="paid")m.p+=p}});
+ var mx=Math.max.apply(null,months.map(function(m){return m.b}).concat([1]));
+ var latest=db.orders.slice().sort(function(a,b){return b.no-a.no}).slice(0,8);
+ return '<div class="head"><div><span class="eyebrow">Overview</span><h1>Dashboard</h1></div><span class="hpill '+(chicagoOpen()?"on":"")+'"><i></i>'+(chicagoOpen()?"Shop open now":"Shop closed")+"</span></div>"+
+ sumHTML(s,false)+
+ (nq?'<div class="hint" style="margin:-8px 0 22px"><b>'+nq+' new quote request'+(nq>1?"s":"")+'</b> waiting — <a href="#/quotes" style="text-decoration:underline">open Quote Requests</a></div>':"")+
+ '<div class="card"><h2>Last 6 months</h2><div class="chart">'+months.map(function(m,i){return '<div class="m"><div class="bars"><i title="All orders '+money(m.b)+'" style="height:'+Math.max(2,m.b/mx*100)+"%;animation-delay:"+i*.08+'s"></i><i title="Paid '+money(m.p)+'" style="height:'+Math.max(2,m.p/mx*100)+"%;animation-delay:"+(i*.08+.05)+'s"></i></div></div>'}).join("")+'</div><div class="xl2">'+months.map(function(m){return "<span>"+m.l+"</span>"}).join("")+'</div><div class="legend"><span>All orders</span><span>Paid</span></div></div>'+
+ '<div class="head" style="margin-bottom:12px"><h2 style="font-size:1.8rem">Latest Orders</h2><a class="btn sm ghost" href="#/orders">All orders</a></div>'+xlTable(latest,true,{still:true});
+}
+function clientsTable(l){
+ if(!l.length)return '<div class="empty"><b>No clients found</b></div>';
+ return '<div class="tw tall"><table><thead><tr><th>Customer ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Work</th><th class="num">Orders</th><th class="num">Paid Revenue</th><th class="num">Pending Revenue</th><th>Portal</th></tr></thead><tbody>'+
+ l.map(function(c){var s=clientStats(c);return '<tr data-act="client" data-id="'+c.id+'"><td><b>'+custId(c)+"</b></td><td><b>"+esc(c.name)+"</b></td><td>"+esc(c.email)+"</td><td>"+esc(c.phone)+"</td><td>"+esc(c.work)+'</td><td class="num">'+s.count+'</td><td class="num">'+money(s.paidRev)+'</td><td class="num '+(s.pendRev>0?"neg":"")+'">'+money(s.pendRev)+"</td><td>"+(c.hash?'<span class="bg g-Delivered">Active</span>':'<span class="bg q-Closed">Not activated</span>')+"</td></tr>"}).join("")+"</tbody></table></div>";
+}
+function vClients(){
+ var n=clients().length;
+ return '<div class="head"><div><span class="eyebrow">People</span><h1>Clients</h1></div><button class="btn" data-act="newclient">+ Add client</button></div><div class="bar"><input class="inp" id="cq" placeholder="Search name, email, phone, ID…" data-input="cfilter"><span class="cnt" id="ccnt">'+n+' client(s)</span></div><div id="ctbl"></div>';
+}
+function applyClientFilter(){
+ if(!$("#ctbl"))return;
+ var q=lc(($("#cq")||{}).value),l=clients().filter(function(c){return !q||(c.name+" "+c.email+" "+c.phone+" "+custId(c)).toLowerCase().indexOf(q)>-1}).sort(function(a,b){return a.cid-b.cid});
+ $("#ctbl").innerHTML=clientsTable(l);$("#ccnt").textContent=l.length+" client(s)";
+}
+function vQuotes(){
+ var l=db.quotes.slice().sort(function(a,b){return b.at-a.at});
+ return '<div class="head"><div><span class="eyebrow">Leads</span><h1>Quote Requests</h1><p>Requests sent from the client portal. Convert one into an order with a click.</p></div></div>'+(l.length?'<div class="tw"><table><thead><tr><th>Date</th><th>Client</th><th>Service</th><th class="num">Qty</th><th>Needed by</th><th>Status</th><th>Details</th></tr></thead><tbody>'+l.map(function(q){var c=user(q.clientId);return '<tr data-act="quote" data-id="'+q.id+'"><td>'+fmtD(q.date)+"</td><td><b>"+esc(c?c.name:"—")+"</b></td><td>"+esc(q.service)+'</td><td class="num">'+esc(q.qty)+"</td><td>"+fmtD(q.needed)+"</td><td>"+qbadge(q.status)+"</td><td>"+esc((q.details||"").slice(0,60))+((q.details||"").length>60?"…":"")+"</td></tr>"}).join("")+"</tbody></table></div>":'<div class="card empty"><b>No quote requests yet</b>Requests from clients will appear here.</div>');
+}
+function vSettings(){
+ var demo=db.users.some(function(u){return u.demo});
+ return '<div class="head"><div><span class="eyebrow">Admin</span><h1>Settings</h1></div></div><div class="grid2"><div class="card"><h3>Owner login</h3><form class="fm" data-form="owner"><div class="fld"><label>Owner email</label><input id="ow-e" type="email" value="'+esc(me.email)+'" required></div><div class="fld"><label>New password (leave blank to keep)</label><input id="ow-p" type="password" minlength="6" autocomplete="new-password"></div><div><button class="btn navy" type="submit">Save owner login</button></div></form></div>'+
+ '<div class="card"><h3>Backup &amp; restore</h3><p class="cnt" style="margin-bottom:14px">Everything is stored in this browser. Download a backup every week and restore it on any other computer.</p><div class="row2"><button class="btn" data-act="backup">Download backup</button><button class="btn ghost" data-act="restore">Restore backup</button></div></div>'+
+ '<div class="card"><h3>Demo data</h3><p class="cnt" style="margin-bottom:14px">'+(demo?"Sample clients ABC, XYZ and MNO with 9 test orders are loaded so you can explore. Remove them before importing your real orders.":"No demo data in this portal.")+'</p><div class="row2"><button class="btn danger" data-act="cleardemo"'+(demo?"":" disabled")+'>Remove demo data</button><button class="btn danger" data-act="wipe">Erase everything</button></div></div></div>';
+}
+function vImport(){
+ return '<div class="head"><div><span class="eyebrow">Data</span><h1>Import / Export</h1></div></div><div class="card"><h2>Import your Excel sheet</h2><p style="max-width:80ch;margin-bottom:14px">Choose <b>Order_Details.xlsx</b> (or a .csv). The panel finds the header row by itself — the banner and summary rows above it are ignored — and reads <b>Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status</b> and <b>Customer ID</b>. Empty numbered rows are skipped. You see what was found first; nothing is saved until you press <b>Import everything</b>. Importing the same file again does not create duplicates.</p><div class="row2"><button class="btn navy" data-act="pickimport">Choose files</button><span class="cnt" id="impf">No file chosen</span></div><p style="margin:14px 0 8px">Dates written as text (like 03/04/2025) are: <select class="inp" id="impd" style="display:inline-block;width:auto"><option value="mdy">Month / Day / Year (US)</option><option value="dmy">Day / Month / Year</option></select></p><div class="row2" style="margin:12px 0"><button class="btn" data-act="doimport" id="impgo" disabled>Import everything</button></div><div class="log" id="implog">Waiting for a file...</div></div>'+
+ '<div class="card"><h2>Export</h2><p class="cnt" style="margin-bottom:12px">Same columns, same order as your Excel sheet — open the file in Excel.</p><div class="row2"><button class="btn ghost" data-act="expo">Orders (CSV)</button><button class="btn ghost" data-act="expc">Clients (CSV)</button></div></div>';
+}
+
+/* ───────── order drawer ───────── */
+var curOrder=null;
+function openOrder(id){
+ var o=order(id);if(!o)return;curOrder=id;var c=user(o.clientId)||{},adm=isAdmin();
+ var h='<span class="eyebrow">Order</span><h1 style="font-size:2.6rem;margin:6px 0 4px">#'+o.no+" "+badge(o.status)+'</h1><p style="color:var(--muted)">'+esc(o.job)+(o.type?" — "+esc(o.type):"")+(adm?" · <b>"+esc(c.name||"")+"</b> ("+custId(c)+")":"")+"</p>"+
+ '<div style="margin:18px 0">'+tracker(o)+'<div class="hint">'+esc(HINTS[o.stage]||"")+"</div></div>"+
+ '<div class="dgrid"><div><small>Order date</small><b>'+fmtXl(o.date)+"</b></div><div><small>Type</small><b>"+esc(o.type||"—")+"</b></div><div><small>Price</small><b>"+priceTxt(o)+"</b></div><div><small>Order status</small><b>"+esc(o.status)+"</b></div>"+(adm?"<div><small>Customer ID</small><b>"+custId(c)+"</b></div>":"")+"</div>"+(o.notes?'<div class="card" style="padding:14px 18px"><small class="mono" style="color:var(--muted)">NOTES</small><br>'+esc(o.notes)+"</div>":"");
+ if(adm)h+='<div class="card"><h3>Manage</h3><div class="row2" style="margin-bottom:12px"><div style="flex:1;min-width:150px"><label class="l">Order status</label><select class="stsel s-'+esc(o.status)+'" data-change="status" style="width:100%;padding:11px">'+STATUSES.map(function(s){return "<option"+(s===o.status?" selected":"")+">"+s+"</option>"}).join("")+'</select></div><div style="flex:1;min-width:150px"><label class="l">Progress (client sees this)</label><select class="inp" data-change="stage">'+STAGES.map(function(s){return "<option"+(s===o.stage?" selected":"")+">"+s+"</option>"}).join("")+'</select></div></div><div class="row2">'+(o.status!=="Paid"?'<button class="btn sm green" data-act="markpaid">Mark as Paid</button>':"")+'<button class="btn sm navy" data-act="editorder">Edit</button><button class="btn sm ghost" data-act="invoice">Invoice</button><button class="btn sm danger" data-act="delorder">Delete</button></div></div>';
+ else h+='<div class="row2" style="margin-bottom:18px"><button class="btn sm ghost" data-act="invoice">Print invoice</button><button class="btn sm navy" data-act="reorder">Order again</button></div>';
+ h+='<div class="card"><h3>Sew-out preview'+(o.photos.length+o.videos.length>1?"s":"")+"</h3>";
+ if(o.photos.length)h+='<div class="gal">'+o.photos.map(function(p,i){return '<figure data-act="zoom" data-i="'+i+'"><img src="'+p+'" alt="Sew-out photo '+(i+1)+'">'+(adm?'<button class="rm" data-act="rmphoto" data-i="'+i+'" aria-label="Remove photo">✕</button>':"")+"</figure>"}).join("")+"</div>";
+ o.videos.forEach(function(v,i){var y=(String(v).match(/(?:youtu\.be\/|v=|embed\/|shorts\/)([\w-]{11})/)||[])[1];h+='<div class="vid">'+(y?'<iframe src="https://www.youtube.com/embed/'+y+'" allowfullscreen loading="lazy" title="Sew-out video"></iframe>':'<a href="'+esc(v)+'" target="_blank" rel="noopener">▶ Watch sew-out video</a>')+(adm?'<div style="padding:6px 10px;background:#fff"><button class="linkb" data-act="rmvideo" data-i="'+i+'">Remove video</button></div>':"")+"</div>"});
+ if(!o.photos.length&&!o.videos.length)h+='<p class="cnt">'+(adm?"No previews yet — add photos or a video link below.":"Photos and videos of your finished sew-out will appear here for approval.")+"</p>";
+ if(adm)h+='<div class="row2" style="margin-top:12px"><button class="btn sm" data-act="addphoto">＋ Add photos</button></div><form class="row2" style="margin-top:10px" data-form="video"><input class="inp" id="vd-u" type="url" placeholder="Video link (YouTube, Google Drive…)" required><button class="btn sm navy" type="submit">Add video link</button></form><p class="fine" style="margin-top:8px">Photos are compressed and saved in this browser. For long videos, paste a link.</p>';
+ h+="</div>";
+ h+='<div class="card"><h3>Messages</h3><div class="chat" id="chat">'+o.messages.map(function(m){if(m.from==="system")return '<div class="bub sys">'+esc(m.text)+" · "+fmtT(m.at)+"</div>";var mine=(m.from==="owner")===adm;return '<div class="bub'+(mine?" me":"")+'">'+esc(m.text)+"<small>"+esc(m.name||"")+" · "+fmtT(m.at)+"</small></div>"}).join("")+'</div><form class="row2" data-form="msg"><input class="inp" id="msg-t" placeholder="Write a message…" required autocomplete="off"><button class="btn sm" type="submit">Send</button></form></div>';
+ modal(h);var ch=$("#chat");if(ch)ch.scrollTop=ch.scrollHeight;
+ if(o.stage==="Delivered"&&o.status==="Paid"&&!adm&&!o._seen){o._seen=1;save();setTimeout(confetti,350)}
+}
+function guessType(s){s=lc(s);if(/vector/.test(s))return "Vector";if(/large/.test(s))return "Front Chest";if(/small|digitiz|cap/.test(s))return "Cap";return ""}
+function orderForm(o,pre){
+ o=o||{};pre=pre||{};
+ var edit=!!o.id,cs=clients().sort(function(a,b){return a.name.localeCompare(b.name)}),st=o.status||pre.status||"Pending",ty=o.type||pre.type||"",cid0=o.clientId||pre.clientId||"";
+ var price=edit?(typeof o.price==="number"?o.price:""):(st==="Quote"?"":(ty?TYPE_PRICE[ty]:""));
+ modal('<span class="eyebrow">'+(edit?"Edit":"New")+' order</span><h1 style="font-size:2.2rem;margin:6px 0 18px">'+(edit?"Order #"+o.no:"Add order")+'</h1><form class="fm" data-form="orderform" data-id="'+(o.id||"")+'" data-q="'+(pre.quoteId||"")+'">'+
+ '<div class="fld"><label>Client</label><select id="of-c" data-change="ofClient" required><option value="">Choose client…</option>'+cs.map(function(c){return '<option value="'+c.id+'"'+(cid0===c.id?" selected":"")+">"+esc(c.name)+" — "+esc(c.email)+" ("+custId(c)+")</option>"}).join("")+'<option value="__new__">＋ New client…</option></select><small class="cnt" id="of-cid"></small></div>'+
+ '<div id="of-new" class="g2" hidden><div class="fld"><label>New client name</label><input id="of-nn"></div><div class="fld"><label>Email</label><input id="of-ne" type="email"></div><div class="fld"><label>Phone (optional)</label><input id="of-np"></div></div>'+
+ '<div class="g2"><div class="fld"><label>Job/Logo Name</label><input id="of-j" value="'+esc(o.job||pre.job||"")+'" placeholder="e.g. Eagle Logo Cap" required></div><div class="fld"><label>Date</label><input id="of-d" type="date" value="'+esc(o.date||iso())+'" required></div></div>'+
+ '<div class="g2"><div class="fld"><label>JB / LC / Cap</label><select id="of-t" data-change="ofType" required><option value="">Choose type…</option>'+TYPES.map(function(t){return "<option"+(t===ty?" selected":"")+">"+t+"</option>"}).join("")+(ty&&TYPES.indexOf(ty)<0?"<option selected>"+esc(ty)+"</option>":"")+'</select></div><div class="fld"><label>Price ($) — blank = Free (Quote)</label><input id="of-p" type="number" step="0.01" min="0" value="'+price+'" placeholder="Free" data-auto="'+(edit?"":"1")+'"></div></div>'+
+ '<div class="fld"><label>Order Status</label><select id="of-st" data-change="ofStatus">'+STATUSES.map(function(s){return "<option"+(s===st?" selected":"")+">"+s+"</option>"}).join("")+'</select></div><div class="fld"><label>Notes (visible to client)</label><textarea id="of-n">'+esc(o.notes||pre.notes||"")+'</textarea></div><div class="row2"><button class="btn" type="submit">Save order</button><button type="button" class="btn ghost" data-act="close">Cancel</button></div></form>',true);
+ ofClientHint();
+}
+function ofClientHint(){
+ var s=$("#of-c"),h=$("#of-cid"),n=$("#of-new");if(!s||!h)return;
+ if(s.value==="__new__"){n.hidden=false;h.textContent="New client — will get Customer ID "+("A"+String(nextCid()).padStart(2,"0"))}
+ else{n.hidden=true;var c=user(s.value);h.textContent=c?"Customer ID: "+custId(c):""}
+}
+function clientForm(c){
+ c=c||{};
+ modal('<span class="eyebrow">'+(c.id?"Edit":"New")+' client</span><h1 style="font-size:2.2rem;margin:6px 0 18px">'+(c.id?esc(c.name)+" · "+custId(c):"Add client")+'</h1><form class="fm" data-form="clientform" data-id="'+(c.id||"")+'"><div class="fld"><label>Full name</label><input id="cf-n" value="'+esc(c.name||"")+'" required></div><div class="g2"><div class="fld"><label>Email</label><input id="cf-e" type="email" value="'+esc(c.email||"")+'" required></div><div class="fld"><label>Phone / WhatsApp</label><input id="cf-p" value="'+esc(c.phone||"")+'"></div></div><div class="fld"><label>Address</label><textarea id="cf-a">'+esc(c.address||"")+'</textarea></div><div class="fld"><label>Work</label><input id="cf-w" value="'+esc(c.work||"")+'"></div>'+(c.id?'<div class="fld"><label>Set a new password for this client (optional)</label><input id="cf-pw" type="password" minlength="6" autocomplete="new-password"></div>':'<p class="fine" style="margin:0">The next Customer ID ('+("A"+String(nextCid()).padStart(2,"0"))+') is assigned automatically. The client can activate their portal by choosing “Create account” with this email.</p>')+'<div class="row2"><button class="btn" type="submit">Save client</button><button type="button" class="btn ghost" data-act="close">Cancel</button></div></form>',true);
+}
+function openClient(id){
+ var c=user(id);if(!c)return;var s=clientStats(c),l=db.orders.filter(function(o){return o.clientId===id}).sort(function(a,b){return b.no-a.no}),d=new Date();
+ modal('<span class="eyebrow">Customer ID '+custId(c)+'</span><h1 style="font-size:2.4rem;margin:6px 0 4px">'+esc(c.name)+'</h1><p style="color:var(--muted)">'+esc(c.work||"")+'</p><div class="dgrid"><div><small>Email</small><b style="font-size:.9rem;word-break:break-all">'+esc(c.email)+'</b></div><div><small>Phone</small><b>'+esc(c.phone||"—")+'</b></div><div><small>Orders</small><b>'+s.count+'</b></div><div><small>Paid Revenue</small><b>'+money(s.paidRev)+'</b></div><div><small>Pending Revenue</small><b class="'+(s.pendRev>0?"neg":"")+'">'+money(s.pendRev)+"</b></div></div>"+(c.address?'<p style="margin-bottom:16px"><small class="mono" style="color:var(--muted)">ADDRESS</small><br>'+esc(c.address)+"</p>":"")+
+ '<div class="row2" style="margin-bottom:18px"><button class="btn sm" data-act="neworder" data-c="'+c.id+'">+ Order</button><button class="btn sm navy" data-act="editclient" data-id="'+c.id+'">Edit</button>'+(c.phone?'<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/'+String(c.phone).replace(/\D/g,"")+'">WhatsApp</a>':"")+'<button class="btn sm danger" data-act="delclient" data-id="'+c.id+'">Delete</button></div>'+
+ '<div class="card"><h3>Statement</h3><form class="row2" data-form="stmt" data-id="'+c.id+'"><div><label class="l">From</label><input class="inp" id="st-f" type="date" value="'+iso(new Date(d.getFullYear(),d.getMonth(),1))+'"></div><div><label class="l">To</label><input class="inp" id="st-t" type="date" value="'+iso(d)+'"></div><button class="btn sm navy" type="submit" style="align-self:flex-end">Print statement</button></form></div>'+
+ '<h3>Orders</h3>'+xlTable(l,false,{still:true}));
+}
+function openQuote(id){
+ var q=db.quotes.filter(function(x){return x.id===id})[0];if(!q)return;var c=user(q.clientId);
+ modal('<span class="eyebrow">Quote request</span><h1 style="font-size:2.2rem;margin:6px 0 8px">'+esc(q.service)+" "+qbadge(q.status)+'</h1><p style="color:var(--muted)">'+esc(c?c.name+" · "+custId(c):"—")+" · "+fmtD(q.date)+'</p><div class="dgrid"><div><small>Quantity</small><b>'+esc(q.qty)+"</b></div><div><small>Needed by</small><b>"+fmtD(q.needed)+'</b></div><div><small>Contact</small><b style="font-size:.85rem;word-break:break-all">'+esc(c?c.email:"")+"</b></div></div><div class=\"card\" style=\"padding:14px 18px\">"+esc(q.details)+"</div>"+(q.files&&q.files.length?'<div class="gal" style="margin-bottom:18px">'+q.files.map(function(p,i){return '<figure data-act="zoomq" data-id="'+q.id+'" data-i="'+i+'"><img src="'+p+'" alt="Reference"></figure>'}).join("")+"</div>":"")+
+ '<div class="row2"><button class="btn sm" data-act="q2o" data-id="'+q.id+'">Convert to order</button><button class="btn sm ghost" data-act="qs" data-id="'+q.id+'" data-s="Replied">Mark replied</button><button class="btn sm ghost" data-act="qs" data-id="'+q.id+'" data-s="Closed">Close</button>'+(c&&c.phone?'<a class="btn sm wa" target="_blank" rel="noopener" href="https://wa.me/'+String(c.phone).replace(/\D/g,"")+'">WhatsApp</a>':"")+(c?'<a class="btn sm ghost" href="mailto:'+esc(c.email)+"?subject="+encodeURIComponent("Your quote — "+q.service)+'">Email</a>':"")+'<button class="btn sm danger" data-act="qdel" data-id="'+q.id+'">Delete</button></div>');
+}
+
+/* ───────── printing ───────── */
+function printDoc(html){$("#printArea").innerHTML=html;setTimeout(function(){window.print()},120)}
+function docHead(title,right){return '<div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #2b2a6a;padding-bottom:14px;margin-bottom:20px"><img src="'+LOGO+'" style="height:60px" alt=""><div style="text-align:right"><h1 style="font-size:2rem;margin:0;font-family:Anton,sans-serif;font-weight:400">'+title+"</h1>"+right+"</div></div>"}
+function invoice(o){
+ var c=user(o.clientId)||{};
+ printDoc(docHead("INVOICE","<div>#"+o.no+"<br>"+fmtXl(o.date)+"</div>")+'<p><b>Bill to</b><br>'+esc(c.name||"")+" · "+custId(c)+"<br>"+esc(c.email||"")+"<br>"+esc(c.phone||"")+'</p><table style="margin-top:20px"><thead><tr><th>Job/Logo Name</th><th>Type</th><th>Date</th><th class="num">Price</th></tr></thead><tbody><tr><td>'+esc(o.job)+"</td><td>"+esc(o.type||"")+"</td><td>"+fmtXl(o.date)+'</td><td class="num">'+priceTxt(o)+'</td></tr></tbody></table><div style="text-align:right;margin-top:16px;line-height:1.8">Status: <b>'+esc(o.status)+'</b><br><span style="font-size:1.3rem"><b>Balance due: '+money(o.status==="Pending"&&typeof o.price==="number"?o.price:0)+'</b></span></div><p style="margin-top:40px;color:#555;font-size:.85rem">Gonzales Embroidery · '+EMAIL+" · +1 (409) 797-7539 · Thank you for your business!</p>");
+}
+function statement(cid,from,to){
+ var c=user(cid)||{},l=db.orders.filter(function(o){return o.clientId===cid&&(!from||o.date>=from)&&(!to||o.date<=to)}).sort(function(a,b){return a.date<b.date?-1:a.date>b.date?1:a.no-b.no});
+ if(!l.length)return toast("No orders in that period.","err");
+ var s=summary(l);
+ printDoc(docHead("STATEMENT","<div>"+(from?fmtXl(from):"All dates")+" – "+(to?fmtXl(to):"today")+"</div>")+'<p><b>'+esc(c.name||"")+"</b> · "+custId(c)+"<br>"+esc(c.email||"")+'</p><table style="margin-top:18px"><thead><tr><th>Order</th><th>Logo Name</th><th>Date</th><th>Type</th><th class="num">Price</th><th>Status</th></tr></thead><tbody>'+l.map(function(o){return "<tr><td>#"+o.no+"</td><td>"+esc(o.job)+"</td><td>"+fmtXl(o.date)+"</td><td>"+esc(o.type||"")+'</td><td class="num">'+priceTxt(o)+"</td><td>"+esc(o.status)+"</td></tr>"}).join("")+'</tbody></table><div style="text-align:right;margin-top:16px;line-height:1.8">Total: <b>'+money(s.rev)+"</b><br>Paid: "+money(s.paidRev)+'<br><span style="font-size:1.3rem"><b>Balance due: '+money(s.pendRev)+'</b></span></div><p style="margin-top:40px;color:#555;font-size:.85rem">Gonzales Embroidery · '+EMAIL+" · +1 (409) 797-7539</p>");
+}
+
+/* ───────── Excel import (reads the exact layout of Order_Details.xlsx) ───────── */
+var pending=null;
+function log(t,add){var l=$("#implog");if(l)l.textContent=add?l.textContent+"\n"+t:t}
+function loadXLSX(){return new Promise(function(res,rej){if(window.XLSX)return res();var s=document.createElement("script");s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";s.onload=res;s.onerror=function(){rej(new Error("Could not load the Excel reader — check your internet connection."))};document.head.appendChild(s)})}
+function nh(h){return String(h==null?"":h).toLowerCase().replace(/[^a-z0-9]/g,"")}
+var HDR={no:["ordernumber","orderno","orderid","jobno","invoiceno"],email:["email","emailaddress","clientemail"],client:["clientname","customername","client","customer","name"],job:["joblogoname","jobname","job","jobdescription","design"],date:["date","orderdate"],price:["price","amount","total","cost"],type:["jblccap","type","jobtype"],status:["orderstatus","status"],cust:["customerid","clientid","custid"],phone:["phonewhatsapp","phone","whatsapp","mobile","cell","telephone"],address:["address"],work:["work","business"]};
+function parseSheet(aoa){
+ for(var r=0;r<Math.min(aoa.length,60);r++){
+  var H=(aoa[r]||[]).map(nh),map={};
+  Object.keys(HDR).forEach(function(k){for(var i=0;i<HDR[k].length;i++){var ix=H.indexOf(HDR[k][i]);if(ix>-1){map[k]=ix;return}}});
+  if(map.client!=null&&(map.status!=null||map.type!=null||map.no!=null))return {kind:"orders",map:map,hr:r,rows:aoa.slice(r+1)};
+  if(map.client!=null&&(map.email!=null||map.phone!=null)&&map.job==null&&map.price==null&&map.status==null&&map.type==null)return {kind:"clients",map:map,hr:r,rows:aoa.slice(r+1)};
+ }
+ return {kind:"none"};
+}
+function toISO(v,dmy){
+ if(v==null||v==="")return "";
+ if(v instanceof Date&&!isNaN(v)){var d=new Date(v.getTime()+12*36e5);return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}   /* +12h so a few seconds of rounding never changes the day */
+ var s=String(v).trim(),m;
+ if(m=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/))return m[1]+"-"+pad(+m[2])+"-"+pad(+m[3]);
+ if(m=s.match(/^(\d{1,2})[\s\-\/]([A-Za-z]{3,9})[\s\-\/,]*(\d{2,4})$/)){var mi=MON.indexOf(m[2].slice(0,1).toUpperCase()+m[2].slice(1,3).toLowerCase()),y=+m[3];if(mi>-1){if(y<100)y+=2000;return y+"-"+pad(mi+1)+"-"+pad(+m[1])}}
+ if(m=s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{2,4})/)){var a=+m[1],b=+m[2],y2=+m[3];if(y2<100)y2+=2000;var mo=dmy?b:a,da=dmy?a:b;if(mo>12){var t=mo;mo=da;da=t}return y2+"-"+pad(mo)+"-"+pad(da)}
+ var p=new Date(s);return isNaN(p)?"":iso(p);
+}
+function normType(v){
+ var s=lc(v).replace(/[^a-z]/g,"");if(!s)return "";
+ if(s==="cap"||s==="caps"||s==="hat")return "Cap";
+ if(s==="lc"||s==="leftchest")return "Left Chest";
+ if(s==="fc"||s==="frontchest")return "Front Chest";
+ if(s==="jb"||s==="jacketback")return "Jacket Back";
+ if(s==="vector"||s==="vec")return "Vector";
+ return String(v).trim();
+}
+function normStat(v){var s=lc(v);if(/unpaid|pend|due/.test(s))return "Pending";if(/quote/.test(s))return "Quote";if(/paid|complete/.test(s))return "Paid";return "Pending"}
+function ckey(o){return [o.clientId,o.date,lc(o.job),typeof o.price==="number"?o.price:"free",lc(o.type)].join("|")}
+function cellv(x,k){if(x.m[k]==null)return "";var v=x.r[x.m[k]];return v==null?"":v}
+function usableRow(x){
+ var n=String(cellv(x,"client")).trim(),e=String(cellv(x,"email")).trim();
+ if(!n&&!e)return false;
+ return nh(n)!=="clientname";                                                  /* repeated header rows */
+}
+function readFiles(files){
+ log("Reading "+files.length+" file(s)...");
+ $("#impf").textContent=Array.prototype.map.call(files,function(f){return f.name}).join(", ");
+ loadXLSX().then(function(){
+  return Promise.all(Array.prototype.map.call(files,function(f){return f.arrayBuffer().then(function(b){return {name:f.name,wb:XLSX.read(b,{type:"array",cellDates:true})}})}));
+ }).then(function(res){
+  var cl=[],or=[],out=[],names={no:"Order Number",email:"Email",client:"Client Name",job:"Job/Logo Name",date:"Date",price:"Price",type:"JB/LC/Cap",status:"Order Status",cust:"Customer ID"};
+  res.forEach(function(r){r.wb.SheetNames.forEach(function(sn){
+   var aoa=XLSX.utils.sheet_to_json(r.wb.Sheets[sn],{header:1,defval:"",raw:true,blankrows:false}),p=parseSheet(aoa),tag=r.name+" ["+sn+"]";
+   if(p.kind==="orders"){var rows=p.rows.map(function(x){return {r:x,m:p.map}}).filter(usableRow);or=or.concat(rows);out.push("✔ "+tag+": "+rows.length+" order row(s) — header found on row "+(p.hr+1)+" — columns: "+Object.keys(p.map).filter(function(k){return names[k]}).map(function(k){return names[k]}).join(", "))}
+   else if(p.kind==="clients"){var rows2=p.rows.map(function(x){return {r:x,m:p.map}}).filter(usableRow);cl=cl.concat(rows2);out.push("✔ "+tag+": "+rows2.length+" client row(s)")}
+   else out.push("– "+tag+": skipped (not an order or client list)");
+  })});
+  pending={cl:cl,or:or};
+  log(out.join("\n")+"\n\nReady: "+or.length+" order row(s), "+cl.length+" client row(s).\nPress “Import everything” to save.");
+  $("#impgo").disabled=!(cl.length||or.length);
+ }).catch(function(e){log("Error: "+e.message)});
+}
+function runImport(){
+ if(!pending)return;var dmy=$("#impd").value==="dmy",addC=0,updC=0,addO=0,skO=0,renum=0,autoC=0,badSt=0,noDate=0;
+ function findClient(email,name){var e=lc(email),n=lc(name);return db.users.filter(function(u){return u.role==="client"&&((e&&lc(u.email)===e)||(!e&&n&&lc(u.name)===n))})[0]||null}
+ function cidFree(n){return n>0&&!db.users.some(function(u){return u.cid===n})}
+ function makeClient(name,email,x){
+  var want=parseInt(String(cellv(x,"cust")).replace(/\D/g,""),10)||0;
+  var u=mkUser({name:name||email,email:email||(lc(name).replace(/[^a-z0-9]+/g,".")+"@no-email.local"),phone:String(cellv(x,"phone")||""),address:String(cellv(x,"address")||""),work:String(cellv(x,"work")||""),cid:cidFree(want)?want:nextCid()});
+  db.users.push(u);return u;
+ }
+ pending.cl.forEach(function(x){
+  var name=String(cellv(x,"client")).trim(),email=String(cellv(x,"email")).trim(),c=findClient(email,name);
+  if(c){c.phone=c.phone||String(cellv(x,"phone")||"");c.address=c.address||String(cellv(x,"address")||"");c.work=c.work||String(cellv(x,"work")||"");updC++}
+  else{makeClient(name,email,x);addC++}
+ });
+ var byNo={},ck={};db.orders.forEach(function(o){byNo[o.no]=ckey(o);ck[ckey(o)]=1});
+ pending.or.forEach(function(x){
+  var name=String(cellv(x,"client")).trim(),email=String(cellv(x,"email")).trim(),c=findClient(email,name);
+  if(!c){c=makeClient(name,email,x);autoC++}
+  var st=String(cellv(x,"status")),stn=normStat(st);if(st&&!/paid|pend|quote|unpaid/i.test(st))badSt++;
+  var pv=cellv(x,"price"),price;
+  if(typeof pv==="number")price=pv;else{var ps=String(pv).trim();price=(ps===""||/^free$/i.test(ps))?(stn==="Quote"||/^free$/i.test(ps)?null:0):num(ps)}
+  var date=toISO(cellv(x,"date"),dmy);if(!date){date=iso();noDate++}
+  var no=parseInt(String(cellv(x,"no")).replace(/\D/g,""),10)||0;
+  var o=mkOrder({no:no,clientId:c.id,date:date,job:String(cellv(x,"job")).trim(),type:normType(cellv(x,"type")),price:price,status:stn,stage:stn==="Quote"?"Received":"Delivered"});
+  var k=ckey(o);
+  if(no){if(byNo[no]!==undefined){if(byNo[no]===k){skO++;return}renum++;o.no=nextNo()}}
+  else{if(ck[k]){skO++;return}o.no=nextNo()}
+  o.messages.push({from:"system",text:"Imported from Excel",at:Date.now()});
+  db.orders.push(o);byNo[o.no]=k;ck[k]=1;addO++;
+ });
+ save();pending=null;$("#impgo").disabled=true;
+ var s=summary(db.orders);
+ log("Done!\nOrders added: "+addO+" (already there / skipped: "+skO+(renum?", renumbered to avoid a clash: "+renum:"")+")\nClients added: "+addC+" (updated: "+updC+", created from orders: "+autoC+")"+(badSt?"\n"+badSt+" row(s) had an unknown status and were set to Pending.":"")+(noDate?"\n"+noDate+" row(s) had no readable date and got today's date.":"")+"\n\nTotals now — Digitizing: "+s.digi+" · Vector: "+s.vec+" · Quotes: "+s.quotes+" · Revenue: "+money(s.rev)+" · Paid: "+s.paid+" ("+money(s.paidRev)+") · Pending: "+s.pending+" ("+money(s.pendRev)+")");
+ toast("Import finished.");
+}
+
+/* ───────── events ───────── */
+document.addEventListener("click",function(e){
+ if(e.target.closest("select,option,a.xlink"))return;
+ var t=e.target.closest("[data-act]");if(!t){if(e.target.id==="modal")closeModal();if(e.target.closest("#lb"))$("#lb").classList.remove("open");return}
+ var a=t.getAttribute("data-act"),id=t.getAttribute("data-id"),o=curOrder?order(curOrder):null;
+ if(a==="rmphoto"||a==="rmvideo"||a==="zoom"||a==="zoomq"||a==="rib"||a==="close")e.stopPropagation();
+ switch(a){
+  case "tab":$$(".tab").forEach(function(b){b.classList.toggle("on",b===t)});$('[data-form="signin"]').hidden=t.dataset.t!=="in";$('[data-form="signup"]').hidden=t.dataset.t!=="up";aerr("");break;
+  case "fill":$('[data-form="signin"]').hidden=false;$('[data-form="signup"]').hidden=true;$$(".tab").forEach(function(b,i){b.classList.toggle("on",i===0)});$("#si-e").value=t.dataset.e;$("#si-p").value="demo123";doSignin();break;
+  case "forgot":modal('<span class="eyebrow">Password help</span><h1 style="font-size:2.2rem;margin:6px 0 14px">Forgot password?</h1><p>For your security, passwords are reset by our team. Message us and we\'ll set a new one right away.</p><div class="row2" style="margin-top:18px"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+WA+"?text="+encodeURIComponent("Hi, I need my client portal password reset. My email: "+($("#si-e")?$("#si-e").value:""))+'">WhatsApp</a><a class="btn navy" href="mailto:'+EMAIL+"?subject="+encodeURIComponent("Portal password reset")+'">Email us</a></div>',true);break;
+  case "logout":logout();break;
+  case "rib":try{sessionStorage.setItem(RKEY,"1")}catch(x){}var rb=$("#rib");if(rb)rb.remove();break;
+  case "close":closeModal();break;
+  case "sort":var k=t.getAttribute("data-k");if(sort.k===k)sort.d=-sort.d;else{sort.k=k;sort.d=(k==="no"||k==="date"||k==="price")?-1:1}applyOrderFilter(true);break;
+  case "more":shown+=150;applyOrderFilter();break;
+  case "order":openOrder(id);break;
+  case "client":openClient(id);break;
+  case "quote":openQuote(id);break;
+  case "neworder":orderForm(null,{clientId:t.dataset.c||""});break;
+  case "editorder":if(o)orderForm(o);break;
+  case "newclient":clientForm();break;
+  case "editclient":clientForm(user(id));break;
+  case "markpaid":if(o&&o.status!=="Paid"){o.status="Paid";o.messages.push({from:"system",text:"Order status changed to Paid",at:Date.now()});commit();openOrder(o.id);toast("Order #"+o.no+" marked as Paid.")}break;
+  case "delorder":if(o&&confirm("Delete order #"+o.no+"? This cannot be undone.")){db.orders=db.orders.filter(function(x){return x.id!==o.id});save();dirty=true;closeModal();toast("Order deleted.")}break;
+  case "delclient":var c=user(id);if(c&&confirm("Delete "+c.name+" and all their orders?")){db.orders=db.orders.filter(function(x){return x.clientId!==id});db.quotes=db.quotes.filter(function(x){return x.clientId!==id});db.users=db.users.filter(function(x){return x.id!==id});save();dirty=true;closeModal();toast("Client deleted.")}break;
+  case "invoice":if(o)invoice(o);break;
+  case "stmt-all":statement(me.id,"","");break;
+  case "reorder":if(o){location.hash="#/quote";closeModal();setTimeout(function(){var s=$("#q-s");if(s){s.value=o.type==="Vector"?SERVICES[2]:(o.type==="Front Chest"||o.type==="Jacket Back")?SERVICES[1]:SERVICES[0];$("#q-t").value="Re-order of #"+o.no+": "+o.job}},60)}break;
+  case "addphoto":$("#fileOrder").click();break;
+  case "rmphoto":if(o){o.photos.splice(+t.dataset.i,1);commit();openOrder(o.id)}break;
+  case "rmvideo":if(o){o.videos.splice(+t.dataset.i,1);commit();openOrder(o.id)}break;
+  case "zoom":if(o){$("#lb img").src=o.photos[+t.dataset.i];$("#lb").classList.add("open")}break;
+  case "zoomq":var q=db.quotes.filter(function(x){return x.id===id})[0];if(q){$("#lb img").src=q.files[+t.dataset.i];$("#lb").classList.add("open")}break;
+  case "pickq":$("#fileQuote").click();break;
+  case "qwa":if(qvalid()){window.open("https://wa.me/"+WA+"?text="+encodeURIComponent(qbody()),"_blank","noopener")}break;
+  case "qmail":if(qvalid()){location.href="mailto:"+EMAIL+"?subject="+encodeURIComponent("Quote request — "+$("#q-s").value)+"&body="+encodeURIComponent(qbody())}break;
+  case "q2o":var qq=db.quotes.filter(function(x){return x.id===id})[0];if(qq)orderForm(null,{clientId:qq.clientId,type:guessType(qq.service),status:"Quote",quoteId:qq.id,notes:(qq.qty?qq.qty+" pcs · ":"")+qq.service});break;
+  case "qs":var q2=db.quotes.filter(function(x){return x.id===id})[0];if(q2){q2.status=t.dataset.s;save();render();openQuote(id)}break;
+  case "qdel":if(confirm("Delete this quote request?")){db.quotes=db.quotes.filter(function(x){return x.id!==id});save();closeModal();render()}break;
+  case "pickimport":$("#fileImport").click();break;
+  case "doimport":runImport();break;
+  case "expo":download("orders.csv",csv([["Order Number","Email","Client Name","Job/Logo Name","Date","Price","JB/LC/Cap","Order Status","Customer ID"]].concat(db.orders.slice().sort(function(a,b){return a.no-b.no}).map(function(o){var c=user(o.clientId)||{};return [o.no,c.email,c.name,o.job,fmtXl(o.date),typeof o.price==="number"?o.price:"Free",o.type,o.status,custId(c)]}))));break;
+  case "expc":download("clients.csv",csv([["Customer ID","Name","Email","Phone","Address","Work","Orders","Paid Revenue","Pending Revenue"]].concat(clients().map(function(c){var s=clientStats(c);return [custId(c),c.name,c.email,c.phone,c.address,c.work,s.count,s.paidRev,s.pendRev]}))));break;
+  case "backup":download("gonzales-portal-backup-"+iso()+".json",JSON.stringify(db),"application/json");break;
+  case "restore":$("#fileRestore").click();break;
+  case "cleardemo":if(confirm("Remove all demo clients and orders?")){var dm=db.users.filter(function(u){return u.demo&&u.role==="client"}).map(function(u){return u.id});db.users=db.users.filter(function(u){return !(u.demo&&u.role==="client")});db.orders=db.orders.filter(function(o){return !o.demo&&dm.indexOf(o.clientId)<0});db.quotes=db.quotes.filter(function(q){return dm.indexOf(q.clientId)<0});db.users.forEach(function(u){if(u.demo)delete u.demo});save();render();toast("Demo data removed.")}break;
+  case "wipe":if(confirm("Erase ALL portal data in this browser, including accounts?")&&confirm("Really erase everything? Download a backup first if unsure.")){var s2=ls();try{s2.removeItem(KEY);s2.removeItem(SKEY)}catch(x){}db={v:2,users:[],orders:[],quotes:[]};var ow=mkUser({role:"admin",name:"Shop Owner",email:EMAIL});setPw(ow,"changeme123");db.users.push(ow);save();me=null;render();toast("Erased. Owner login is now "+EMAIL+" / changeme123 — change it in Settings.")}break;
+ }
+});
+document.addEventListener("submit",function(e){
+ var f=e.target.closest("[data-form]");if(!f)return;e.preventDefault();var k=f.getAttribute("data-form"),o=curOrder?order(curOrder):null;
+ if(k==="signin")return doSignin();
+ if(k==="signup")return doSignup();
+ if(k==="profile"){me.name=$("#p-n").value.trim()||me.name;me.phone=$("#p-p").value.trim();me.address=$("#p-a").value.trim();me.work=$("#p-w").value.trim();save();render();toast("Profile saved.");return}
+ if(k==="pw"){if(hashPw($("#pw0").value,me.salt)!==me.hash)return toast("Current password is incorrect.","err");if($("#pw1").value!==$("#pw2").value)return toast("New passwords do not match.","err");setPw(me,$("#pw1").value);save();f.reset();toast("Password updated.");return}
+ if(k==="owner"){var em=lc($("#ow-e").value),np=$("#ow-p").value;if(db.users.some(function(u){return u!==me&&lc(u.email)===em}))return toast("That email is already used.","err");me.email=em;if(np){if(np.length<6)return toast("Password must be 6+ characters.","err");setPw(me,np)}save();render();toast("Owner login saved.");return}
+ if(k==="quote"){
+  var c={id:uid(),clientId:me.id,service:$("#q-s").value,qty:$("#q-q").value,needed:$("#q-d").value,details:$("#q-t").value.trim(),files:quoteFiles.slice(),status:"New",at:Date.now(),date:iso()};
+  db.quotes.push(c);if(!save()){db.quotes.pop();return}render();toast("Quote request submitted — we'll reply soon.");return;
+ }
+ if(k==="msg"&&o){var tx=$("#msg-t").value.trim();if(!tx)return;o.messages.push({from:isAdmin()?"owner":"client",name:me.name,text:tx,at:Date.now()});commit();openOrder(o.id);return}
+ if(k==="video"&&o){o.videos.push($("#vd-u").value.trim());commit();openOrder(o.id);return}
+ if(k==="stmt"){statement(f.getAttribute("data-id"),$("#st-f").value,$("#st-t").value);return}
+ if(k==="orderform"){
+  var oid=f.getAttribute("data-id"),cv=$("#of-c").value,cl;
+  if(!cv)return toast("Please choose a client.","err");
+  if(cv==="__new__"){
+   var nn=$("#of-nn").value.trim(),ne=lc($("#of-ne").value);
+   if(!nn||!ne)return toast("Enter the new client's name and email.","err");
+   cl=db.users.filter(function(u){return lc(u.email)===ne})[0];
+   if(!cl){cl=mkUser({name:nn,email:ne,phone:$("#of-np").value.trim(),cid:nextCid()});db.users.push(cl)}
+  }else cl=user(cv);
+  var pr=$("#of-p").value.trim(),stt=$("#of-st").value;
+  if(pr===""&&stt!=="Quote")return toast("Enter a price (or set the status to Quote for Free).","err");
+  var od=oid?order(oid):mkOrder({no:nextNo()}),prev=od.status;
+  od.clientId=cl.id;od.job=$("#of-j").value.trim();od.date=$("#of-d").value;od.type=$("#of-t").value;od.price=pr===""?null:Math.max(0,r2(num(pr)));od.status=stt;od.notes=$("#of-n").value.trim();
+  if(!oid){od.messages.push({from:"system",text:"Order created",at:Date.now()});if(stt==="Quote")od.stage="Received";db.orders.push(od);var qid=f.getAttribute("data-q");if(qid){var qx=db.quotes.filter(function(x){return x.id===qid})[0];if(qx)qx.status="Converted"}}
+  else if(prev!==stt)od.messages.push({from:"system",text:"Order status changed to "+stt,at:Date.now()});
+  save();dirty=false;render();openOrder(od.id);toast("Order #"+od.no+" saved.");return;
+ }
+ if(k==="clientform"){
+  var cid=f.getAttribute("data-id"),em2=lc($("#cf-e").value),dup=db.users.filter(function(u){return lc(u.email)===em2&&u.id!==cid})[0];
+  if(dup)return toast("Another client already uses that email.","err");
+  var cc=cid?user(cid):mkUser({cid:nextCid()});cc.name=$("#cf-n").value.trim();cc.email=em2;cc.phone=$("#cf-p").value.trim();cc.address=$("#cf-a").value.trim();cc.work=$("#cf-w").value.trim();
+  var pw=cid&&$("#cf-pw")?$("#cf-pw").value:"";if(pw){if(pw.length<6)return toast("Password must be 6+ characters.","err");setPw(cc,pw)}
+  if(!cid)db.users.push(cc);save();dirty=false;render();openClient(cc.id);toast("Client saved ("+custId(cc)+").");return;
+ }
+});
+document.addEventListener("change",function(e){
+ var t=e.target,k=t.getAttribute&&t.getAttribute("data-change");
+ if(k==="ofilter")applyOrderFilter(true);
+ if(k==="est")estUpdate();
+ if(k==="rowstatus"){
+  var ro=order(t.getAttribute("data-id"));
+  if(ro&&ro.status!==t.value){ro.status=t.value;t.className="stsel s-"+ro.status;ro.messages.push({from:"system",text:"Order status changed to "+ro.status,at:Date.now()});
+   if(save()){toast("Order #"+ro.no+" → "+ro.status);var ss=$("#sumstrip");if(ss)ss.innerHTML=sumHTML(summary(db.orders),true,true);if($("#os")&&$("#os").value)applyOrderFilter()}}
+ }
+ if(k==="status"&&curOrder){var o=order(curOrder);if(o&&o.status!==t.value){o.status=t.value;o.messages.push({from:"system",text:"Order status changed to "+t.value,at:Date.now()});commit();openOrder(o.id);toast("Order status: "+t.value+".")}}
+ if(k==="stage"&&curOrder){var o3=order(curOrder);if(o3&&o3.stage!==t.value){o3.stage=t.value;o3.messages.push({from:"system",text:"Progress: "+t.value,at:Date.now()});commit();openOrder(o3.id);toast("Progress: "+t.value+".")}}
+ if(k==="ofClient")ofClientHint();
+ if(k==="ofType"){var p=$("#of-p");if(p&&p.dataset.auto==="1"&&$("#of-st").value!=="Quote"&&TYPE_PRICE[t.value]!=null)p.value=TYPE_PRICE[t.value]}
+ if(k==="ofStatus"){var p2=$("#of-p");if(p2){if(t.value==="Quote"&&p2.dataset.auto==="1")p2.value="";else if(t.value!=="Quote"&&p2.value===""&&TYPE_PRICE[$("#of-t").value]!=null){p2.value=TYPE_PRICE[$("#of-t").value];p2.dataset.auto="1"}}}
+ if(t.id==="fileOrder"&&curOrder){var o2=order(curOrder),fs=Array.prototype.slice.call(t.files);t.value="";Promise.all(fs.map(function(f){return compress(f,1000)})).then(function(r){r.forEach(function(d){o2.photos.push(d)});if(commit())openOrder(o2.id);else{o2.photos.length-=r.length}}).catch(function(){toast("Couldn't read that image.","err")})}
+ if(t.id==="fileQuote"){var fq=Array.prototype.slice.call(t.files).slice(0,3-quoteFiles.length);t.value="";Promise.all(fq.map(function(f){return compress(f,900)})).then(function(r){quoteFiles=quoteFiles.concat(r);$("#qthumbs").innerHTML=quoteFiles.map(function(p){return '<img src="'+p+'" alt="">'}).join("")})}
+ if(t.id==="fileImport"&&t.files.length){readFiles(t.files);}
+ if(t.id==="fileRestore"&&t.files[0]){var rd=new FileReader();rd.onload=function(){try{var d=JSON.parse(rd.result);if(d.v!==2||!d.users||!d.orders)throw 0;if(!confirm("Replace ALL current portal data with this backup?"))return;db=d;save();var mm=user(me.id);if(!mm){me=null;try{ls().removeItem(SKEY)}catch(x){}}else me=mm;render();toast("Backup restored.")}catch(x){toast("That file isn't a valid backup from this version of the portal.","err")}};rd.readAsText(t.files[0]);t.value=""}
+});
+document.addEventListener("input",function(e){
+ var t=e.target,k=t.getAttribute&&t.getAttribute("data-input");
+ if(k==="ofilter")applyOrderFilter(true);if(k==="cfilter")applyClientFilter();if(k==="est")estUpdate();
+ if(t.id==="of-p")t.dataset.auto="";
+});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"){if($("#lb").classList.contains("open"))$("#lb").classList.remove("open");else if($("#modal").classList.contains("open"))closeModal()}});
+function qvalid(){if(!$("#q-s").value||!$("#q-q").value||!$("#q-t").value.trim()){toast("Please fill in service, quantity and project details.","err");return false}return true}
+function qbody(){return "Hello Gonzales Embroidery,\n\nI'd like a quote.\n\nName: "+me.name+" ("+custId(me)+")\nContact: "+(me.phone||me.email)+"\nService: "+$("#q-s").value+"\nQuantity: "+$("#q-q").value+($("#q-d").value?"\nNeeded by: "+$("#q-d").value:"")+"\n\nProject details:\n"+$("#q-t").value.trim()+"\n"}
+
+/* ───────── boot ───────── */
+db=load();
+try{var sid=ls().getItem(SKEY);if(sid){var su=user(sid);if(su&&su.hash)me=su}}catch(e){}
+try{if(!ls().getItem(KEY))save()}catch(e){}
+render();
+window.__portalTest={sha256:sha256,toISO:toISO,normStat:normStat,normType:normType,parseSheet:parseSheet,summary:summary,custId:custId,get db(){return db}};
+})();
+</script>
+</body>
+</html>
