@@ -304,7 +304,8 @@ code.f{font-family:'Space Mono',monospace;background:#f3ede1;padding:2px 7px;bor
 "use strict";
 
 /* ───────── constants ───────── */
-var KEY="ge_portal_v2", SKEY="ge_portal_session_v2", RKEY="ge_portal_ribbon";
+var DEMO=/[?&]demo=1\b/.test(location.search);                       /* sample data only when the link ends in ?demo=1 */
+var KEY=DEMO?"ge_portal_v2_demo":"ge_portal_v2", SKEY=DEMO?"ge_portal_session_v2_demo":"ge_portal_session_v2", RKEY="ge_portal_ribbon";
 var SITE="", LOGO="assets/img/logo.png";
 var EMAIL="order@gonzalesembroidery.com", WA="923700132181";
 var TYPES=["Cap","Left Chest","Front Chest","Jacket Back","Vector"];
@@ -395,6 +396,7 @@ function isAdmin(){return me&&me.role==="admin"}
 function myOrders(){return db.orders.filter(function(o){return o.clientId===me.id})}
 function seed(){
  var d={v:2,users:[],orders:[],quotes:[]};db=d;
+ if(!DEMO)return d;
  var owner=mkUser({role:"admin",name:"Shop Owner",email:"owner@demo.com",demo:1});setPw(owner,"demo123");d.users.push(owner);
  [["ABC","abc@gmail.com"],["XYZ","xyz@gmail.com"],["MNO","mno@gmail.com"]].forEach(function(p,i){var u=mkUser({name:p[0],email:p[1],demo:1,cid:i+1});setPw(u,"demo123");d.users.push(u)});
  var A=d.users[1],X=d.users[2],M=d.users[3];
@@ -493,7 +495,8 @@ function download(name,text,type){var a=document.createElement("a");a.href=URL.c
 
 /* ───────── auth ───────── */
 function authView(){
- var demo=db.users.some(function(u){return u.demo});
+ var demo=DEMO&&db.users.some(function(u){return u.demo}),setup=/[?&]setup=1\b/.test(location.search)&&!db.users.some(function(u){return u.role==="admin"});
+ if(setup){setupView();return}
  $("#app").innerHTML=
  '<div class="auth"><aside class="brandp"><div><span class="lgw"><img src="'+LOGO+'" alt="Gonzales Embroidery"></span>'+
  '<h2>Your orders,<br><em>stitch by stitch.</em></h2><p>Track every order, see sew-out previews, check what is paid or pending and request new quotes — all in one place.</p>'+
@@ -512,7 +515,14 @@ function authView(){
  '<div class="g2"><div class="fld"><label for="su-p">Password (min 6 characters)</label><input id="su-p" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label for="su-p2">Confirm password</label><input id="su-p2" type="password" autocomplete="new-password" required></div></div>'+
  '<div><button class="btn" type="submit">Create account</button></div></form>'+
  (demo?'<div class="demo"><b>Preview accounts</b><br>Client: <code>abc@gmail.com</code> / <code>demo123</code> (ABC · A01)<br>Owner: <code>owner@demo.com</code> / <code>demo123</code><br><button class="btn sm ghost" data-act="fill" data-e="abc@gmail.com">Try client</button> <button class="btn sm navy" data-act="fill" data-e="owner@demo.com">Try owner console</button></div>':'')+
- '<p class="fine">Preview mode: accounts and orders are saved in this browser only. <a href="'+SITE+'index.html">← Back to website</a></p></section></div>';
+ '<p class="fine"><a href="'+SITE+'index.html">← Back to website</a></p></section></div>';
+}
+function setupView(){
+ $("#app").innerHTML='<div class="auth"><aside class="brandp"><div><span class="lgw"><img src="'+LOGO+'" alt="Gonzales Embroidery"></span><h2>Set up your<br><em>owner panel.</em></h2><p>Create the owner login for Gonzales Embroidery. You will use it to add orders, clients and sew-outs.</p></div></aside><section class="authbox"><span class="eyebrow">First-time setup</span><h1>Owner login</h1><div id="aerr"></div><form class="fm" data-form="setup"><div class="fld"><label for="ow-n">Your name</label><input id="ow-n" value="Shop Owner" required></div><div class="fld"><label for="ow-e2">Owner email</label><input id="ow-e2" type="email" autocomplete="email" required></div><div class="g2"><div class="fld"><label for="ow-p1">Password (min 6 characters)</label><input id="ow-p1" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label for="ow-p2">Confirm password</label><input id="ow-p2" type="password" autocomplete="new-password" required></div></div><div><button class="btn" type="submit">Create owner login</button></div></form><p class="fine">Saved in this browser only. Use the same browser each time and download a backup from Settings.</p></section></div>';
+}
+function doSetup(){
+ var p=$("#ow-p1").value;if(p.length<6)return aerr("Password must be at least 6 characters.");if(p!==$("#ow-p2").value)return aerr("Passwords do not match.");
+ var u=mkUser({role:"admin",name:$("#ow-n").value.trim()||"Shop Owner",email:lc($("#ow-e2").value)});setPw(u,p);db.users.push(u);save();startSession(u);toast("Owner login created.");
 }
 function aerr(m,ok){$("#aerr").innerHTML=m?'<div class="'+(ok?"msgok":"msgerr")+'" style="margin-bottom:14px">'+esc(m)+"</div>":""}
 function doSignin(){
@@ -543,7 +553,7 @@ function render(){
  if(!me){authView();return}
  var r=route(),nav=isAdmin()?NAV_A:NAV_C,newQ=db.quotes.filter(function(q){return q.status==="New"}).length,rb="";
  try{rb=sessionStorage.getItem(RKEY)}catch(e){}
- var ribbon=rb?"":'<div class="ribbon" id="rib">Preview mode — data is saved in this browser only. <button data-act="rib" aria-label="Dismiss">✕</button></div>';
+ var ribbon=rb?"":'<div class="ribbon" id="rib">Data is saved in this browser only — download a backup regularly. <button data-act="rib" aria-label="Dismiss">✕</button></div>';
  $("#app").innerHTML=ribbon+
  '<header class="top"><a class="lg" href="'+SITE+'index.html"><img src="'+LOGO+'" alt="Gonzales Embroidery"></a><span class="role">'+(isAdmin()?"Owner console":"Client portal")+'</span><span class="sp"></span>'+
  '<div class="who"><div class="av">'+esc(initials(me.name))+'</div><span class="nm">'+esc(me.name)+(isAdmin()?"":" · "+custId(me))+'</span><button class="btn sm ghost" style="color:#fff;border-color:#444" data-act="logout">Sign out</button></div></header>'+
@@ -695,7 +705,7 @@ function vHelp(){
  h+='<div class="card"><h2>Your Excel formulas — live</h2><p class="cnt" style="margin-bottom:12px">These are the exact formulas from your Order Details sheet and what the panel does with them. The last column is the value right now.</p><div class="tw"><table style="min-width:760px"><thead><tr><th>What</th><th>Formula in Excel</th><th>What it means</th><th class="num">Now</th></tr></thead><tbody>'+
  FORMULAS.map(function(f){var v=f[3]?(f[4]?money(s[f[3]]):s[f[3]]):"—";return "<tr style='cursor:default'><td><b>"+esc(f[0])+"</b></td><td><code class='f'>"+esc(f[1])+"</code></td><td>"+esc(f[2])+"</td><td class='num'><b>"+v+"</b></td></tr>"}).join("")+
  '</tbody></table></div><p class="fine">Your sheet stops counting at row 580. The panel has no row limit.</p></div>';
- h+='<div class="card"><h2>Bring your Excel in</h2><ol class="how"><li>Go to <b>Import / Export</b> and choose <b>Order_Details.xlsx</b>.</li><li>The panel finds your header row (row 14) on its own, ignores the empty numbered rows, and reads Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status and Customer ID.</li><li>You see exactly what it found. Press <b>Import everything</b> to save it. Importing the same file again never creates duplicates.</li><li>The <b>Direct Invoice</b> and <b>Xoom Payment</b> sheets are skipped — they are not order lists.</li><li>First time? Go to <b>Settings → Remove demo data</b> so the sample ABC / XYZ / MNO rows do not mix with your real orders.</li></ol></div>';
+ h+='<div class="card"><h2>Bring your Excel in</h2><ol class="how"><li>Go to <b>Import / Export</b> and choose <b>Order_Details.xlsx</b>.</li><li>The panel finds your header row (row 14) on its own, ignores the empty numbered rows, and reads Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status and Customer ID.</li><li>You see exactly what it found. Press <b>Import everything</b> to save it. Importing the same file again never creates duplicates.</li><li>The <b>Direct Invoice</b> and <b>Xoom Payment</b> sheets are skipped — they are not order lists.</li></ol></div>';
  h+='<div class="card"><h2>Keep your data safe</h2><p>Everything is stored in <b>this browser on this computer</b>. Use the same browser each time, and press <b>Settings → Download backup</b> every week. You can restore a backup on any computer.</p></div>';
  return h;
 }
@@ -951,11 +961,12 @@ document.addEventListener("click",function(e){
   case "backup":download("gonzales-portal-backup-"+iso()+".json",JSON.stringify(db),"application/json");break;
   case "restore":$("#fileRestore").click();break;
   case "cleardemo":if(confirm("Remove all demo clients and orders?")){var dm=db.users.filter(function(u){return u.demo&&u.role==="client"}).map(function(u){return u.id});db.users=db.users.filter(function(u){return !(u.demo&&u.role==="client")});db.orders=db.orders.filter(function(o){return !o.demo&&dm.indexOf(o.clientId)<0});db.quotes=db.quotes.filter(function(q){return dm.indexOf(q.clientId)<0});db.users.forEach(function(u){if(u.demo)delete u.demo});save();render();toast("Demo data removed.")}break;
-  case "wipe":if(confirm("Erase ALL portal data in this browser, including accounts?")&&confirm("Really erase everything? Download a backup first if unsure.")){var s2=ls();try{s2.removeItem(KEY);s2.removeItem(SKEY)}catch(x){}db={v:2,users:[],orders:[],quotes:[]};var ow=mkUser({role:"admin",name:"Shop Owner",email:EMAIL});setPw(ow,"changeme123");db.users.push(ow);save();me=null;render();toast("Erased. Owner login is now "+EMAIL+" / changeme123 — change it in Settings.")}break;
+  case "wipe":if(confirm("Erase ALL portal data in this browser, including accounts?")&&confirm("Really erase everything? Download a backup first if unsure.")){var s2=ls();try{s2.removeItem(KEY);s2.removeItem(SKEY)}catch(x){}db={v:2,users:[],orders:[],quotes:[]};save();me=null;render();toast("Erased. Create a new owner login.")}break;
  }
 });
 document.addEventListener("submit",function(e){
  var f=e.target.closest("[data-form]");if(!f)return;e.preventDefault();var k=f.getAttribute("data-form"),o=curOrder?order(curOrder):null;
+ if(k==="setup")return doSetup();
  if(k==="signin")return doSignin();
  if(k==="signup")return doSignup();
  if(k==="profile"){me.name=$("#p-n").value.trim()||me.name;me.phone=$("#p-p").value.trim();me.address=$("#p-a").value.trim();me.work=$("#p-w").value.trim();save();render();toast("Profile saved.");return}
