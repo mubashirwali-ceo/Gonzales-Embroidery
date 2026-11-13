@@ -296,16 +296,16 @@ code.f{font-family:'Space Mono',monospace;background:#f3ede1;padding:2px 7px;bor
 <input type="file" id="fileOrder" accept="image/*" hidden multiple>
 <input type="file" id="fileQuote" accept="image/*" hidden multiple>
 <input type="file" id="fileImport" accept=".xlsx,.xls,.csv" hidden multiple>
-<input type="file" id="fileRestore" accept=".json" hidden>
 <noscript><p style="padding:40px">The client portal needs JavaScript enabled.</p></noscript>
 
+<script src="assets/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
 (function(){
 "use strict";
 
 /* ───────── constants ───────── */
-var DEMO=/[?&]demo=1\b/.test(location.search);                       /* sample data only when the link ends in ?demo=1 */
-var KEY=DEMO?"ge_portal_v2_demo":"ge_portal_v2", SKEY=DEMO?"ge_portal_session_v2_demo":"ge_portal_session_v2", RKEY="ge_portal_ribbon";
+var RKEY="ge_portal_ribbon";
 var SITE="", LOGO="assets/img/logo.png";
 var EMAIL="order@gonzalesembroidery.com", WA="923700132181";
 var TYPES=["Cap","Left Chest","Front Chest","Jacket Back","Vector"];
@@ -325,7 +325,6 @@ var TAT=[
  ["Embroidery Turnaround",[["Cap or left chest","Standard","1–3 hours"],["Cap or left chest","Rush","30 min–1½ hrs"],["Jacket back","Standard","2–4 hours"],["Jacket back","Rush","Depends on artwork"]]],
  ["Vector Turnaround",[["Normal design","","2–18 hours"],["Complex design","","12 hrs–depends on artwork"]]]
 ];
-var DEMO_PH=function(n){return "assets/sewouts/"+n+".jpg"};
 var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 /* ───────── helpers ───────── */
@@ -346,46 +345,10 @@ function r2(n){return Math.round(n*100)/100}
 function priceTxt(o){return typeof o.price==="number"?money(o.price):"Free"}
 function ls(){try{return window.localStorage}catch(e){return null}}
 
-/* ───────── SHA-256 (sync) ───────── */
-var sha256=(function(){
- var K=[],H=[],n=2;
- function isP(x){for(var i=2;i*i<=x;i++)if(x%i===0)return false;return true}
- while(K.length<64){if(isP(n)){if(H.length<8)H.push((Math.pow(n,.5)%1)*4294967296|0);K.push((Math.pow(n,1/3)%1)*4294967296|0)}n++}
- return function(msg){
-  var bytes=new TextEncoder().encode(msg),l=bytes.length,nb=((l+9+63)>>6)<<6;
-  var buf=new Uint8Array(nb);buf.set(bytes);buf[l]=0x80;
-  var dv=new DataView(buf.buffer);dv.setUint32(nb-4,(l*8)>>>0);dv.setUint32(nb-8,Math.floor(l*8/4294967296));
-  var h=H.slice(),w=new Int32Array(64);
-  for(var o=0;o<nb;o+=64){
-   for(var i=0;i<16;i++)w[i]=dv.getInt32(o+i*4);
-   for(i=16;i<64;i++){
-    var a1=w[i-15],b1=w[i-2];
-    var s0=((a1>>>7)|(a1<<25))^((a1>>>18)|(a1<<14))^(a1>>>3);
-    var s1=((b1>>>17)|(b1<<15))^((b1>>>19)|(b1<<13))^(b1>>>10);
-    w[i]=(w[i-16]+s0+w[i-7]+s1)|0;
-   }
-   var a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
-   for(i=0;i<64;i++){
-    var S1=((e>>>6)|(e<<26))^((e>>>11)|(e<<21))^((e>>>25)|(e<<7));
-    var ch=(e&f)^(~e&g);
-    var t1=(hh+S1+ch+K[i]+w[i])|0;
-    var S0=((a>>>2)|(a<<30))^((a>>>13)|(a<<19))^((a>>>22)|(a<<10));
-    var mj=(a&b)^(a&c)^(b&c);
-    var t2=(S0+mj)|0;
-    hh=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
-   }
-   h[0]=(h[0]+a)|0;h[1]=(h[1]+b)|0;h[2]=(h[2]+c)|0;h[3]=(h[3]+d)|0;h[4]=(h[4]+e)|0;h[5]=(h[5]+f)|0;h[6]=(h[6]+g)|0;h[7]=(h[7]+hh)|0;
-  }
-  return h.map(function(x){return (x>>>0).toString(16).padStart(8,"0")}).join("");
- };
-})();
-function hashPw(pw,salt){var h=salt+":"+pw;for(var i=0;i<800;i++)h=sha256(h+salt);return h}
-function setPw(u,pw){u.salt=uid()+uid();u.hash=hashPw(pw,u.salt)}
-
 /* ───────── data ───────── */
 var db, me=null, dirty=false;
 function mkUser(o){return Object.assign({id:uid(),role:"client",name:"",email:"",phone:"",address:"",work:"",salt:"",hash:"",created:iso(),cid:0},o)}
-function mkOrder(o){return Object.assign({id:uid(),no:0,clientId:"",date:iso(),job:"",type:"",price:0,status:"Pending",stage:"Received",notes:"",photos:[],videos:[],messages:[]},o)}
+function mkOrder(o){return Object.assign({pl:true,id:uid(),no:0,clientId:"",date:iso(),job:"",type:"",price:0,status:"Pending",stage:"Received",notes:"",photos:[],videos:[],messages:[]},o)}
 function custId(u){return "A"+String(u&&u.cid||0).padStart(2,"0")}               /* A01, A02 … like the sheet */
 function nextCid(){var m=0;db.users.forEach(function(u){if(u.cid>m)m=u.cid});return m+1}
 function nextNo(){var m=0;db.orders.forEach(function(o){if(o.no>m)m=o.no});return m+1}   /* last + 1, like =C23+1 */
@@ -394,35 +357,78 @@ function order(id){return db.orders.filter(function(o){return o.id===id})[0]}
 function clients(){return db.users.filter(function(u){return u.role==="client"})}
 function isAdmin(){return me&&me.role==="admin"}
 function myOrders(){return db.orders.filter(function(o){return o.clientId===me.id})}
-function seed(){
- var d={v:2,users:[],orders:[],quotes:[]};db=d;
- if(!DEMO)return d;
- var owner=mkUser({role:"admin",name:"Shop Owner",email:"owner@demo.com",demo:1});setPw(owner,"demo123");d.users.push(owner);
- [["ABC","abc@gmail.com"],["XYZ","xyz@gmail.com"],["MNO","mno@gmail.com"]].forEach(function(p,i){var u=mkUser({name:p[0],email:p[1],demo:1,cid:i+1});setPw(u,"demo123");d.users.push(u)});
- var A=d.users[1],X=d.users[2],M=d.users[3];
- /* the same 9 test rows that are in the Excel sheet */
- var rows=[
-  [A,"Test Logo Cap","2026-11-11",8,"Cap","Paid","Delivered","digi-cap-warrior"],
-  [X,"Test Logo LC","2026-11-11",8,"Left Chest","Pending","Delivered","digi-fourth-grade"],
-  [A,"Test Logo JB","2026-11-11",15,"Jacket Back","Paid","Delivered","digi-jacket-lawrence-red"],
-  [X,"Test Logo Vector","2026-11-11",10,"Vector","Pending","Quality Check","vector-cap-graffiti"],
-  [A,"Test Logo Cap","2026-11-11",8,"Cap","Paid","Delivered",""],
-  [X,"Test Logo LC","2026-11-11",8,"Left Chest","Pending","Delivered",""],
-  [A,"Test Logo JB","2026-11-11",15,"Jacket Back","Paid","Delivered",""],
-  [X,"Test Logo Vector","2026-11-11",10,"Vector","Pending","In Production","vector-kidzcan-budget"],
-  [M,"Test Logo JB","2026-11-12",null,"Jacket Back","Quote","Received",""]
- ];
- rows.forEach(function(r,i){
-  var o=mkOrder({no:i+1,clientId:r[0].id,job:r[1],date:r[2],price:r[3],type:r[4],status:r[5],stage:r[6],demo:1});
-  if(r[7])o.photos=[DEMO_PH(r[7])];
-  o.messages.push({from:"system",text:"Order created",at:new Date(r[2]+"T10:00:00").getTime()});
-  d.orders.push(o);
- });
- return d;
+/* ───────── cloud backend (Supabase) ───────── */
+var CFG=window.GE_CONFIG||{}, sb=null, recovering=false;
+var snap={clients:{},orders:{},messages:{},quotes:{}}, syncQ=Promise.resolve();
+var ORDER_COLS="id,no,client_id,date,job,type,price,status,stage,notes";
+function initSb(){
+ if(!(CFG.supabaseUrl&&CFG.supabaseAnonKey&&/^https:\/\//.test(CFG.supabaseUrl)&&window.supabase))return false;
+ sb=window.supabase.createClient(CFG.supabaseUrl,CFG.supabaseAnonKey,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+ return true;
 }
-function load(){var s=ls();try{var d=JSON.parse(s.getItem(KEY)||"null");if(d&&d.v===2&&d.users){return d}}catch(e){}return seed()}
-function save(){try{ls().setItem(KEY,JSON.stringify(db));return true}catch(e){toast("Browser storage is full — remove some photos.","err");return false}}
+function chk(r){if(r&&r.error)throw new Error(r.error.message);return r}
+function chunks(a,n){var o=[];for(var i=0;i<a.length;i+=n)o.push(a.slice(i,i+n));return o}
+function rowClient(u){return {id:u.id,auth_user_id:u.authId||null,cid:u.cid||0,name:u.name||"",email:u.email||"",phone:u.phone||"",address:u.address||"",work:u.work||"",created:u.created||iso()}}
+function rowOrder(o){
+ var r={id:o.id,no:o.no,client_id:o.clientId,date:o.date||"",job:o.job||"",type:o.type||"",price:typeof o.price==="number"?o.price:null,status:o.status,stage:o.stage||"Received",notes:o.notes||""};
+ if(o.pl!==false){r.photos=o.photos||[];r.videos=o.videos||[]}          /* photos are loaded on demand — never overwrite what we haven't read */
+ return r;
+}
+function rowsOf(){
+ var R={clients:{},orders:{},messages:{},quotes:{}};
+ db.users.forEach(function(u){if(u.role==="client")R.clients[u.id]=rowClient(u)});
+ db.orders.forEach(function(o){
+  R.orders[o.id]=rowOrder(o);
+  (o.messages||[]).forEach(function(m){if(!m.id)m.id=uid();R.messages[m.id]={id:m.id,order_id:o.id,from_role:m.from,name:m.name||"",text:m.text||"",at:m.at||Date.now()}});
+ });
+ db.quotes.forEach(function(q){R.quotes[q.id]={id:q.id,client_id:q.clientId,service:q.service||"",qty:String(q.qty==null?"":q.qty),needed:q.needed||"",details:q.details||"",files:q.files||[],status:q.status||"New",at:q.at||Date.now(),date:q.date||iso()}});
+ return R;
+}
+function takeSnap(){var R=rowsOf();snap={clients:{},orders:{},messages:{},quotes:{}};Object.keys(R).forEach(function(t){Object.keys(R[t]).forEach(function(id){snap[t][id]=JSON.stringify(R[t][id])})})}
+function doSync(){
+ if(!sb||!me)return Promise.resolve();
+ var admin=isAdmin(),R=rowsOf(),T=["clients","orders","messages","quotes"],p=Promise.resolve();
+ T.forEach(function(t){
+  if(!admin&&t!=="messages"&&t!=="quotes")return;
+  var add=[],chg=[];
+  Object.keys(R[t]).forEach(function(id){var s=JSON.stringify(R[t][id]);if(!(id in snap[t]))add.push(R[t][id]);else if(admin&&snap[t][id]!==s)chg.push(R[t][id])});
+  chunks(add,200).forEach(function(c){p=p.then(function(){return sb.from(t).insert(c)}).then(chk).then(function(){c.forEach(function(r){snap[t][r.id]=JSON.stringify(r)})})});
+  chunks(chg,200).forEach(function(c){p=p.then(function(){return sb.from(t).upsert(c)}).then(chk).then(function(){c.forEach(function(r){snap[t][r.id]=JSON.stringify(r)})})});
+ });
+ if(admin)["messages","quotes","orders","clients"].forEach(function(t){
+  var del=Object.keys(snap[t]).filter(function(id){return !(id in R[t])});
+  chunks(del,150).forEach(function(c){p=p.then(function(){return sb.from(t).delete().in("id",c)}).then(chk).then(function(){c.forEach(function(id){delete snap[t][id]})})});
+ });
+ return p;
+}
+function sync(){syncQ=syncQ.then(doSync).catch(function(e){console.error(e);toast("Couldn't save to the server — check your internet connection. ("+(e.message||"error")+")","err")});return syncQ}
+function save(){if(sb&&me)sync();return true}
 function commit(){dirty=true;return save()}
+function fetchAll(t,cols){
+ var out=[],from=0,step=1000;
+ function next(){return sb.from(t).select(cols||"*").order("id").range(from,from+step-1).then(function(r){chk(r);out=out.concat(r.data||[]);if((r.data||[]).length<step)return out;from+=step;return next()})}
+ return next();
+}
+function mapClient(c){return {id:c.id,role:"client",authId:c.auth_user_id||"",hash:c.auth_user_id?"1":"",name:c.name||"",email:c.email||"",phone:c.phone||"",address:c.address||"",work:c.work||"",created:c.created||iso(),cid:+c.cid||0}}
+function bootstrap(u){
+ var admin=false,mine=null;
+ return sb.rpc("is_admin").then(function(r){chk(r);admin=r.data===true;if(admin)return null;return sb.rpc("claim_client").then(function(c){chk(c);mine=Array.isArray(c.data)?c.data[0]:c.data})}).then(function(){
+  return Promise.all([fetchAll("clients"),fetchAll("orders",ORDER_COLS),fetchAll("messages"),fetchAll("quotes")]);
+ }).then(function(res){
+  db={v:3,users:res[0].map(mapClient),orders:[],quotes:[]};
+  var by={};
+  res[1].forEach(function(r){var o=mkOrder({id:r.id,no:r.no,clientId:r.client_id,date:r.date||"",job:r.job||"",type:r.type||"",price:r.price==null?null:Number(r.price),status:r.status,stage:r.stage||"Received",notes:r.notes||"",photos:[],videos:[],messages:[],pl:false});by[o.id]=o;db.orders.push(o)});
+  res[2].forEach(function(m){var o=by[m.order_id];if(o)o.messages.push({id:m.id,from:m.from_role,name:m.name||"",text:m.text,at:+m.at})});
+  db.orders.forEach(function(o){o.messages.sort(function(a,b){return a.at-b.at})});
+  res[3].forEach(function(q){db.quotes.push({id:q.id,clientId:q.client_id,service:q.service,qty:q.qty,needed:q.needed||"",details:q.details||"",files:q.files||[],status:q.status,at:+q.at,date:q.date||""})});
+  if(admin){var md=u.user_metadata||{};me={id:u.id,role:"admin",name:md.name||"Owner",email:u.email||""}}
+  else{me=db.users.filter(function(x){return x.id===mine.id})[0]||mapClient(mine);if(db.users.indexOf(me)<0)db.users.push(me)}
+  takeSnap();
+ });
+}
+function loadPhotos(o){
+ return sb.from("orders").select("photos,videos").eq("id",o.id).single().then(function(r){chk(r);o.photos=(r.data&&r.data.photos)||[];o.videos=(r.data&&r.data.videos)||[];o.pl=true;snap.orders[o.id]=JSON.stringify(rowOrder(o))});
+}
 
 /* ── the Excel summary formulas, as code ── */
 function summary(list){
@@ -493,10 +499,15 @@ function compress(file,max){
 function csv(rows){return rows.map(function(r){return r.map(function(v){v=String(v==null?"":v);return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}).join(",")}).join("\n")}
 function download(name,text,type){var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type||"text/csv"}));a.download=name;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(a.href);a.remove()},500)}
 
-/* ───────── auth ───────── */
+/* ───────── auth (Supabase Auth) ───────── */
+function loadingView(t){$("#app").innerHTML='<div style="min-height:100vh;display:grid;place-items:center;text-align:center;padding:24px"><div><span class="lgw" style="display:inline-block;background:#fff;padding:8px 14px;border-radius:8px;margin-bottom:18px"><img src="'+LOGO+'" style="height:50px" alt=""></span><h2 style="font-size:1.6rem">'+esc(t||"Loading…")+"</h2></div></div>"}
+function notConfigured(){
+ $("#app").innerHTML='<div style="max-width:640px;margin:8vh auto;padding:24px"><span class="eyebrow">One-time setup</span><h1 style="font-size:2.6rem;margin:8px 0 16px">Connect the database</h1><div class="card"><p>The portal needs its cloud database before it can be used. Open <b>BACKEND-SETUP.md</b> in your site folder and follow the 5 short steps, then paste the two values into <code class="f">assets/config.js</code>.</p></div></div>';
+}
+function fatalView(msg){
+ $("#app").innerHTML='<div style="max-width:640px;margin:8vh auto;padding:24px"><span class="eyebrow">Something went wrong</span><h1 style="font-size:2.4rem;margin:8px 0 16px">Can\'t load the portal</h1><div class="msgerr">'+esc(msg)+'</div><p class="fine">If you just set up the database, make sure you ran <b>supabase-setup.sql</b> completely. Then reload this page.</p><div class="row2" style="margin-top:16px"><button class="btn" onclick="location.reload()">Reload</button><button class="btn ghost" data-act="logout">Sign out</button></div></div>';
+}
 function authView(){
- var demo=DEMO&&db.users.some(function(u){return u.demo}),setup=/[?&]setup=1\b/.test(location.search)&&!db.users.some(function(u){return u.role==="admin"});
- if(setup){setupView();return}
  $("#app").innerHTML=
  '<div class="auth"><aside class="brandp"><div><span class="lgw"><img src="'+LOGO+'" alt="Gonzales Embroidery"></span>'+
  '<h2>Your orders,<br><em>stitch by stitch.</em></h2><p>Track every order, see sew-out previews, check what is paid or pending and request new quotes — all in one place.</p>'+
@@ -514,36 +525,42 @@ function authView(){
  '<div class="fld"><label for="su-w">What work do you do? (business / team / hobby)</label><input id="su-w" placeholder="e.g. Sports team, clothing brand, school"></div>'+
  '<div class="g2"><div class="fld"><label for="su-p">Password (min 6 characters)</label><input id="su-p" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label for="su-p2">Confirm password</label><input id="su-p2" type="password" autocomplete="new-password" required></div></div>'+
  '<div><button class="btn" type="submit">Create account</button></div></form>'+
- (demo?'<div class="demo"><b>Preview accounts</b><br>Client: <code>abc@gmail.com</code> / <code>demo123</code> (ABC · A01)<br>Owner: <code>owner@demo.com</code> / <code>demo123</code><br><button class="btn sm ghost" data-act="fill" data-e="abc@gmail.com">Try client</button> <button class="btn sm navy" data-act="fill" data-e="owner@demo.com">Try owner console</button></div>':'')+
  '<p class="fine"><a href="'+SITE+'index.html">← Back to website</a></p></section></div>';
 }
-function setupView(){
- $("#app").innerHTML='<div class="auth"><aside class="brandp"><div><span class="lgw"><img src="'+LOGO+'" alt="Gonzales Embroidery"></span><h2>Set up your<br><em>owner panel.</em></h2><p>Create the owner login for Gonzales Embroidery. You will use it to add orders, clients and sew-outs.</p></div></aside><section class="authbox"><span class="eyebrow">First-time setup</span><h1>Owner login</h1><div id="aerr"></div><form class="fm" data-form="setup"><div class="fld"><label for="ow-n">Your name</label><input id="ow-n" value="Shop Owner" required></div><div class="fld"><label for="ow-e2">Owner email</label><input id="ow-e2" type="email" autocomplete="email" required></div><div class="g2"><div class="fld"><label for="ow-p1">Password (min 6 characters)</label><input id="ow-p1" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label for="ow-p2">Confirm password</label><input id="ow-p2" type="password" autocomplete="new-password" required></div></div><div><button class="btn" type="submit">Create owner login</button></div></form><p class="fine">Saved in this browser only. Use the same browser each time and download a backup from Settings.</p></section></div>';
+function aerr(m,ok){var e=$("#aerr");if(e)e.innerHTML=m?'<div class="'+(ok?"msgok":"msgerr")+'" style="margin-bottom:14px">'+esc(m)+"</div>":""}
+function friendly(m){m=String(m||"");if(/invalid login/i.test(m))return "Incorrect email or password.";if(/not confirmed/i.test(m))return "Please confirm your email first — check your inbox for our link.";if(/rate limit|too many/i.test(m))return "Too many attempts. Please wait a minute and try again.";return m}
+function busy(f,on){$$("button[type=submit]",f).forEach(function(b){b.disabled=on})}
+function doSignin(f){
+ var e=lc($("#si-e").value),p=$("#si-p").value;busy(f,true);
+ sb.auth.signInWithPassword({email:e,password:p}).then(function(r){
+  if(r.error){busy(f,false);return aerr(friendly(r.error.message))}
+  return startSession(r.data.user);
+ }).catch(function(x){busy(f,false);aerr(x.message)});
 }
-function doSetup(){
- var p=$("#ow-p1").value;if(p.length<6)return aerr("Password must be at least 6 characters.");if(p!==$("#ow-p2").value)return aerr("Passwords do not match.");
- var u=mkUser({role:"admin",name:$("#ow-n").value.trim()||"Shop Owner",email:lc($("#ow-e2").value)});setPw(u,p);db.users.push(u);save();startSession(u);toast("Owner login created.");
-}
-function aerr(m,ok){$("#aerr").innerHTML=m?'<div class="'+(ok?"msgok":"msgerr")+'" style="margin-bottom:14px">'+esc(m)+"</div>":""}
-function doSignin(){
- var e=lc($("#si-e").value),p=$("#si-p").value,u=db.users.filter(function(x){return lc(x.email)===e})[0];
- if(!u)return aerr("No account found with that email.");
- if(!u.hash)return aerr("This email was added by our shop but not activated yet. Use “Create account” with the same email to activate it.");
- if(hashPw(p,u.salt)!==u.hash)return aerr("Incorrect password.");
- startSession(u);
-}
-function doSignup(){
+function doSignup(f){
  var n=$("#su-n").value.trim(),e=lc($("#su-e").value),ph=$("#su-ph").value.trim(),p=$("#su-p").value;
  if(p.length<6)return aerr("Password must be at least 6 characters.");
  if(p!==$("#su-p2").value)return aerr("Passwords do not match.");
- var ex=db.users.filter(function(x){return lc(x.email)===e})[0],u;
- if(ex&&ex.hash)return aerr("An account with this email already exists. Please sign in.");
- if(ex){u=ex;u.name=n||u.name;u.phone=ph||u.phone;u.address=$("#su-a").value.trim()||u.address;u.work=$("#su-w").value.trim()||u.work}
- else{u=mkUser({name:n,email:e,phone:ph,address:$("#su-a").value.trim(),work:$("#su-w").value.trim(),cid:nextCid()});db.users.push(u)}
- setPw(u,p);save();startSession(u);toast("Welcome, "+u.name.split(" ")[0]+"! Your account is active.");
+ busy(f,true);
+ sb.auth.signUp({email:e,password:p,options:{data:{name:n,phone:ph,address:$("#su-a").value.trim(),work:$("#su-w").value.trim()},emailRedirectTo:location.origin+location.pathname}}).then(function(r){
+  busy(f,false);
+  if(r.error)return aerr(friendly(r.error.message));
+  if(r.data&&r.data.session)return startSession(r.data.user).then(function(){toast("Welcome, "+n.split(" ")[0]+"! Your account is active.")});
+  aerr("Account created! We sent a confirmation link to "+e+". Open it, then come back and sign in.",true);
+ }).catch(function(x){busy(f,false);aerr(x.message)});
 }
-function startSession(u){me=u;try{ls().setItem(SKEY,u.id)}catch(e){}location.hash="";render()}
-function logout(){me=null;try{ls().removeItem(SKEY)}catch(e){}location.hash="";render()}
+function startSession(u){
+ loadingView("Loading your portal…");
+ return bootstrap(u).then(function(){location.hash="";render()}).catch(function(e){me=null;fatalView(e.message||String(e))});
+}
+function logout(){
+ var done=function(){me=null;db={v:3,users:[],orders:[],quotes:[]};snap={clients:{},orders:{},messages:{},quotes:{}};location.hash="";render()};
+ if(!sb)return done();
+ syncQ.then(function(){return sb.auth.signOut()}).then(done,done);
+}
+function showRecovery(){
+ modal('<span class="eyebrow">Password reset</span><h1 style="font-size:2.2rem;margin:6px 0 14px">Choose a new password</h1><form class="fm" data-form="recover"><div class="fld"><label>New password (min 6)</label><input id="rc-1" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label>Confirm</label><input id="rc-2" type="password" autocomplete="new-password" required></div><div><button class="btn" type="submit">Save new password</button></div></form>',true);
+}
 
 /* ───────── shell & routing ───────── */
 var NAV_C=[["overview","◉","Overview"],["orders","▤","My Orders"],["quote","✎","New Quote"],["guide","$","Prices & Turnaround"],["profile","☺","Profile"],["help","?","How to use"]];
@@ -553,7 +570,7 @@ function render(){
  if(!me){authView();return}
  var r=route(),nav=isAdmin()?NAV_A:NAV_C,newQ=db.quotes.filter(function(q){return q.status==="New"}).length,rb="";
  try{rb=sessionStorage.getItem(RKEY)}catch(e){}
- var ribbon=rb?"":'<div class="ribbon" id="rib">Data is saved in this browser only — download a backup regularly. <button data-act="rib" aria-label="Dismiss">✕</button></div>';
+ var ribbon="";
  $("#app").innerHTML=ribbon+
  '<header class="top"><a class="lg" href="'+SITE+'index.html"><img src="'+LOGO+'" alt="Gonzales Embroidery"></a><span class="role">'+(isAdmin()?"Owner console":"Client portal")+'</span><span class="sp"></span>'+
  '<div class="who"><div class="av">'+esc(initials(me.name))+'</div><span class="nm">'+esc(me.name)+(isAdmin()?"":" · "+custId(me))+'</span><button class="btn sm ghost" style="color:#fff;border-color:#444" data-act="logout">Sign out</button></div></header>'+
@@ -706,7 +723,7 @@ function vHelp(){
  FORMULAS.map(function(f){var v=f[3]?(f[4]?money(s[f[3]]):s[f[3]]):"—";return "<tr style='cursor:default'><td><b>"+esc(f[0])+"</b></td><td><code class='f'>"+esc(f[1])+"</code></td><td>"+esc(f[2])+"</td><td class='num'><b>"+v+"</b></td></tr>"}).join("")+
  '</tbody></table></div><p class="fine">Your sheet stops counting at row 580. The panel has no row limit.</p></div>';
  h+='<div class="card"><h2>Bring your Excel in</h2><ol class="how"><li>Go to <b>Import / Export</b> and choose <b>Order_Details.xlsx</b>.</li><li>The panel finds your header row (row 14) on its own, ignores the empty numbered rows, and reads Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status and Customer ID.</li><li>You see exactly what it found. Press <b>Import everything</b> to save it. Importing the same file again never creates duplicates.</li><li>The <b>Direct Invoice</b> and <b>Xoom Payment</b> sheets are skipped — they are not order lists.</li></ol></div>';
- h+='<div class="card"><h2>Keep your data safe</h2><p>Everything is stored in <b>this browser on this computer</b>. Use the same browser each time, and press <b>Settings → Download backup</b> every week. You can restore a backup on any computer.</p></div>';
+ h+='<div class="card"><h2>Your data is safe</h2><p>Everything is stored in your online database, so you can sign in from any phone or computer and see the same orders. Clients only ever see their own orders. Press <b>Settings → Download backup</b> any time for a copy.</p></div>';
  return h;
 }
 
@@ -742,10 +759,8 @@ function vQuotes(){
  return '<div class="head"><div><span class="eyebrow">Leads</span><h1>Quote Requests</h1><p>Requests sent from the client portal. Convert one into an order with a click.</p></div></div>'+(l.length?'<div class="tw"><table><thead><tr><th>Date</th><th>Client</th><th>Service</th><th class="num">Qty</th><th>Needed by</th><th>Status</th><th>Details</th></tr></thead><tbody>'+l.map(function(q){var c=user(q.clientId);return '<tr data-act="quote" data-id="'+q.id+'"><td>'+fmtD(q.date)+"</td><td><b>"+esc(c?c.name:"—")+"</b></td><td>"+esc(q.service)+'</td><td class="num">'+esc(q.qty)+"</td><td>"+fmtD(q.needed)+"</td><td>"+qbadge(q.status)+"</td><td>"+esc((q.details||"").slice(0,60))+((q.details||"").length>60?"…":"")+"</td></tr>"}).join("")+"</tbody></table></div>":'<div class="card empty"><b>No quote requests yet</b>Requests from clients will appear here.</div>');
 }
 function vSettings(){
- var demo=db.users.some(function(u){return u.demo});
- return '<div class="head"><div><span class="eyebrow">Admin</span><h1>Settings</h1></div></div><div class="grid2"><div class="card"><h3>Owner login</h3><form class="fm" data-form="owner"><div class="fld"><label>Owner email</label><input id="ow-e" type="email" value="'+esc(me.email)+'" required></div><div class="fld"><label>New password (leave blank to keep)</label><input id="ow-p" type="password" minlength="6" autocomplete="new-password"></div><div><button class="btn navy" type="submit">Save owner login</button></div></form></div>'+
- '<div class="card"><h3>Backup &amp; restore</h3><p class="cnt" style="margin-bottom:14px">Everything is stored in this browser. Download a backup every week and restore it on any other computer.</p><div class="row2"><button class="btn" data-act="backup">Download backup</button><button class="btn ghost" data-act="restore">Restore backup</button></div></div>'+
- '<div class="card"><h3>Demo data</h3><p class="cnt" style="margin-bottom:14px">'+(demo?"Sample clients ABC, XYZ and MNO with 9 test orders are loaded so you can explore. Remove them before importing your real orders.":"No demo data in this portal.")+'</p><div class="row2"><button class="btn danger" data-act="cleardemo"'+(demo?"":" disabled")+'>Remove demo data</button><button class="btn danger" data-act="wipe">Erase everything</button></div></div></div>';
+ return '<div class="head"><div><span class="eyebrow">Admin</span><h1>Settings</h1></div></div><div class="grid2"><div class="card"><h3>Owner login</h3><p class="cnt" style="margin-bottom:12px">Signed in as <b>'+esc(me.email)+'</b></p><form class="fm" data-form="pw"><div class="fld"><label>Current password</label><input id="pw0" type="password" autocomplete="current-password" required></div><div class="fld"><label>New password (min 6)</label><input id="pw1" type="password" minlength="6" autocomplete="new-password" required></div><div class="fld"><label>Confirm new password</label><input id="pw2" type="password" autocomplete="new-password" required></div><div><button class="btn navy" type="submit">Update password</button></div></form></div>'+
+ '<div class="card"><h3>Cloud database</h3><p class="cnt" style="margin-bottom:14px">All clients, orders, photos and messages are stored securely online and are available on any device where you sign in. Download a copy of everything whenever you like.</p><div class="row2"><button class="btn" data-act="backup">Download backup</button></div></div></div>';
 }
 function vImport(){
  return '<div class="head"><div><span class="eyebrow">Data</span><h1>Import / Export</h1></div></div><div class="card"><h2>Import your Excel sheet</h2><p style="max-width:80ch;margin-bottom:14px">Choose <b>Order_Details.xlsx</b> (or a .csv). The panel finds the header row by itself — the banner and summary rows above it are ignored — and reads <b>Order Number, Email, Client Name, Job/Logo Name, Date, Price, JB/LC/Cap, Order Status</b> and <b>Customer ID</b>. Empty numbered rows are skipped. You see what was found first; nothing is saved until you press <b>Import everything</b>. Importing the same file again does not create duplicates.</p><div class="row2"><button class="btn navy" data-act="pickimport">Choose files</button><span class="cnt" id="impf">No file chosen</span></div><p style="margin:14px 0 8px">Dates written as text (like 03/04/2025) are: <select class="inp" id="impd" style="display:inline-block;width:auto"><option value="mdy">Month / Day / Year (US)</option><option value="dmy">Day / Month / Year</option></select></p><div class="row2" style="margin:12px 0"><button class="btn" data-act="doimport" id="impgo" disabled>Import everything</button></div><div class="log" id="implog">Waiting for a file...</div></div>'+
@@ -755,7 +770,9 @@ function vImport(){
 /* ───────── order drawer ───────── */
 var curOrder=null;
 function openOrder(id){
- var o=order(id);if(!o)return;curOrder=id;var c=user(o.clientId)||{},adm=isAdmin();
+ var o=order(id);if(!o)return;
+ if(o.pl===false){loadPhotos(o).then(function(){openOrder(id)}).catch(function(e){toast("Couldn't load photos: "+e.message,"err")});return}
+ curOrder=id;var c=user(o.clientId)||{},adm=isAdmin();
  var h='<span class="eyebrow">Order</span><h1 style="font-size:2.6rem;margin:6px 0 4px">#'+o.no+" "+badge(o.status)+'</h1><p style="color:var(--muted)">'+esc(o.job)+(o.type?" — "+esc(o.type):"")+(adm?" · <b>"+esc(c.name||"")+"</b> ("+custId(c)+")":"")+"</p>"+
  '<div style="margin:18px 0">'+tracker(o)+'<div class="hint">'+esc(HINTS[o.stage]||"")+"</div></div>"+
  '<div class="dgrid"><div><small>Order date</small><b>'+fmtXl(o.date)+"</b></div><div><small>Type</small><b>"+esc(o.type||"—")+"</b></div><div><small>Price</small><b>"+priceTxt(o)+"</b></div><div><small>Order status</small><b>"+esc(o.status)+"</b></div>"+(adm?"<div><small>Customer ID</small><b>"+custId(c)+"</b></div>":"")+"</div>"+(o.notes?'<div class="card" style="padding:14px 18px"><small class="mono" style="color:var(--muted)">NOTES</small><br>'+esc(o.notes)+"</div>":"");
@@ -791,7 +808,7 @@ function ofClientHint(){
 }
 function clientForm(c){
  c=c||{};
- modal('<span class="eyebrow">'+(c.id?"Edit":"New")+' client</span><h1 style="font-size:2.2rem;margin:6px 0 18px">'+(c.id?esc(c.name)+" · "+custId(c):"Add client")+'</h1><form class="fm" data-form="clientform" data-id="'+(c.id||"")+'"><div class="fld"><label>Full name</label><input id="cf-n" value="'+esc(c.name||"")+'" required></div><div class="g2"><div class="fld"><label>Email</label><input id="cf-e" type="email" value="'+esc(c.email||"")+'" required></div><div class="fld"><label>Phone / WhatsApp</label><input id="cf-p" value="'+esc(c.phone||"")+'"></div></div><div class="fld"><label>Address</label><textarea id="cf-a">'+esc(c.address||"")+'</textarea></div><div class="fld"><label>Work</label><input id="cf-w" value="'+esc(c.work||"")+'"></div>'+(c.id?'<div class="fld"><label>Set a new password for this client (optional)</label><input id="cf-pw" type="password" minlength="6" autocomplete="new-password"></div>':'<p class="fine" style="margin:0">The next Customer ID ('+("A"+String(nextCid()).padStart(2,"0"))+') is assigned automatically. The client can activate their portal by choosing “Create account” with this email.</p>')+'<div class="row2"><button class="btn" type="submit">Save client</button><button type="button" class="btn ghost" data-act="close">Cancel</button></div></form>',true);
+ modal('<span class="eyebrow">'+(c.id?"Edit":"New")+' client</span><h1 style="font-size:2.2rem;margin:6px 0 18px">'+(c.id?esc(c.name)+" · "+custId(c):"Add client")+'</h1><form class="fm" data-form="clientform" data-id="'+(c.id||"")+'"><div class="fld"><label>Full name</label><input id="cf-n" value="'+esc(c.name||"")+'" required></div><div class="g2"><div class="fld"><label>Email</label><input id="cf-e" type="email" value="'+esc(c.email||"")+'" required></div><div class="fld"><label>Phone / WhatsApp</label><input id="cf-p" value="'+esc(c.phone||"")+'"></div></div><div class="fld"><label>Address</label><textarea id="cf-a">'+esc(c.address||"")+'</textarea></div><div class="fld"><label>Work</label><input id="cf-w" value="'+esc(c.work||"")+'"></div>'+(c.id?'<p class="fine" style="margin:0">This client signs in by choosing “Create account” with the same email.</p>':'<p class="fine" style="margin:0">The next Customer ID ('+("A"+String(nextCid()).padStart(2,"0"))+') is assigned automatically. The client can activate their portal by choosing “Create account” with this email.</p>')+'<div class="row2"><button class="btn" type="submit">Save client</button><button type="button" class="btn ghost" data-act="close">Cancel</button></div></form>',true);
 }
 function openClient(id){
  var c=user(id);if(!c)return;var s=clientStats(c),l=db.orders.filter(function(o){return o.clientId===id}).sort(function(a,b){return b.no-a.no}),d=new Date();
@@ -924,7 +941,7 @@ document.addEventListener("click",function(e){
  switch(a){
   case "tab":$$(".tab").forEach(function(b){b.classList.toggle("on",b===t)});$('[data-form="signin"]').hidden=t.dataset.t!=="in";$('[data-form="signup"]').hidden=t.dataset.t!=="up";aerr("");break;
   case "fill":$('[data-form="signin"]').hidden=false;$('[data-form="signup"]').hidden=true;$$(".tab").forEach(function(b,i){b.classList.toggle("on",i===0)});$("#si-e").value=t.dataset.e;$("#si-p").value="demo123";doSignin();break;
-  case "forgot":modal('<span class="eyebrow">Password help</span><h1 style="font-size:2.2rem;margin:6px 0 14px">Forgot password?</h1><p>For your security, passwords are reset by our team. Message us and we\'ll set a new one right away.</p><div class="row2" style="margin-top:18px"><a class="btn wa" target="_blank" rel="noopener" href="https://wa.me/'+WA+"?text="+encodeURIComponent("Hi, I need my client portal password reset. My email: "+($("#si-e")?$("#si-e").value:""))+'">WhatsApp</a><a class="btn navy" href="mailto:'+EMAIL+"?subject="+encodeURIComponent("Portal password reset")+'">Email us</a></div>',true);break;
+  case "forgot":modal('<span class="eyebrow">Password help</span><h1 style="font-size:2.2rem;margin:6px 0 14px">Forgot password?</h1><p style="margin-bottom:14px">Enter your email and we will send you a link to choose a new password.</p><form class="fm" data-form="forgot"><div class="fld"><label>Email</label><input id="fg-e" type="email" value="'+esc($("#si-e")?$("#si-e").value:"")+'" required></div><div><button class="btn" type="submit">Send reset link</button></div></form>',true);break;
   case "logout":logout();break;
   case "rib":try{sessionStorage.setItem(RKEY,"1")}catch(x){}var rb=$("#rib");if(rb)rb.remove();break;
   case "close":closeModal();break;
@@ -958,20 +975,17 @@ document.addEventListener("click",function(e){
   case "doimport":runImport();break;
   case "expo":download("orders.csv",csv([["Order Number","Email","Client Name","Job/Logo Name","Date","Price","JB/LC/Cap","Order Status","Customer ID"]].concat(db.orders.slice().sort(function(a,b){return a.no-b.no}).map(function(o){var c=user(o.clientId)||{};return [o.no,c.email,c.name,o.job,fmtXl(o.date),typeof o.price==="number"?o.price:"Free",o.type,o.status,custId(c)]}))));break;
   case "expc":download("clients.csv",csv([["Customer ID","Name","Email","Phone","Address","Work","Orders","Paid Revenue","Pending Revenue"]].concat(clients().map(function(c){var s=clientStats(c);return [custId(c),c.name,c.email,c.phone,c.address,c.work,s.count,s.paidRev,s.pendRev]}))));break;
-  case "backup":download("gonzales-portal-backup-"+iso()+".json",JSON.stringify(db),"application/json");break;
-  case "restore":$("#fileRestore").click();break;
-  case "cleardemo":if(confirm("Remove all demo clients and orders?")){var dm=db.users.filter(function(u){return u.demo&&u.role==="client"}).map(function(u){return u.id});db.users=db.users.filter(function(u){return !(u.demo&&u.role==="client")});db.orders=db.orders.filter(function(o){return !o.demo&&dm.indexOf(o.clientId)<0});db.quotes=db.quotes.filter(function(q){return dm.indexOf(q.clientId)<0});db.users.forEach(function(u){if(u.demo)delete u.demo});save();render();toast("Demo data removed.")}break;
-  case "wipe":if(confirm("Erase ALL portal data in this browser, including accounts?")&&confirm("Really erase everything? Download a backup first if unsure.")){var s2=ls();try{s2.removeItem(KEY);s2.removeItem(SKEY)}catch(x){}db={v:2,users:[],orders:[],quotes:[]};save();me=null;render();toast("Erased. Create a new owner login.")}break;
+  case "backup":download("gonzales-backup-"+iso()+".json",JSON.stringify(rowsOf()),"application/json");break;
  }
 });
 document.addEventListener("submit",function(e){
  var f=e.target.closest("[data-form]");if(!f)return;e.preventDefault();var k=f.getAttribute("data-form"),o=curOrder?order(curOrder):null;
- if(k==="setup")return doSetup();
- if(k==="signin")return doSignin();
- if(k==="signup")return doSignup();
- if(k==="profile"){me.name=$("#p-n").value.trim()||me.name;me.phone=$("#p-p").value.trim();me.address=$("#p-a").value.trim();me.work=$("#p-w").value.trim();save();render();toast("Profile saved.");return}
- if(k==="pw"){if(hashPw($("#pw0").value,me.salt)!==me.hash)return toast("Current password is incorrect.","err");if($("#pw1").value!==$("#pw2").value)return toast("New passwords do not match.","err");setPw(me,$("#pw1").value);save();f.reset();toast("Password updated.");return}
- if(k==="owner"){var em=lc($("#ow-e").value),np=$("#ow-p").value;if(db.users.some(function(u){return u!==me&&lc(u.email)===em}))return toast("That email is already used.","err");me.email=em;if(np){if(np.length<6)return toast("Password must be 6+ characters.","err");setPw(me,np)}save();render();toast("Owner login saved.");return}
+ if(k==="signin")return doSignin(f);
+ if(k==="signup")return doSignup(f);
+ if(k==="forgot"){sb.auth.resetPasswordForEmail(lc($("#fg-e").value),{redirectTo:location.origin+location.pathname}).then(function(r){if(r.error)return toast(friendly(r.error.message),"err");closeModal();toast("If that email has an account, a reset link is on its way.")});return}
+ if(k==="recover"){var n1=$("#rc-1").value;if(n1.length<6)return toast("Password must be 6+ characters.","err");if(n1!==$("#rc-2").value)return toast("Passwords do not match.","err");sb.auth.updateUser({password:n1}).then(function(r){if(r.error)return toast(friendly(r.error.message),"err");closeModal();toast("Password updated.")});return}
+ if(k==="profile"){var pn=$("#p-n").value.trim()||me.name,pp=$("#p-p").value.trim(),pa=$("#p-a").value.trim(),pw_=$("#p-w").value.trim();sb.rpc("update_my_profile",{p_name:pn,p_phone:pp,p_address:pa,p_work:pw_}).then(function(r){if(r.error)return toast("Couldn't save: "+r.error.message,"err");me.name=pn;me.phone=pp;me.address=pa;me.work=pw_;snap.clients[me.id]=JSON.stringify(rowClient(me));render();toast("Profile saved.")});return}
+ if(k==="pw"){if($("#pw1").value.length<6)return toast("New password must be 6+ characters.","err");if($("#pw1").value!==$("#pw2").value)return toast("New passwords do not match.","err");sb.auth.signInWithPassword({email:me.email,password:$("#pw0").value}).then(function(r){if(r.error)return toast("Current password is incorrect.","err");return sb.auth.updateUser({password:$("#pw1").value}).then(function(u){if(u.error)return toast(friendly(u.error.message),"err");f.reset();toast("Password updated.")})});return}
  if(k==="quote"){
   var c={id:uid(),clientId:me.id,service:$("#q-s").value,qty:$("#q-q").value,needed:$("#q-d").value,details:$("#q-t").value.trim(),files:quoteFiles.slice(),status:"New",at:Date.now(),date:iso()};
   db.quotes.push(c);if(!save()){db.quotes.pop();return}render();toast("Quote request submitted — we'll reply soon.");return;
@@ -1000,7 +1014,6 @@ document.addEventListener("submit",function(e){
   var cid=f.getAttribute("data-id"),em2=lc($("#cf-e").value),dup=db.users.filter(function(u){return lc(u.email)===em2&&u.id!==cid})[0];
   if(dup)return toast("Another client already uses that email.","err");
   var cc=cid?user(cid):mkUser({cid:nextCid()});cc.name=$("#cf-n").value.trim();cc.email=em2;cc.phone=$("#cf-p").value.trim();cc.address=$("#cf-a").value.trim();cc.work=$("#cf-w").value.trim();
-  var pw=cid&&$("#cf-pw")?$("#cf-pw").value:"";if(pw){if(pw.length<6)return toast("Password must be 6+ characters.","err");setPw(cc,pw)}
   if(!cid)db.users.push(cc);save();dirty=false;render();openClient(cc.id);toast("Client saved ("+custId(cc)+").");return;
  }
 });
@@ -1021,7 +1034,6 @@ document.addEventListener("change",function(e){
  if(t.id==="fileOrder"&&curOrder){var o2=order(curOrder),fs=Array.prototype.slice.call(t.files);t.value="";Promise.all(fs.map(function(f){return compress(f,1000)})).then(function(r){r.forEach(function(d){o2.photos.push(d)});if(commit())openOrder(o2.id);else{o2.photos.length-=r.length}}).catch(function(){toast("Couldn't read that image.","err")})}
  if(t.id==="fileQuote"){var fq=Array.prototype.slice.call(t.files).slice(0,3-quoteFiles.length);t.value="";Promise.all(fq.map(function(f){return compress(f,900)})).then(function(r){quoteFiles=quoteFiles.concat(r);$("#qthumbs").innerHTML=quoteFiles.map(function(p){return '<img src="'+p+'" alt="">'}).join("")})}
  if(t.id==="fileImport"&&t.files.length){readFiles(t.files);}
- if(t.id==="fileRestore"&&t.files[0]){var rd=new FileReader();rd.onload=function(){try{var d=JSON.parse(rd.result);if(d.v!==2||!d.users||!d.orders)throw 0;if(!confirm("Replace ALL current portal data with this backup?"))return;db=d;save();var mm=user(me.id);if(!mm){me=null;try{ls().removeItem(SKEY)}catch(x){}}else me=mm;render();toast("Backup restored.")}catch(x){toast("That file isn't a valid backup from this version of the portal.","err")}};rd.readAsText(t.files[0]);t.value=""}
 });
 document.addEventListener("input",function(e){
  var t=e.target,k=t.getAttribute&&t.getAttribute("data-input");
@@ -1033,11 +1045,18 @@ function qvalid(){if(!$("#q-s").value||!$("#q-q").value||!$("#q-t").value.trim()
 function qbody(){return "Hello Gonzales Embroidery,\n\nI'd like a quote.\n\nName: "+me.name+" ("+custId(me)+")\nContact: "+(me.phone||me.email)+"\nService: "+$("#q-s").value+"\nQuantity: "+$("#q-q").value+($("#q-d").value?"\nNeeded by: "+$("#q-d").value:"")+"\n\nProject details:\n"+$("#q-t").value.trim()+"\n"}
 
 /* ───────── boot ───────── */
-db=load();
-try{var sid=ls().getItem(SKEY);if(sid){var su=user(sid);if(su&&su.hash)me=su}}catch(e){}
-try{if(!ls().getItem(KEY))save()}catch(e){}
-render();
-window.__portalTest={sha256:sha256,toISO:toISO,normStat:normStat,normType:normType,parseSheet:parseSheet,summary:summary,custId:custId,get db(){return db}};
+db={v:3,users:[],orders:[],quotes:[]};
+if(!initSb()){notConfigured()}
+else{
+ loadingView();
+ sb.auth.onAuthStateChange(function(ev){if(ev==="PASSWORD_RECOVERY"){if(me)showRecovery();else recovering=true}});
+ sb.auth.getSession().then(function(r){
+  var u=r.data&&r.data.session&&r.data.session.user;
+  if(!u){render();return}
+  return bootstrap(u).then(function(){render();if(recovering){recovering=false;showRecovery()}}).catch(function(e){me=null;fatalView(e.message||String(e))});
+ });
+}
+window.__portalTest={toISO:toISO,normStat:normStat,normType:normType,parseSheet:parseSheet,summary:summary,custId:custId,get db(){return db}};
 })();
 </script>
 </body>
